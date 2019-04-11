@@ -1,0 +1,22 @@
+scout package
+=============
+
+Submodules
+----------
+
+scout.io module
+---------------
+
+.. automodule:: scout.io
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: scout
+    :members:
+    :undoc-members:
+    :show-inheritance:

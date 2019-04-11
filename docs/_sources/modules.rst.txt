@@ -1,0 +1,7 @@
+scout
+=====
+
+.. toctree::
+   :maxdepth: 4
+
+   scout

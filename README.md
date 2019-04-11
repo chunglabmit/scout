@@ -1,2 +1,4 @@
-# scout
-Multiscale hyperdimensional phentypic analysis of organoids
+# SCOUT
+
+Multiscale hyperdimensional phenotypic analysis of organoids
+

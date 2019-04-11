@@ -18,7 +18,7 @@ install:
   - conda info -a
 
   - conda env create -f environment.yml
-  - conda activate scout
+  - source activate scout
   - conda develop .
 script:
    - pytest tests

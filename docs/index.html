@@ -85,7 +85,7 @@
               <!-- Local TOC -->
               <div class="local-toc"><ul>
 <li><a class="reference internal" href="#">Welcome to SCOUT’s documentation!</a><ul>
-<li><a class="reference internal" href="#scout-io-module">SCOUT IO Module</a></li>
+<li><a class="reference internal" href="#io-module">IO Module</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -155,24 +155,144 @@
             
   <div class="section" id="module-scout.io">
 <span id="welcome-to-scout-s-documentation"></span><h1>Welcome to SCOUT’s documentation!<a class="headerlink" href="#module-scout.io" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="scout-io-module">
-<h2>SCOUT IO Module<a class="headerlink" href="#scout-io-module" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="io-module">
+<h2>IO Module<a class="headerlink" href="#io-module" title="Permalink to this headline">¶</a></h2>
 <p>IO module for reading and writing different volumetric image formats</p>
-<p>SCOUT makes use of tiff, Imaris, and Zarr file formats throughout the pipeline. This IO module is meant to
-consolidate these side-effecting IO operations into a single module.</p>
+<p>SCOUT makes use of tiff and Zarr file formats throughout the pipeline.
+This IO module is meant to consolidate these side-effecting IO operations into a single module.</p>
 <dl class="function">
-<dt id="scout.io.read_tiff">
-<code class="descclassname">scout.io.</code><code class="descname">read_tiff</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.read_tiff" title="Permalink to this definition">¶</a></dt>
-<dd><p>Loads a tiff image located at <cite>path</cite></p>
+<dt id="scout.io.imread">
+<code class="descclassname">scout.io.</code><code class="descname">imread</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.imread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads TIFF file into a numpy array in memory.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – Path to tiff file</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>- str</strong> (<em>path</em>) – Path to tif image to open</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>img</strong> – Image array</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Image array</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">image - ndarray</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.io.imread_parallel">
+<code class="descclassname">scout.io.</code><code class="descname">imread_parallel</code><span class="sig-paren">(</span><em>paths</em>, <em>nb_workers</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.imread_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads TIFF files into a numpy array in memory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>- list</strong> (<em>paths</em>) – A list of TIFF paths to read (order is preserved)</li>
+<li><strong>- int</strong> (<em>nb_workers</em>) – Number of parallel processes to use in reading</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Image data</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">data - ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.io.imsave">
+<code class="descclassname">scout.io.</code><code class="descname">imsave</code><span class="sig-paren">(</span><em>path</em>, <em>data</em>, <em>compress=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.imsave" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves numpy array as a TIFF image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>- str</strong> (<em>path</em>) – Path to tif image to create / overwrite</li>
+<li><strong>- ndarray</strong> (<em>data</em>) – Image data array</li>
+<li><strong>- int</strong> (<em>compress</em>) – Level of lossless TIFF compression (0-9)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.io.new_zarr">
+<code class="descclassname">scout.io.</code><code class="descname">new_zarr</code><span class="sig-paren">(</span><em>path</em>, <em>shape</em>, <em>chunks</em>, <em>dtype</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.new_zarr" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create new Zarr NestedDirectoryStore at <cite>path</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>- str</strong> (<em>dtype</em>) – Path to new zarr array</li>
+<li><strong>- tuple</strong> (<em>chunks</em>) – Overall shape of the zarr array</li>
+<li><strong>- tuple</strong> – Shape of each chunk for the zarr array</li>
+<li><strong>- str</strong> – Data type of for the zarr array</li>
+<li><strong>- dict</strong> (<em>kwargs</em>) – Keyword args to passs to zarr.open()</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Reference to open zarr array</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">arr - zarr Array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.io.new_zarr_like">
+<code class="descclassname">scout.io.</code><code class="descname">new_zarr_like</code><span class="sig-paren">(</span><em>path</em>, <em>arr</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.new_zarr_like" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a new zarr array like <cite>arr</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>- str</strong> (<em>path</em>) – Path to new zarr array</li>
+<li><strong>- zarr Array</strong> (<em>arr</em>) – Reference to template zarr array</li>
+<li><strong>- dict</strong> (<em>kwargs</em>) – Keyword args to passs to zarr.open()</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Reference to new zarr array</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">new_arr - zarr Array</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.io.open">
+<code class="descclassname">scout.io.</code><code class="descname">open</code><span class="sig-paren">(</span><em>path</em>, <em>nested=True</em>, <em>mode='a'</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.open" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a persistent Zarr array or NestedDirectoryStore located at <cite>path</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>- str</strong> (<em>mode</em>) – Path to Zarr array or NestedDirectoryStore</li>
+<li><strong>- bool</strong> (<em>nested</em>) – Flag to indicate if path is for flat Zarr array or NestedDirectoryStore</li>
+<li><strong>- str</strong> – Read / write permissions mode</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Reference to open Zarr array</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">arr - zarr Array</p>
+</td>
 </tr>
 </tbody>
 </table>

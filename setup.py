@@ -13,10 +13,10 @@ setup(
     long_description=long_description,
     install_requires=[
         "matplotlib",
-        "PyMaxflow",
         "scipy",
         "scikit-image",
         "zarr",
+        "numcodecs",
         "numpy",
         "h5py",
         "tqdm",

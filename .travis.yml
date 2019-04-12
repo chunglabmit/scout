@@ -21,4 +21,4 @@ install:
   - source activate scout
   - conda develop .
 script:
-   - pytest tests
+   - pytest -v tests

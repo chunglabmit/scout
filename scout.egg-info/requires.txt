@@ -1,0 +1,12 @@
+matplotlib
+scipy
+scikit-image
+zarr
+numcodecs
+numpy
+h5py
+tqdm
+scikit-learn
+pandas
+tifffile
+lapsolver

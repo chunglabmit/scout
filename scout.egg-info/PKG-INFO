@@ -1,0 +1,18 @@
+Metadata-Version: 1.1
+Name: scout
+Version: 0.1.0
+Summary: Multiscale hyperdimensional phentypic analysis of organoids
+Home-page: https://github.com/chunglabmit/scout
+Author: Kwanghun Chung Lab
+Author-email: UNKNOWN
+License: MIT
+Description: # SCOUT
+        [![Build Status](https://travis-ci.org/chunglabmit/scout.svg?branch=master)](https://travis-ci.org/chunglabmit/scout)
+        [![Docs](https://img.shields.io/badge/docs-0.1.0a-brightgreen.svg)](https://chunglabmit.github.io/scout/)
+        
+        Multiscale hyperdimensional phenotypic analysis of organoids
+        
+        
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Programming Language :: Python :: 3.6

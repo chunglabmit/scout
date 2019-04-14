@@ -24,12 +24,13 @@ setup(
         "pandas",
         "tifffile",
         "lapsolver",
-        "pytorch",
+        "pybm3d",
     ],
     author="Kwanghun Chung Lab",
     packages=["scout",
               ],
     entry_points={'console_scripts': [
+        'scout=scout.main:main'
     ]},
     url="https://github.com/chunglabmit/scout",
     license="MIT",

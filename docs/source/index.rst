@@ -13,6 +13,9 @@ Welcome to SCOUT's documentation!
 .. automodule:: scout.detection
    :members:
 
+.. automodule:: scout.score
+   :members:
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:

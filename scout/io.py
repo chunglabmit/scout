@@ -19,12 +19,12 @@ def imread(path):
 
     Parameters
     -----------
-    path - str
+    path : str
         Path to tif image to open
 
     Returns
     --------
-    image - ndarray
+    image : ndarray
         Image array
     """
     return tifffile.imread(files=path)
@@ -36,11 +36,11 @@ def imsave(path, data, compress=1):
 
     Parameters
     -----------
-    path - str
+    path : str
         Path to tif image to create / overwrite
-    data - ndarray
+    data : ndarray
         Image data array
-    compress - int
+    compress : int
         Level of lossless TIFF compression (0-9)
     """
     tifffile.imsave(file=path, data=data, compress=compress)
@@ -52,14 +52,14 @@ def imread_parallel(paths, nb_workers):
 
     Parameters
     ------------
-    paths - list
+    paths : list
         A list of TIFF paths to read (order is preserved)
-    nb_workers - int
+    nb_workers : int
         Number of parallel processes to use in reading
 
     Returns
     --------
-    data - ndarray
+    data : ndarray
         Image data
     """
     img = imread(paths[0])
@@ -74,16 +74,16 @@ def open(path, nested=True, mode='a'):
 
     Parameters
     ----------
-    path - str
+    path : str
         Path to Zarr array or NestedDirectoryStore
-    nested - bool
+    nested : bool
         Flag to indicate if path is for flat Zarr array or NestedDirectoryStore
-    mode - str
+    mode : str
         Read / write permissions mode
 
     Returns
     -------
-    arr - zarr Array
+    arr : zarr Array
         Reference to open Zarr array
     """
     if nested:
@@ -99,20 +99,20 @@ def new_zarr(path, shape, chunks, dtype, **kwargs):
 
     Parameters
     ----------
-    path - str
+    path : str
         Path to new zarr array
-    shape - tuple
+    shape : tuple
         Overall shape of the zarr array
-    chunks - tuple
+    chunks : tuple
         Shape of each chunk for the zarr array
-    dtype - str
+    dtype : str
         Data type of for the zarr array
-    kwargs - dict
+    kwargs : dict
         Keyword args to passs to zarr.open()
 
     Returns
     -------
-    arr - zarr Array
+    arr : zarr Array
         Reference to open zarr array
     """
     compressor = Blosc(cname='zstd', clevel=1, shuffle=Blosc.BITSHUFFLE)
@@ -133,16 +133,16 @@ def new_zarr_like(path, arr, **kwargs):
 
     Parameters
     ----------
-    path - str
+    path : str
         Path to new zarr array
-    arr - zarr Array
+    arr : zarr Array
         Reference to template zarr array
-    kwargs - dict
+    kwargs : dict
         Keyword args to passs to zarr.open()
 
     Returns
     -------
-    new_arr - zarr Array
+    new_arr : zarr Array
         Reference to new zarr array
     """
     return new_zarr(path, arr.shape, arr.chunks, arr.dtype, **kwargs)

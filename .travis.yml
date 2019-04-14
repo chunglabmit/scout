@@ -17,8 +17,14 @@ install:
   # Useful for debugging any issues with conda
   - conda info -a
 
+  # Install PyBM3D dependencies
+  - sudo apt-get install libpng-dev
+  - sudo apt-get install libjpeg-dev
+  - sudo apt-get install libtiff-dev
+  - sudo apt-get install libfftw3-dev
+
   - conda env create -f environment.yml
   - source activate scout
   - conda develop .
 script:
-   - pytest -v tests
+   - pytest -s -v tests

@@ -1,0 +1,3 @@
+[console_scripts]
+scout = scout.main:main
+

@@ -2,7 +2,11 @@
 Utils Module
 ==============
 
-This module ...
+This module contains utility functions that are commonly used throughout SCOUT.
+
+In particular, this module contains map-reduce style utility functions for processing
+large chunk-compressed arrays in parallel.
+
 """
 
 import contextlib
@@ -146,6 +150,18 @@ def extract_ghosted_chunk(arr, start_coord, chunks, overlap):
                                     np.array([e + overlap for e in end_coord]))
     ghosted_chunk = extract_box(arr, start_coord_ghosted, stop_coord_ghosted)
     return ghosted_chunk, start_coord_ghosted, stop_coord_ghosted
+
+
+def filter_points_in_box(coords, start, stop, return_idx=False):
+    interior_z = np.logical_and(coords[:, 0] >= start[0], coords[:, 0] < stop[0])
+    interior_y = np.logical_and(coords[:, 1] >= start[1], coords[:, 1] < stop[1])
+    interior_x = np.logical_and(coords[:, 2] >= start[2], coords[:, 2] < stop[2])
+    interior = np.logical_and(np.logical_and(interior_z, interior_y), interior_x)
+    loc = np.where(interior)
+    if return_idx:
+        return coords[loc], loc[0]
+    else:
+        return coords[loc]
 
 
 def filter_ghosted_points(start_ghosted, start_coord, centers_local, chunks, overlap):
@@ -325,3 +341,7 @@ class SharedMemory:
             memory = np.frombuffer(self.mmap, self.shape, self.dtype)
             yield memory
             del memory
+
+
+def verbose_print(args, msg):
+    print(msg) if args.verbose else None

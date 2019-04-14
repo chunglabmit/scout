@@ -1,0 +1,17 @@
+README.md
+setup.py
+scout/__init__.py
+scout/curvature.py
+scout/detection.py
+scout/io.py
+scout/main.py
+scout/preprocess.py
+scout/score.py
+scout/synthetic.py
+scout/utils.py
+scout.egg-info/PKG-INFO
+scout.egg-info/SOURCES.txt
+scout.egg-info/dependency_links.txt
+scout.egg-info/entry_points.txt
+scout.egg-info/requires.txt
+scout.egg-info/top_level.txt

@@ -170,10 +170,13 @@ dependencies:
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.3.7=h0b5b093_0
   - pip:
+    - cython==0.29.6
     - lapsolver==1.0.2
     - pockets==0.7.2
+    - pybm3d==0.2.1
+    - pymaxflow==1.2.11
     - sphinx-rtd-theme==0.4.3
     - sphinxcontrib-napoleon==0.7
     - tifffile==2019.3.18
-prefix: /home/jswaney/anaconda3/envs/scout
+prefix: /home/justin/anaconda3/envs/scout
 

@@ -5,7 +5,6 @@ Niche Module
 This module performs neighborhood analysis.
 
 These include the following subcommands:
-    - fit : fit k-d tree to nuclei centroids
     - radial : compute radial profiles of each cell-type
     - proximity : compute average proximity to each cell-type
 
@@ -97,23 +96,23 @@ def proximity(centroids, celltypes, k, radius):
 # Define command-line functionality
 
 
-def fit_main(args):
-    verbose_print(args, f'Building k-d tree for {args.centroids}')
-
-    centroids = np.load(args.centroids)
-    nbrs = fit_neighbors(centroids)
-    dump(nbrs, args.neighbors, compress=args.c)
-
-    verbose_print(args, f'k-d tree saved to {args.output}')
-
-
-def fit_cli(subparsers):
-    fit_parser = subparsers.add_parser('fit', help="Fit k-d tree to nuclei centroids",
-                                       description='Builds k-d tree of nuclei centroids for neighbors calculations')
-    fit_parser.add_argument('centroids', help="Path to input nuclei centroids numpy array")
-    fit_parser.add_argument('neighbors', help="Path to output pickled k-d tree object")
-    fit_parser.add_argument('-c', help="Compression level for saving model", type=int, default=3)
-    fit_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+# def fit_main(args):
+#     verbose_print(args, f'Building k-d tree for {args.centroids}')
+#
+#     centroids = np.load(args.centroids)
+#     nbrs = fit_neighbors(centroids)
+#     dump(nbrs, args.neighbors, compress=args.c)
+#
+#     verbose_print(args, f'k-d tree saved to {args.output}')
+#
+#
+# def fit_cli(subparsers):
+#     fit_parser = subparsers.add_parser('fit', help="Fit k-d tree to nuclei centroids",
+#                                        description='Builds k-d tree of nuclei centroids for neighbors calculations')
+#     fit_parser.add_argument('centroids', help="Path to input nuclei centroids numpy array")
+#     fit_parser.add_argument('neighbors', help="Path to output pickled k-d tree object")
+#     fit_parser.add_argument('-c', help="Compression level for saving model", type=int, default=3)
+#     fit_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def radial_main(args):
@@ -126,7 +125,7 @@ def radial_main(args):
     # May want to add subsampling here...
 
     # Find neighbors within a given radius
-    nbrs = load(args.neighbors)
+    nbrs = fit_neighbors(centroids)
     distances, indices = query_radius(nbrs, centroids, args.r)
 
     # Compute profiles for each cell-type
@@ -194,8 +193,17 @@ def proximity_cli(subparsers):
     proximity_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
+import matplotlib.pyplot as plt
+
+
 def cluster_main(args):
-    print(args)
+    verbose_print(args, f'Clustering cells into niches based on {args.proximity}')
+
+    proximities = np.load(args.proximity)
+
+    plt.hist2d(proximities[:, 0], proximities[:, 1], bins=128)
+    plt.show()
+
 
 
 def cluster_cli(subparsers):
@@ -209,7 +217,7 @@ def cluster_cli(subparsers):
 
 def niche_main(args):
     commands_dict = {
-        'fit': fit_main,
+        # 'fit': fit_main,
         'radial': radial_main,
         'proximity': proximity_main,
         'cluster': cluster_main,
@@ -226,7 +234,7 @@ def niche_cli(subparsers):
     niche_parser = subparsers.add_parser('niche', help="niche analysis",
                                          description='Organoid niche analysis tool')
     niche_subparsers = niche_parser.add_subparsers(dest='niche_command', title='niche subcommands')
-    fit_cli(niche_subparsers)
+    # fit_cli(niche_subparsers)
     radial_cli(niche_subparsers)
     proximity_cli(niche_subparsers)
     cluster_cli(niche_subparsers)

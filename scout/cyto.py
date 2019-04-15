@@ -22,3 +22,21 @@ def cyto_cli(subparsers):
 def cyto_main(args):
     print('Running cyto main')
     print(args)
+
+
+"""
+
+CYTOARCHITECTURE
+-----------------
+compute-normals
+    ventricle seg -> mesh
+sample-normals
+    mesh -> subset of normals
+compute-profiles
+    subset of normal + centroids + cell-type labels -> profiles
+cluster-profiles
+    profiles -> tSNE + cytoarchitecture labels
+classify-niches
+    profiles + subset of cytoarchitecture labels -> train logistic model -> model weights + all normal labels
+
+"""

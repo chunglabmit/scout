@@ -88,7 +88,11 @@
 <li><a class="reference internal" href="#io-module">IO Module</a></li>
 <li><a class="reference internal" href="#utils-module">Utils Module</a></li>
 <li><a class="reference internal" href="#preprocess-module">Preprocess Module</a></li>
+<li><a class="reference internal" href="#curvature-module">Curvature Module</a></li>
 <li><a class="reference internal" href="#detection-module">Detection Module</a></li>
+<li><a class="reference internal" href="#nuclei-module">Nuclei Module</a></li>
+<li><a class="reference internal" href="#niche-module">Niche Module</a></li>
+<li><a class="reference internal" href="#score-module">Score Module</a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
@@ -171,11 +175,11 @@ This IO module is meant to consolidate these side-effecting IO operations into a
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>- str</strong> (<em>path</em>) – Path to tif image to open</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – Path to tif image to open</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Image array</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>image</strong> – Image array</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">image - ndarray</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray</td>
 </tr>
 </tbody>
 </table>
@@ -190,15 +194,15 @@ This IO module is meant to consolidate these side-effecting IO operations into a
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- list</strong> (<em>paths</em>) – A list of TIFF paths to read (order is preserved)</li>
-<li><strong>- int</strong> (<em>nb_workers</em>) – Number of parallel processes to use in reading</li>
+<li><strong>paths</strong> (<em>list</em>) – A list of TIFF paths to read (order is preserved)</li>
+<li><strong>nb_workers</strong> (<em>int</em>) – Number of parallel processes to use in reading</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Image data</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>data</strong> – Image data</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">data - ndarray</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
 </td>
 </tr>
 </tbody>
@@ -214,9 +218,9 @@ This IO module is meant to consolidate these side-effecting IO operations into a
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>- str</strong> (<em>path</em>) – Path to tif image to create / overwrite</li>
-<li><strong>- ndarray</strong> (<em>data</em>) – Image data array</li>
-<li><strong>- int</strong> (<em>compress</em>) – Level of lossless TIFF compression (0-9)</li>
+<li><strong>path</strong> (<em>str</em>) – Path to tif image to create / overwrite</li>
+<li><strong>data</strong> (<em>ndarray</em>) – Image data array</li>
+<li><strong>compress</strong> (<em>int</em>) – Level of lossless TIFF compression (0-9)</li>
 </ul>
 </td>
 </tr>
@@ -233,18 +237,18 @@ This IO module is meant to consolidate these side-effecting IO operations into a
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- str</strong> (<em>dtype</em>) – Path to new zarr array</li>
-<li><strong>- tuple</strong> (<em>chunks</em>) – Overall shape of the zarr array</li>
-<li><strong>- tuple</strong> – Shape of each chunk for the zarr array</li>
-<li><strong>- str</strong> – Data type of for the zarr array</li>
-<li><strong>- dict</strong> (<em>kwargs</em>) – Keyword args to passs to zarr.open()</li>
+<li><strong>path</strong> (<em>str</em>) – Path to new zarr array</li>
+<li><strong>shape</strong> (<em>tuple</em>) – Overall shape of the zarr array</li>
+<li><strong>chunks</strong> (<em>tuple</em>) – Shape of each chunk for the zarr array</li>
+<li><strong>dtype</strong> (<em>str</em>) – Data type of for the zarr array</li>
+<li><strong>kwargs</strong> (<em>dict</em>) – Keyword args to passs to zarr.open()</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Reference to open zarr array</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>arr</strong> – Reference to open zarr array</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">arr - zarr Array</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">zarr Array</p>
 </td>
 </tr>
 </tbody>
@@ -260,16 +264,16 @@ This IO module is meant to consolidate these side-effecting IO operations into a
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- str</strong> (<em>path</em>) – Path to new zarr array</li>
-<li><strong>- zarr Array</strong> (<em>arr</em>) – Reference to template zarr array</li>
-<li><strong>- dict</strong> (<em>kwargs</em>) – Keyword args to passs to zarr.open()</li>
+<li><strong>path</strong> (<em>str</em>) – Path to new zarr array</li>
+<li><strong>arr</strong> (<em>zarr Array</em>) – Reference to template zarr array</li>
+<li><strong>kwargs</strong> (<em>dict</em>) – Keyword args to passs to zarr.open()</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Reference to new zarr array</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>new_arr</strong> – Reference to new zarr array</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">new_arr - zarr Array</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">zarr Array</p>
 </td>
 </tr>
 </tbody>
@@ -285,16 +289,16 @@ This IO module is meant to consolidate these side-effecting IO operations into a
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- str</strong> (<em>mode</em>) – Path to Zarr array or NestedDirectoryStore</li>
-<li><strong>- bool</strong> (<em>nested</em>) – Flag to indicate if path is for flat Zarr array or NestedDirectoryStore</li>
-<li><strong>- str</strong> – Read / write permissions mode</li>
+<li><strong>path</strong> (<em>str</em>) – Path to Zarr array or NestedDirectoryStore</li>
+<li><strong>nested</strong> (<em>bool</em>) – Flag to indicate if path is for flat Zarr array or NestedDirectoryStore</li>
+<li><strong>mode</strong> (<em>str</em>) – Read / write permissions mode</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">Reference to open Zarr array</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>arr</strong> – Reference to open Zarr array</p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">arr - zarr Array</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">zarr Array</p>
 </td>
 </tr>
 </tbody>
@@ -304,8 +308,9 @@ This IO module is meant to consolidate these side-effecting IO operations into a
 </div>
 <span class="target" id="module-scout.utils"></span><div class="section" id="utils-module">
 <h2>Utils Module<a class="headerlink" href="#utils-module" title="Permalink to this headline">¶</a></h2>
-<p>This module contains utility functions that are commonly used throughout SCOUT. In particular, this module
-contains map-reduce style utility functions for processing large chunk-compressed arrays in parallel.</p>
+<p>This module contains utility functions that are commonly used throughout SCOUT.</p>
+<p>In particular, this module contains map-reduce style utility functions for processing
+large chunk-compressed arrays in parallel.</p>
 <dl class="class">
 <dt id="scout.utils.SharedMemory">
 <em class="property">class </em><code class="descclassname">scout.utils.</code><code class="descname">SharedMemory</code><span class="sig-paren">(</span><em>shape</em>, <em>dtype</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.SharedMemory" title="Permalink to this definition">¶</a></dt>
@@ -504,7 +509,134 @@ Note that this requires input tuple unpacking manually inside of <cite>f</cite>.
 </div>
 <span class="target" id="module-scout.preprocess"></span><div class="section" id="preprocess-module">
 <h2>Preprocess Module<a class="headerlink" href="#preprocess-module" title="Permalink to this headline">¶</a></h2>
-<p>This module …</p>
+<p>This module contains functions for image preprocessing before the main analysis.
+These functions include gaussian smoothing, histogram equalization, and background elimination.</p>
+<p>The <cite>scout preprocess</cite> command can be used to apply these functions as well as convert to a Zarr array.</p>
+<dl class="function">
+<dt id="scout.preprocess.clahe">
+<code class="descclassname">scout.preprocess.</code><code class="descname">clahe</code><span class="sig-paren">(</span><em>image</em>, <em>kernel_size</em>, <em>clip_limit=0.01</em>, <em>nbins=256</em>, <em>nb_workers=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.clahe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Apply CLAHE to each z-slice in <cite>image</cite></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>ndarray</em>) – input image</li>
+<li><strong>kernel_size</strong> (<em>int</em><em> or </em><em>list-like</em>) – shape of the contextual regions</li>
+<li><strong>clip_limit</strong> (<em>float</em><em>, </em><em>optional</em>) – limit for number of clipping pixels</li>
+<li><strong>nbins</strong> (<em>int</em><em>, </em><em>optional</em>) – number of gray bins for histograms</li>
+<li><strong>nb_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – number of workers to use. Default, cpu_count</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>equalized</strong> – output image</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.preprocess.denoise">
+<code class="descclassname">scout.preprocess.</code><code class="descname">denoise</code><span class="sig-paren">(</span><em>image</em>, <em>sigma</em>, <em>patch_size=0</em>, <em>nb_workers=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.denoise" title="Permalink to this definition">¶</a></dt>
+<dd><p>Denoise input <cite>image</cite> slice-by-slice with BM3D collaborative filtering</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>ndarray</em>) – Input 3D image</li>
+<li><strong>sigma</strong> (<em>float</em>) – Noise standard deviation</li>
+<li><strong>patch_size</strong> (<em>int</em>) – Patches to use in filtering. Default behavior, 0.</li>
+<li><strong>nb_workers</strong> (<em>int</em>) – Number of parallel processes to use. Default, cpu_count()</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – Denoised 3D image</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.preprocess.denoise2d">
+<code class="descclassname">scout.preprocess.</code><code class="descname">denoise2d</code><span class="sig-paren">(</span><em>image</em>, <em>sigma</em>, <em>patch_size=0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.denoise2d" title="Permalink to this definition">¶</a></dt>
+<dd><p>Denoise input <cite>image</cite> using BM3D collaborative filtering</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>ndarray</em>) – Input 2D image</li>
+<li><strong>sigma</strong> (<em>float</em>) – Noise standard deviation</li>
+<li><strong>patch_size</strong> (<em>int</em>) – Size of patches to use in filtering. Default behavior, 0.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – Denoised 2D image</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.preprocess.gaussian_blur">
+<code class="descclassname">scout.preprocess.</code><code class="descname">gaussian_blur</code><span class="sig-paren">(</span><em>image</em>, <em>sigma</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.gaussian_blur" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooth input <cite>image</cite> by gaussian blurring with <cite>sigma</cite> kernel.</p>
+<p>This function does not normalize the image before applying the gaussian blurring.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>ndarray</em>) – Input image</li>
+<li><strong>sigma</strong> (<em>int</em><em>, </em><em>tuple</em>) – Blurring amount for each axis</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>blurred</strong> – Smoothed image</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.preprocess.gaussian_blur_parallel">
+<code class="descclassname">scout.preprocess.</code><code class="descname">gaussian_blur_parallel</code><span class="sig-paren">(</span><em>arr</em>, <em>sigma</em>, <em>output</em>, <em>chunks</em>, <em>overlap</em>, <em>nb_workers=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.gaussian_blur_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Smooths a chunked Zarr array with parallel processing.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>arr</strong> (<em>Zarr Array</em>) – </li>
+<li><strong>sigma</strong> (<em>int</em><em>, </em><em>tuple</em>) – </li>
+<li><strong>output</strong> (<em>Zarr Array</em>) – </li>
+<li><strong>chunks</strong> (<em>tuple</em>) – </li>
+<li><strong>overlap</strong> (<em>int</em>) – </li>
+<li><strong>nb_workers</strong> (<em>int</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="function">
 <dt id="scout.preprocess.remove_background">
 <code class="descclassname">scout.preprocess.</code><code class="descname">remove_background</code><span class="sig-paren">(</span><em>image</em>, <em>threshold</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.remove_background" title="Permalink to this definition">¶</a></dt>
@@ -530,13 +662,252 @@ Note that this requires input tuple unpacking manually inside of <cite>f</cite>.
 </dd></dl>
 
 </div>
+<span class="target" id="module-scout.curvature"></span><div class="section" id="curvature-module">
+<h2>Curvature Module<a class="headerlink" href="#curvature-module" title="Permalink to this headline">¶</a></h2>
+<p>This module implements a GPU-accelerated and CPU-only principal curvature calculations.</p>
+<p>These routines are needed for curvature-based seeded watershed to segment densely-packed nuclei:
+<a class="reference external" href="https://www.mdpi.com/2313-433X/2/4/31">https://www.mdpi.com/2313-433X/2/4/31</a></p>
+<dl class="function">
+<dt id="scout.curvature.dx">
+<code class="descclassname">scout.curvature.</code><code class="descname">dx</code><span class="sig-paren">(</span><em>x</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in the X direction</p>
+<p>Note that this function does not pad the image so the output is reduced
+in size.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – Input array</li>
+<li><strong>xum</strong> (<em>float</em>) – microns per voxel in the X direction</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dx</strong> – The gradient in the X direction, reduced in size by one at each edge</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.dy">
+<code class="descclassname">scout.curvature.</code><code class="descname">dy</code><span class="sig-paren">(</span><em>x</em>, <em>yum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in the Y direction</p>
+<p>Note that this function does not pad the image so the output is reduced
+in size.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>y</strong> (<em>ndarray</em>) – Input array</li>
+<li><strong>yum</strong> (<em>float</em>) – The number of microns per voxel in the Y direction</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dy</strong> – The gradient in the Y direction, reduced in size by one at each edge</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.dz">
+<code class="descclassname">scout.curvature.</code><code class="descname">dz</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in the Z direction</p>
+<p>Note that this function does not pad the image so the output is reduced
+in size.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – Input array</li>
+<li><strong>zum</strong> (<em>float</em>) – microns per voxel in the z direction</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dz</strong> – The gradient in the Z direction, reduced in size by one at each edge</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.eigen3">
+<code class="descclassname">scout.curvature.</code><code class="descname">eigen3</code><span class="sig-paren">(</span><em>A</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.eigen3" title="Permalink to this definition">¶</a></dt>
+<dd><p>The eigenvalues of a 3x3 matrix of arrays</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>A</strong> (<em>ndarray</em>) – a 3x3 matrix of arrays, e.g. a list of lists</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>eigenvals</strong> – a 3 tuple of arrays - the eigenvalues of each 3x3 of the matrix in ascending order.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.eigvals_of_weingarten">
+<code class="descclassname">scout.curvature.</code><code class="descname">eigvals_of_weingarten</code><span class="sig-paren">(</span><em>x</em>, <em>ew_block_size=64</em>, <em>zum=1</em>, <em>yum=1</em>, <em>xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.eigvals_of_weingarten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the eigenvalues of the weingarten operator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – an NxMxP 3D array</li>
+<li><strong>ew_block_size</strong> (<em>int</em>) – the block size for the blocks to be processed. The algorithm needs approximately 128 bytes per voxel processed.</li>
+<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
+<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
+<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>eigvals</strong> – an NxMxPx3 array of the 3 eigenvalues of the weingarten operator for the space.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.gradient">
+<code class="descclassname">scout.curvature.</code><code class="descname">gradient</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1.0</em>, <em>yum=1.0</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in all three directions</p>
+<p>Note that the images returned are reduced in size by 1 - there is no padding</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – Input array</li>
+<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
+<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
+<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>grad</strong> – A tuple of the z, y, and x gradients.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.gradient_numpy">
+<code class="descclassname">scout.curvature.</code><code class="descname">gradient_numpy</code><span class="sig-paren">(</span><em>data</em>, <em>zum=1.0</em>, <em>yum=1.0</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.gradient_numpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in units of intensity / micron</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<em>ndarray</em>) – 3d numpy array</li>
+<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
+<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
+<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>grad</strong> – A 4-dimensional matrix with the last dimension being the z==0, y==1, x==2 selector of the gradient direction</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.structure_tensor">
+<code class="descclassname">scout.curvature.</code><code class="descname">structure_tensor</code><span class="sig-paren">(</span><em>dz</em>, <em>dy</em>, <em>dx</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.structure_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the structure tensor from the gradient</p>
+<p>The structure tensor is the cross product of the gradient with itself:
+dz * dz   dy * dz   dx * dz
+dz * dy   dy * dy   dx * dy
+dz * dx   dy * dx   dx * dx</p>
+<p>Note - the arrays of the structure tensor are reduced in size by 1 on
+each side to match the dimensions of the Hessian</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dz</strong> (<em>ndarray</em>) – The gradient in the Z direction</li>
+<li><strong>dy</strong> (<em>ndarray</em>) – The gradient in the Y direction</li>
+<li><strong>dx</strong> (<em>ndarray</em>) – The gradient in the X direction</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> – A 3 tuple of 3 tuples representing the structure tensor of the gradient</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.weingarten">
+<code class="descclassname">scout.curvature.</code><code class="descname">weingarten</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1</em>, <em>yum=1</em>, <em>xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.weingarten" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Weingarten shape operator on a 3D image</p>
+<p>See <a class="reference external" href="http://mathworld.wolfram.com/ShapeOperator.html">http://mathworld.wolfram.com/ShapeOperator.html</a> for instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – The 3-D image to be processed</li>
+<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
+<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
+<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>weingarten</strong> – A 3 tuple of 3 tuples representing the 3 x 3 matrix of the
+shape operator per voxel. The 3D elements of the matrix are reduced in
+size by 2 at each edge (a total of 4 voxels smaller in each dimension)
+because of the double differentiation of the Hessian.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
 <span class="target" id="module-scout.detection"></span><div class="section" id="detection-module">
 <h2>Detection Module<a class="headerlink" href="#detection-module" title="Permalink to this headline">¶</a></h2>
-<p>The detection module is responsible for 3D nuclei centroid detection, which is required for single-cell analysis.
-SCOUT’s nuclei detection is based on a curvature-based seeded watershed algorithm which was previously published:
-(<a class="reference external" href="https://www.mdpi.com/2313-433X/2/4/31">https://www.mdpi.com/2313-433X/2/4/31</a>)</p>
-<p>This module contains a GPU-accelerated implementation of this algorithm using the CUDA capabilities of Pytorch.
-The module will fall back to CPU if no CUDA-enabled device is found or if the CPU version of Pytorch is installed.</p>
+<p>The detection module is responsible for 3D nuclei centroid detection, which is required for single-cell analysis.</p>
 <dl class="function">
 <dt id="scout.detection.curvature_probability">
 <code class="descclassname">scout.detection.</code><code class="descname">curvature_probability</code><span class="sig-paren">(</span><em>eigvals</em>, <em>steepness</em>, <em>offset</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.curvature_probability" title="Permalink to this definition">¶</a></dt>
@@ -563,175 +934,34 @@ The module will fall back to CPU if no CUDA-enabled device is found or if the CP
 </dd></dl>
 
 <dl class="function">
-<dt id="scout.detection.dx">
-<code class="descclassname">scout.detection.</code><code class="descname">dx</code><span class="sig-paren">(</span><em>x</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.dx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the gradient in the X direction</p>
-<p>Note that this function does not pad the image so the output is reduced
-in size.</p>
+<dt id="scout.detection.detect_nuclei_parallel">
+<code class="descclassname">scout.detection.</code><code class="descname">detect_nuclei_parallel</code><span class="sig-paren">(</span><em>z_arr</em>, <em>sigma</em>, <em>min_intensity</em>, <em>steepness</em>, <em>offset</em>, <em>I0</em>, <em>stdev</em>, <em>prob_thresh</em>, <em>min_dist</em>, <em>chunks</em>, <em>overlap</em>, <em>nb_workers=None</em>, <em>prob_output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.detect_nuclei_parallel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect nuclei centroids from a chunked Zarr array with parallel processing</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- ndarray</strong> (<em>x</em>) – Input array</li>
-<li><strong>- float</strong> (<em>xum</em>) – microns per voxel in the X direction</li>
+<li><strong>z_arr</strong> (<em>Zarr Array</em>) – Input chunked Zarr array</li>
+<li><strong>sigma</strong> (<em>int</em><em>, </em><em>tuple</em>) – Amount of blurring</li>
+<li><strong>min_intensity</strong> (<em>float</em>) – Minimum intensity allowed for centroid</li>
+<li><strong>steepness</strong> (<em>float</em>) – Sensitivity of the curvature-based probability map</li>
+<li><strong>offset</strong> (<em>float</em>) – Bias of the curvature-based probability map</li>
+<li><strong>I0</strong> (<em>float</em>) – Reference intensity for image intensity prior. Can typically be set using Otsu’s method.</li>
+<li><strong>stdev</strong> (<em>float</em>) – Sensitivity for the image intensity prior. Can typically be set to the standard deviation of the image.</li>
+<li><strong>prob_thresh</strong> (<em>float</em>) – Minimum probability allowed for centroid</li>
+<li><strong>min_dist</strong> (<em>int</em>) – Minimum distance allowed between detected centroids</li>
+<li><strong>chunks</strong> (<em>tuple</em>) – Chunk size to process in parallel. This must match z_arr.chunks if using GPU curvature computations.</li>
+<li><strong>overlap</strong> (<em>int</em>) – Amount of overlap between adjacent chunks</li>
+<li><strong>nb_workers</strong> (<em>int</em>) – Number of parallel processes to use</li>
+<li><strong>prob_output</strong> (<em>Zarr Array</em>) – Output array for intermediate probability map used for centroid detection</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The gradient in the X direction, reduced in size by one at each edge</p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>centers</strong></p>
 </td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dx - ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.detection.dy">
-<code class="descclassname">scout.detection.</code><code class="descname">dy</code><span class="sig-paren">(</span><em>x</em>, <em>yum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.dy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the gradient in the Y direction</p>
-<p>Note that this function does not pad the image so the output is reduced
-in size.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- ndarray</strong> (<em>y</em>) – Input array</li>
-<li><strong>- float</strong> (<em>yum</em>) – The number of microns per voxel in the Y direction</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The gradient in the Y direction, reduced in size by one at each edge</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dy - ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.detection.dz">
-<code class="descclassname">scout.detection.</code><code class="descname">dz</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.dz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the gradient in the Z direction</p>
-<p>Note that this function does not pad the image so the output is reduced
-in size.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- ndarray</strong> (<em>x</em>) – Input array</li>
-<li><strong>- float</strong> (<em>zum</em>) – microns per voxel in the z direction</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">The gradient in the Z direction, reduced in size by one at each edge</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">dz - ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.detection.eigen3">
-<code class="descclassname">scout.detection.</code><code class="descname">eigen3</code><span class="sig-paren">(</span><em>A</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.eigen3" title="Permalink to this definition">¶</a></dt>
-<dd><p>The eigenvalues of a 3x3 matrix of arrays</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>- ndarray</strong> (<em>A</em>) – a 3x3 matrix of arrays, e.g. a list of lists</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a 3 tuple of arrays - the eigenvalues of each 3x3 of the matrix in ascending order.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">eigenvals - tuple</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.detection.eigvals_of_weingarten">
-<code class="descclassname">scout.detection.</code><code class="descname">eigvals_of_weingarten</code><span class="sig-paren">(</span><em>x</em>, <em>ew_block_size=64</em>, <em>zum=1</em>, <em>yum=1</em>, <em>xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.eigvals_of_weingarten" title="Permalink to this definition">¶</a></dt>
-<dd><p>Find the eigenvalues of the weingarten operator</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- ndarray</strong> (<em>x</em>) – an NxMxP 3D array</li>
-<li><strong>- int</strong> (<em>ew_block_size</em>) – the block size for the blocks to be processed. The algorithm needs approximately 128 bytes per voxel processed.</li>
-<li><strong>- float</strong> (<em>xum</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
-<li><strong>- float</strong> – size of a voxel in the y direction - defaults to 1.0 micron</li>
-<li><strong>- float</strong> – size of a voxel in the x direction - defaults to 1.0 micron</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">an NxMxPx3 array of the 3 eigenvalues of the weingarten operator for the space.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">eigvals - ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.detection.gradient">
-<code class="descclassname">scout.detection.</code><code class="descname">gradient</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1.0</em>, <em>yum=1.0</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.gradient" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the gradient in all three directions</p>
-<p>Note that the images returned are reduced in size by 1 - there is no padding</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- ndarray</strong> (<em>x</em>) – Input array</li>
-<li><strong>- float</strong> (<em>xum</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
-<li><strong>- float</strong> – size of a voxel in the y direction - defaults to 1.0 micron</li>
-<li><strong>- float</strong> – size of a voxel in the x direction - defaults to 1.0 micron</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A tuple of the z, y, and x gradients.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">grad - tuple</p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.detection.gradient_numpy">
-<code class="descclassname">scout.detection.</code><code class="descname">gradient_numpy</code><span class="sig-paren">(</span><em>data</em>, <em>zum=1.0</em>, <em>yum=1.0</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.gradient_numpy" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the gradient in units of intensity / micron</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- ndarray</strong> (<em>data</em>) – 3d numpy array</li>
-<li><strong>- float</strong> (<em>xum</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
-<li><strong>- float</strong> – size of a voxel in the y direction - defaults to 1.0 micron</li>
-<li><strong>- float</strong> – size of a voxel in the x direction - defaults to 1.0 micron</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A 4-dimensional matrix with the last dimension being the z==0, y==1, x==2 selector of the gradient direction</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">grad - ndarray</p>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
 </td>
 </tr>
 </tbody>
@@ -764,10 +994,34 @@ in size.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="scout.detection.nuclei_centers_probability">
+<code class="descclassname">scout.detection.</code><code class="descname">nuclei_centers_probability</code><span class="sig-paren">(</span><em>prob</em>, <em>threshold</em>, <em>min_dist</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.nuclei_centers_probability" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find nuclei centroids with a minimum probability at least <cite>min_dist</cite> apart</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>prob</strong> (<em>ndarray</em>) – Input probability image</li>
+<li><strong>threshold</strong> (<em>float</em>) – Minimum probability allowed for a centroid</li>
+<li><strong>min_dist</strong> (<em>int</em>) – Minimum pixel distance allowed between detected centroids</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – Coordinates of detected centroids</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="scout.detection.nucleus_probability">
 <code class="descclassname">scout.detection.</code><code class="descname">nucleus_probability</code><span class="sig-paren">(</span><em>image</em>, <em>sigma</em>, <em>steepness=500</em>, <em>offset=0.0005</em>, <em>I0=None</em>, <em>stdev=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.nucleus_probability" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the nucleus probability map using logistic regression over
-curvature eigenvalues</p>
+<dd><p>Calculate the nucleus probability map using logistic regression over curvature eigenvalues</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -790,69 +1044,68 @@ curvature eigenvalues</p>
 </table>
 </dd></dl>
 
+</div>
+<span class="target" id="module-scout.nuclei"></span><div class="section" id="nuclei-module">
+<h2>Nuclei Module<a class="headerlink" href="#nuclei-module" title="Permalink to this headline">¶</a></h2>
+<p>This module performs nuclei detection, segmentation, and cytometry.</p>
+<dl class="docutils">
+<dt>These include the following subcommands:</dt>
+<dd><ul class="first last simple">
+<li>detect : detect all nuclei in image</li>
+<li>segment : segment all detected nuclei</li>
+<li>fluorescence : measure fluorescence for each cell</li>
+<li>gate : assign cell-type labels by fluorescence thresholding</li>
+<li>morphology : compute morphological features of segmented nuclei</li>
+</ul>
+</dd>
+</dl>
 <dl class="function">
-<dt id="scout.detection.structure_tensor">
-<code class="descclassname">scout.detection.</code><code class="descname">structure_tensor</code><span class="sig-paren">(</span><em>dz</em>, <em>dy</em>, <em>dx</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.structure_tensor" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct the structure tensor from the gradient</p>
-<p>The structure tensor is the cross product of the gradient with itself:
-dz * dz   dy * dz   dx * dz
-dz * dy   dy * dy   dx * dy
-dz * dx   dy * dx   dx * dx</p>
-<p>Note - the arrays of the structure tensor are reduced in size by 1 on
-each side to match the dimensions of the Hessian</p>
+<dt id="scout.nuclei.calculate_mfi">
+<code class="descclassname">scout.nuclei.</code><code class="descname">calculate_mfi</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.nuclei.calculate_mfi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the Mean Fluorescence Intensity (MFI) for input list of nucleus-centered samples</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- ndarray</strong> (<em>dx</em>) – The gradient in the Z direction</li>
-<li><strong>- ndarray</strong> – The gradient in the Y direction</li>
-<li><strong>- ndarray</strong> – The gradient in the X direction</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input</strong> (<em>list</em>) – List of ndarrays containing image intensities near nuclei</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A 3 tuple of 3 tuples representing the structure tensor of the gradient</p>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>output</strong> – 1D array of MFIs for each nucleus</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">result - ndarray</p>
-</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="function">
-<dt id="scout.detection.weingarten">
-<code class="descclassname">scout.detection.</code><code class="descname">weingarten</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1</em>, <em>yum=1</em>, <em>xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.weingarten" title="Permalink to this definition">¶</a></dt>
-<dd><p>The Weingarten shape operator on a 3D image</p>
-<p>See <a class="reference external" href="http://mathworld.wolfram.com/ShapeOperator.html">http://mathworld.wolfram.com/ShapeOperator.html</a> for instance.</p>
+<dt id="scout.nuclei.calculate_stdev">
+<code class="descclassname">scout.nuclei.</code><code class="descname">calculate_stdev</code><span class="sig-paren">(</span><em>input</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.nuclei.calculate_stdev" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the standard deviation for input list of nucleus-centered samples</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>- ndarray</strong> (<em>x</em>) – The 3-D image to be processed</li>
-<li><strong>- float</strong> (<em>xum</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
-<li><strong>- float</strong> – size of a voxel in the y direction - defaults to 1.0 micron</li>
-<li><strong>- float</strong> – size of a voxel in the x direction - defaults to 1.0 micron</li>
-</ul>
-</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>input</strong> (<em>list</em>) – List of ndarrays containing image intensities near nuclei</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">A 3 tuple of 3 tuples representing the 3 x 3 matrix of the
-shape operator per voxel. The 3D elements of the matrix are reduced in
-size by 2 at each edge (a total of 4 voxels smaller in each dimension)
-because of the double differentiation of the Hessian.</p>
-</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>output</strong> – 1D array of standard deviations for each nucleus</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">weingarten - tuple</p>
-</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">ndarray</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 </div>
-<span class="target" id="module-scout.score"></span><p>score.py - score ground-truth vs detected</p>
+<span class="target" id="module-scout.niche"></span><div class="section" id="niche-module">
+<h2>Niche Module<a class="headerlink" href="#niche-module" title="Permalink to this headline">¶</a></h2>
+<p>This module performs cytometry and neighborhood analysis.</p>
+</div>
+<span class="target" id="module-scout.score"></span><div class="section" id="score-module">
+<h2>Score Module<a class="headerlink" href="#score-module" title="Permalink to this headline">¶</a></h2>
+<p>This module contains code for assessing the accuracy of automatic nuclei detection.</p>
+<p>The strategy is to match automatically detected nuclei centroids with human-annotated centroids using
+by solving a linear-sum assignment problem to match corresponding centroids. After matching, unmatched
+detections and human annotations are considered false positives (FP) and false negatives (FN), respectively.</p>
 <dl class="function">
 <dt id="scout.score.f_score">
 <code class="descclassname">scout.score.</code><code class="descname">f_score</code><span class="sig-paren">(</span><em>n_true_positive</em>, <em>n_false_positive</em>, <em>n_false_negative</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.f_score" title="Permalink to this definition">¶</a></dt>
@@ -1041,6 +1294,7 @@ precision, recall and f_score from those.</p>
 </table>
 </dd></dl>
 
+</div>
 <div class="toctree-wrapper compound">
 </div>
 </div>

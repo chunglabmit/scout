@@ -2,9 +2,14 @@
 Nuclei Module
 ==============
 
-This module performs nuclei detection and segmentation.
+This module performs nuclei detection, segmentation, and cytometry.
 
-The `scout nuclei` command detects and segments nuclei for building single-cell features.
+These include the following subcommands:
+    - detect : detect all nuclei in image
+    - segment : segment all detected nuclei
+    - fluorescence : measure fluorescence for each cell
+    - gate : assign cell-type labels by fluorescence thresholding
+    - morphology : compute morphological features of segmented nuclei
 
 """
 
@@ -12,15 +17,17 @@ import subprocess
 import warnings
 from functools import partial
 import multiprocessing
+import tempfile
 import numpy as np
+import pandas as pd
 from scipy import ndimage as ndi
 from skimage import morphology
 from skimage import measure
+from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
-
 import matplotlib.pyplot as plt
-
 from scout import io
+from scout.preprocess import gaussian_blur_parallel
 from scout import detection
 from scout import utils
 from scout.utils import verbose_print
@@ -74,7 +81,7 @@ def watershed_centers_parallel(prob, centers, mask, output, chunks, overlap, nb_
     utils.pmap_chunks(f, prob, chunks, nb_workers, use_imap=True)
 
 
-# MFI calculations
+# Fluorescence sampling, statistics, and gating
 
 
 def sample_intensity_cube(center, image, radius):
@@ -131,9 +138,6 @@ def calculate_stdev(input):
     return np.asarray([x.std() for x in input])
 
 
-# Set gates
-
-
 def threshold_mfi(mfi, threshold):
     positive_idx = np.where(mfi > threshold)[0]
     labels = np.zeros(mfi.shape, dtype=np.int)
@@ -141,10 +145,27 @@ def threshold_mfi(mfi, threshold):
     return labels
 
 
-# Nuclei morphology features
+# Nuclei morphological features
 
 
-# ------------------------------------------------------------------------
+def morphological_features(seg):
+    props = measure.regionprops(seg)
+    nb_labels = len(props)
+    centers = np.zeros((nb_labels, seg.ndim))
+    volumes = np.zeros(nb_labels)
+    eq_diams = np.zeros(nb_labels)
+    minor_lengths = np.zeros(nb_labels)
+    major_lengths = np.zeros(nb_labels)
+    for i, region in tqdm(enumerate(props), total=nb_labels):
+        centers[i] = region.centroid
+        volumes[i] = region.area
+        eq_diams[i] = region.equivalent_diameter
+        minor_lengths[i] = region.minor_axis_length
+        major_lengths[i] = region.major_axis_length
+    axis_ratios = major_lengths / np.clip(minor_lengths, 1, None)
+    return centers, volumes, eq_diams, minor_lengths, major_lengths, axis_ratios
+
+
 # Define command-line main functions
 
 
@@ -195,6 +216,8 @@ def segment_main(args):
     centroids = np.load(args.centroids)
     nb_centroids = centroids.shape[0]
 
+    # TODO: Move the foreground and segmentation Zarr arrays to temporary directory by default
+
     # Create watershed mask by thresholding the probability map
     prob = prob_arr[:]
     foreground = (prob > args.t).astype(np.uint8)
@@ -240,7 +263,16 @@ def fluorescence_main(args):
         verbose_print(args, f'Sampling from {path}: {shape} {dtype}')
 
         # Sample image
-        intensities = nuclei_centered_intensities(arr, centroids, args.r, mode=args.m, nb_workers=args.w)
+        if args.g is not None:
+            # Perform smoothing in a temporary array
+            verbose_print(args, f'Smoothing {path} with sigma {tuple(args.g)}')
+            with tempfile.TemporaryDirectory() as temp_path:
+                smoothed_arr = io.new_zarr(temp_path, shape, chunks, dtype)
+                gaussian_blur_parallel(arr, args.g, smoothed_arr, arr.chunks, args.o, args.w)
+                intensities = nuclei_centered_intensities(smoothed_arr, centroids, args.r, mode=args.m, nb_workers=args.w)
+            # Temporary array deleted when context ends
+        else:
+            intensities = nuclei_centered_intensities(arr, centroids, args.r, mode=args.m, nb_workers=args.w)
 
         # Compute statistics
         mfis[:, i] = calculate_mfi(intensities)
@@ -264,9 +296,10 @@ def gate_main(args):
     # Show plot
     if args.plot:
         verbose_print(args, f'Showing cytometry plot...')
+
         mfi_x, mfi_y = mfis[:, args.x], mfis[:, args.y]
 
-        plt.hist2d(mfi_x, mfi_y, bins=128)
+        plt.hist2d(mfi_x, mfi_y, bins=args.b)
         plt.plot([args.thresholds[0], args.thresholds[0]], [0, mfi_y.max()], 'r-')
         plt.plot([0, mfi_x.max()], [args.thresholds[1], args.thresholds[1]], 'r-')
         plt.xlim([0, mfi_x.max()])
@@ -280,47 +313,52 @@ def gate_main(args):
 
     # Save the result
     np.save(args.output, labels)
+    verbose_print(args, f'Gating results written to {args.output}')
+
+    verbose_print(args, f'Gating cells done!')
 
 
 def morphology_main(args):
+    verbose_print(args, f'Computing morphological features for {args.input}')
+
     # Load nuclei segmentation
     seg = io.imread(args.input).astype(np.int32)
 
     # Compute morphological features
-    props = measure.regionprops(seg)
-    nb_labels = len(props)
-    centers = np.zeros((nb_labels, seg.ndim))
-    volumes = np.zeros(nb_labels)
-    eq_diams = np.zeros(nb_labels)
-    minor_lengths = np.zeros(nb_labels)
-    major_lengths = np.zeros(nb_labels)
-    for i, region in tqdm(enumerate(props), total=nb_labels):
-        centers[i] = region.centroid
-        volumes[i] = region.area
-        eq_diams[i] = region.equivalent_diameter
-        minor_lengths[i] = region.minor_axis_length
-        major_lengths[i] = region.major_axis_length
-    axis_ratios = major_lengths / minor_lengths
+    centers, volumes, eq_diams, minor_lengths, major_lengths, axis_ratios = morphological_features(seg)
 
+    # Load the detected centroids
+    centroids = np.load(args.centroids)
+    verbose_print(args, f'Cross-referencing centroids in {args.centroids}')
 
+    # Match segmentation to nearest centroid
+    nbrs = NearestNeighbors(n_neighbors=1).fit(centers)
+    distances, indices = nbrs.kneighbors(centroids)
+    centroids_idx = indices[:, 0].astype(np.int)  # Index into segmented centers for each detected centroid
 
+    # Save CSV containing morphologies for each detected centroid
+    data = {
+        'z': centroids[:, 0],
+        'y': centroids[:, 1],
+        'x': centroids[:, 2],
+        'com_z': centers[:, 0][centroids_idx],
+        'com_y': centers[:, 1][centroids_idx],
+        'com_x': centers[:, 2][centroids_idx],
+        'com_idx': centroids_idx,
+        'volume': volumes[centroids_idx],
+        'eq_diam': eq_diams[centroids_idx],
+        'minor_length': minor_lengths[centroids_idx],
+        'major_length': major_lengths[centroids_idx],
+        'axis_ratio': axis_ratios[centroids_idx],
+    }
+    df = pd.DataFrame(data)
+    df.to_csv(args.output)
+    verbose_print(args, f'Morphological features written to {args.output}')
+
+    verbose_print(args, f'Computing morphologies done!')
 
 
 # Define command-line interfaces
-
-
-# NUCLEI
-# --------
-# detect-nuclei
-#     nuclei zarr -> probability -> centroids
-# segment-nuclei
-#     probability + centroids -> foreground mask -> nuclei segmentation
-# measure-mfis
-#     centroids + images -> sampled MFIs
-# gate-cells
-#     sampled MFIs + thresholds -> cell-type labels
-# nuclei-morphology
-#     nuclei segmentation + centroids + cell-type labels -> match seg to centroids -> nuclei morphology by niche labels
 
 
 def detect_cli(subparsers):
@@ -363,9 +401,11 @@ def fluorescence_cli(subparsers):
     fluorescence_parser.add_argument('mfi', help="Path to output MFI numpy array")
     fluorescence_parser.add_argument('stdev', help="Path to output StDev numpy array")
     fluorescence_parser.add_argument('input', help="Path to input images to sample from", nargs='+')
+    fluorescence_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=None)
     fluorescence_parser.add_argument('-m', help="Sampling mode {'cube'}", type=str, default='cube')
     fluorescence_parser.add_argument('-r', help="Sampling radius", type=int, default=1)
     fluorescence_parser.add_argument('-w', help="Number of workers for segmentation", type=int, default=None)
+    fluorescence_parser.add_argument('-o', help="Overlap in pixels between chunks for smoothing", type=int, default=4)
     fluorescence_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
@@ -376,6 +416,7 @@ def gate_cli(subparsers):
     gate_parser.add_argument('output', help="Path to output labels numpy array")
     gate_parser.add_argument('thresholds', help="MFI gates for each channel", nargs="+", type=float)
     gate_parser.add_argument('-p', '--plot', help="Flag to show plot", action='store_true')
+    gate_parser.add_argument('-b', help="Number of bins to use in historgram", type=int, default=128)
     gate_parser.add_argument('-x', help="MFI column index for x-axis", type=int, default=0)
     gate_parser.add_argument('-y', help="MFI column index for y-axis", type=int, default=1)
     gate_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
@@ -385,31 +426,27 @@ def morphology_cli(subparsers):
     morphology_parser = subparsers.add_parser('morphology', help="Measure morphological features of nuclei",
                                               description='Uses nuclei segmentation to compute morphological features')
     morphology_parser.add_argument('input', help="Path to input nuclei segmentation TIFF")
+    morphology_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
+    morphology_parser.add_argument('output', help="Path to output morphological features CSV")
     morphology_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def nuclei_cli(subparsers):
     nuclei_parser = subparsers.add_parser('nuclei', help="nuclei detection and segmentation",
                                           description='Nuclei detection and segmentation tool')
-
     nuclei_subparsers = nuclei_parser.add_subparsers(dest='nuclei_command', title='nuclei subcommands')
     detect_cli(nuclei_subparsers)
     segment_cli(nuclei_subparsers)
     fluorescence_cli(nuclei_subparsers)
     gate_cli(nuclei_subparsers)
     morphology_cli(nuclei_subparsers)
-
-    # nuclei_parser.add_argument('input', help="Path to input Zarr array")
-    # nuclei_parser.add_argument('probability', help="Path to probability map Zarr array")
-    # nuclei_parser.add_argument('foreground', help="Path to nuclei foreground Zarr array")
-    # nuclei_parser.add_argument('segmentation', help="Path to nuclei segmentation Zarr array")
-    # nuclei_parser.add_argument('output', help="Path to labeled nuclei TIFF image")
-
     return nuclei_parser
 
 
-def nuclei_main(args):
+# Main nuclei entry point
 
+
+def nuclei_main(args):
     commands_dict = {
         'detect': detect_main,
         'segment': segment_main,
@@ -417,18 +454,9 @@ def nuclei_main(args):
         'gate': gate_main,
         'morphology': morphology_main,
     }
-
     func = commands_dict.get(args.nuclei_command, None)
     if func is None:
         print("Pickle Rick uses nuclei subcommands... be like Pickle Rick\n")
         subprocess.call(['scout', 'nuclei', '-h'])
     else:
         func(args)
-
-
-
-
-    #
-    # # TODO: Compute nuclei morphologies here
-    #
-    # verbose_print(args, 'Nuclei detection and segmentation done!')

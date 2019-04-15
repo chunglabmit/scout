@@ -15,59 +15,6 @@ The following CLIs are defined:
 - scout permute (run permutation tests for features from multiple datasets -> save analysis results)
 - scout jupyter (run the scout pipeline using interactive Jupyter notebooks)
 
-PREPROCESS
------------
-preprocess
-    image -> denoised image -> zarr
-
-
-
-NICHE
-------
-fit-neighbors
-    centroids -> fit NearestNeighbors object
-sample-cells
-    centroids -> centroids subset for clustering
-cluster-niches
-    centroids + cell-type labels -> sample -> proximities + densities -> tSNE + subset niche labels -> cluster stats
-classify-niches
-    proximities + subset niche labels -> train logistic model -> model weights + all niche labels
-
-SEGMENT
---------
-segment-foreground
-    zarr -> threshold -> smoothing -> foreground segmentation
-segment-ventricles
-    nuclei zarr -> ventricle probability -> ventricle segmentation
-segment-regions
-    niche labels -> rasterized segmentation -> smoothed segmentation
-combine-segmentations
-    foreground seg + ventricle seg + region seg -> combined segmentation
-
-CYTOARCHITECTURE
------------------
-compute-normals
-    ventricle seg -> mesh
-sample-normals
-    mesh -> subset of normals
-compute-profiles
-    subset of normal + centroids + cell-type labels -> profiles
-cluster-profiles
-    profiles -> tSNE + cytoarchitecture labels
-classify-niches
-    profiles + subset of cytoarchitecture labels -> train logistic model -> model weights + all normal labels
-
-MULTISCALE
------------
-single-cell
-cytoarchitecture
-whole-organoid
-
-PERMUTE
---------
-unpaired-tests
-correlation-tests
-
 """
 
 import argparse
@@ -139,5 +86,9 @@ scout preprocess tests/example.tif tests/example.zarr -s 200 -v
 scout nuclei detect tests/example.zarr tests/prob.zarr tests/centroids.npy -v 
 scout nuclei segment tests/prob.zarr tests/centroids.npy tests/foreground.zarr tests/seg.zarr tests/nuclei_segmentation.tif -v
 scout nuclei fluorescence tests/centroids.npy tests/mfis.npy tests/stdevs.npy tests/example.zarr ... -v
+scout nuclei gate tests/mfis.npy tests/celltype_labels.npy 6500 6500 1000 -p -v
+scout nuclei morphology tests/nuclei_segmentation.tif tests/centroids.npy tests/nuclei_morphologies.csv -v
+
+scout 
 
 """

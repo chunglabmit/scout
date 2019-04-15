@@ -19,3 +19,14 @@ def permute_cli(subparsers):
 def permute_main(args):
     print('Running permute main')
     print(args)
+
+
+"""
+
+PERMUTE
+--------
+unpaired-tests
+correlation-tests
+
+"""
+

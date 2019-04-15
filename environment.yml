@@ -54,6 +54,7 @@ dependencies:
   - ipywidgets=7.4.2=py36_0
   - jedi=0.13.3=py36_0
   - jinja2=2.10=py36_0
+  - joblib=0.13.2=py36_0
   - jpeg=9b=h024ee3a_2
   - jsonschema=3.0.1=py36_0
   - jupyter=1.0.0=py36_7

@@ -10,11 +10,22 @@ Welcome to SCOUT's documentation!
 .. automodule:: scout.preprocess
    :members:
 
+.. automodule:: scout.curvature
+   :members:
+
 .. automodule:: scout.detection
+   :members:
+
+.. automodule:: scout.nuclei
+   :members:
+
+.. automodule:: scout.niche
    :members:
 
 .. automodule:: scout.score
    :members:
+
+
 
 .. toctree::
    :maxdepth: 2

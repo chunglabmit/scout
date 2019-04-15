@@ -7,7 +7,7 @@ from scout import io
 
 @pytest.fixture
 def image_path():
-    return 'tests/example.tif'
+    return 'tests/data/example.tif'
 
 
 @pytest.fixture

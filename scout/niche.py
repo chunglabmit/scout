@@ -205,7 +205,6 @@ def cluster_main(args):
     plt.show()
 
 
-
 def cluster_cli(subparsers):
     cluster_parser = subparsers.add_parser('cluster', help="Cluster cells into niches",
                                            description='Clusters cells into niches based on proximity to cell-types')

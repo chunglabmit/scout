@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 
 @pytest.fixture
 def image():
-    return io.imread('tests/example.tif')
+    return io.imread('tests/data/syto.tif')
 
 
 def test_denoise2d(image):

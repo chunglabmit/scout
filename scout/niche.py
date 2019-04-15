@@ -2,7 +2,12 @@
 Niche Module
 =============
 
-This module performs cytometry and neighborhood analysis.
+This module performs neighborhood analysis.
+
+These include the following subcommands:
+    - fit : fit k-d tree to nuclei centroids
+    - radial : compute radial profiles of each cell-type
+    - proximity : compute average proximity to each cell-type
 
 """
 
@@ -68,6 +73,27 @@ def radial_profile(pts, distances, indices, radius, bins, labels=None):
 # Calculate proximities
 
 
+def proximity(centroids, celltypes, k, radius):
+    # Find build k-d tree for each cell-type
+    centroids_list = [centroids[np.where(labels)] for labels in celltypes.T]
+    nbrs_list = [fit_neighbors(pts) for pts in centroids_list]
+
+    # Find k-neighbors for each cell-type
+    distances_list = []
+    indices_list = []
+    for i, nbrs in enumerate(nbrs_list):
+
+        distances, indices = query_neighbors(nbrs, centroids, k)
+        distances_list.append(distances)
+        indices_list.append(indices)
+
+    # Convert distances to proximity
+    ave_distances = np.asarray([distances.mean(axis=-1) for distances in distances_list]).T
+    proximities = np.asarray([1 / (1 + ave_dist / r) for (ave_dist, r) in zip(ave_distances.T, radius)]).T
+
+    return proximities
+
+
 # Define command-line functionality
 
 
@@ -106,7 +132,7 @@ def radial_main(args):
     # Compute profiles for each cell-type
     profiles = np.zeros((celltypes.shape[-1], celltypes.shape[0], args.b))
     for i, labels in enumerate(celltypes.T):
-        verbose_print(args, f'Counting cell-type {i}...')
+        verbose_print(args, f'Counting cell-type {i}')
         profiles[i] = radial_profile(centroids, distances, indices, args.r, args.b, labels)
 
     # Save results
@@ -128,10 +154,65 @@ def radial_cli(subparsers):
     radial_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
+def proximity_main(args):
+    verbose_print(args, f'Calculating proximity to each cell-type for {args.centroids}')
+
+    # Load centroids and cell-type labels
+    centroids = np.load(args.centroids)
+    celltypes = np.load(args.celltypes)
+
+    # Check for any mismatch
+    if args.r is None:
+        radius = np.ones(celltypes.shape[-1])
+        verbose_print(args, f'No reference radii specified... just using ones')
+    else:
+        radius = tuple(args.r)
+        verbose_print(args, f'Using {radius} reference radii')
+        if len(radius) != celltypes.shape[-1]:
+            raise ValueError('The number of reference radii must match the number of provided cell-types')
+
+    # May want to add subsampling here...
+
+    # Calculate proximity to each cell-type
+    proximities = proximity(centroids, celltypes, args.k, radius)
+
+    # Save the proximities
+    np.save(args.output, proximities)
+    verbose_print(args, f'Proximities saved to {args.output}')
+
+    verbose_print(args, f'Calculating proximities done!')
+
+
+def proximity_cli(subparsers):
+    proximity_parser = subparsers.add_parser('proximity', help="Calculate cell-type proxiomities",
+                                             description='Calculates proximities for each cell-type')
+    proximity_parser.add_argument('centroids', help="Path to input nuclei centroids numpy array")
+    proximity_parser.add_argument('celltypes', help="Path to input cell-type labels numpy array")
+    proximity_parser.add_argument('output', help="Path to output proximity numpy array")
+    proximity_parser.add_argument('-r', help="Reference radii for each cell-type", type=float, nargs='+', default=None)
+    proximity_parser.add_argument('-k', help="Number of neighbors in proximity", type=float, default=10)
+    proximity_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
+def cluster_main(args):
+    print(args)
+
+
+def cluster_cli(subparsers):
+    cluster_parser = subparsers.add_parser('cluster', help="Cluster cells into niches",
+                                           description='Clusters cells into niches based on proximity to cell-types')
+    cluster_parser.add_argument('proximity', help="Path to input proximity numpy array")
+    cluster_parser.add_argument('output', help="Path to output cluster labels numpy array")
+    cluster_parser.add_argument('-n', help="Number of clusters", type=int, default=4)
+    cluster_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
 def niche_main(args):
     commands_dict = {
         'fit': fit_main,
         'radial': radial_main,
+        'proximity': proximity_main,
+        'cluster': cluster_main,
     }
     func = commands_dict.get(args.niche_command, None)
     if func is None:
@@ -147,6 +228,8 @@ def niche_cli(subparsers):
     niche_subparsers = niche_parser.add_subparsers(dest='niche_command', title='niche subcommands')
     fit_cli(niche_subparsers)
     radial_cli(niche_subparsers)
+    proximity_cli(niche_subparsers)
+    cluster_cli(niche_subparsers)
     return niche_parser
 
 
@@ -154,8 +237,6 @@ def niche_cli(subparsers):
 
 NICHE
 ------
-fit-neighbors
-    centroids -> fit NearestNeighbors object
 cluster-niches
     centroids + cell-type labels -> sample -> proximities + densities -> tSNE + subset niche labels -> cluster stats
 classify-niches

@@ -10,3 +10,4 @@ scikit-learn
 pandas
 tifffile
 lapsolver
+pybm3d

@@ -26,5 +26,6 @@ install:
   - conda env create -f environment.yml
   - source activate scout
   - conda develop .
+  - pip install -e .  # Makes scout CLI available
 script:
    - pytest -s -v tests

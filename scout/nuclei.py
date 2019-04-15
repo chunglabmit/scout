@@ -15,7 +15,11 @@ import multiprocessing
 import numpy as np
 from scipy import ndimage as ndi
 from skimage import morphology
+from skimage import measure
 from tqdm import tqdm
+
+import matplotlib.pyplot as plt
+
 from scout import io
 from scout import detection
 from scout import utils
@@ -250,22 +254,55 @@ def fluorescence_main(args):
 
 
 def gate_main(args):
-    verbose_print(args, f'Gating cells based on fluorescence in {args.mfi}')
+    verbose_print(args, f'Gating cells based on fluorescence in {args.input}')
 
     # Load MFIs and check for mismatch
-    mfis = np.load(args.mfi)
+    mfis = np.load(args.input)
     if mfis.shape[-1] != len(args.thresholds):
         raise ValueError('Number of thresholds must match the number of channels in MFI array')
 
-    if args.gui:
-        verbose_print(args, f'Starting gating GUI...')
+    # Show plot
+    if args.plot:
+        verbose_print(args, f'Showing cytometry plot...')
+        mfi_x, mfi_y = mfis[:, args.x], mfis[:, args.y]
 
+        plt.hist2d(mfi_x, mfi_y, bins=128)
+        plt.plot([args.thresholds[0], args.thresholds[0]], [0, mfi_y.max()], 'r-')
+        plt.plot([0, mfi_x.max()], [args.thresholds[1], args.thresholds[1]], 'r-')
+        plt.xlim([0, mfi_x.max()])
+        plt.ylim([0, mfi_y.max()])
+        plt.xlabel(f'MFI column {args.x}')
+        plt.ylabel(f'MFI column {args.y}')
+        plt.show()
 
+    # Gate each channel
+    labels = np.asarray([threshold_mfi(mfi, t) for mfi, t in zip(mfis.T, args.thresholds)], dtype=np.uint8).T
 
+    # Save the result
+    np.save(args.output, labels)
 
 
 def morphology_main(args):
-    pass
+    # Load nuclei segmentation
+    seg = io.imread(args.input).astype(np.int32)
+
+    # Compute morphological features
+    props = measure.regionprops(seg)
+    nb_labels = len(props)
+    centers = np.zeros((nb_labels, seg.ndim))
+    volumes = np.zeros(nb_labels)
+    eq_diams = np.zeros(nb_labels)
+    minor_lengths = np.zeros(nb_labels)
+    major_lengths = np.zeros(nb_labels)
+    for i, region in tqdm(enumerate(props), total=nb_labels):
+        centers[i] = region.centroid
+        volumes[i] = region.area
+        eq_diams[i] = region.equivalent_diameter
+        minor_lengths[i] = region.minor_axis_length
+        major_lengths[i] = region.major_axis_length
+    axis_ratios = major_lengths / minor_lengths
+
+
 
 
 
@@ -335,16 +372,19 @@ def fluorescence_cli(subparsers):
 def gate_cli(subparsers):
     gate_parser = subparsers.add_parser('gate', help="Gate cells based on fluorescence",
                                         description='Sets gates and classifies cell-types based on fluorescence')
-    gate_parser.add_argument('mfi', help="Path to input MFI numpy array")
+    gate_parser.add_argument('input', help="Path to input MFI numpy array")
+    gate_parser.add_argument('output', help="Path to output labels numpy array")
     gate_parser.add_argument('thresholds', help="MFI gates for each channel", nargs="+", type=float)
-    gate_parser.add_argument('-g', '--gui', help="GUI flag", action='store_true')
+    gate_parser.add_argument('-p', '--plot', help="Flag to show plot", action='store_true')
+    gate_parser.add_argument('-x', help="MFI column index for x-axis", type=int, default=0)
+    gate_parser.add_argument('-y', help="MFI column index for y-axis", type=int, default=1)
     gate_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def morphology_cli(subparsers):
     morphology_parser = subparsers.add_parser('morphology', help="Measure morphological features of nuclei",
                                               description='Uses nuclei segmentation to compute morphological features')
-    morphology_parser.add_argument('input', help="Path to input Zarr array of nuclei probability")
+    morphology_parser.add_argument('input', help="Path to input nuclei segmentation TIFF")
     morphology_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 

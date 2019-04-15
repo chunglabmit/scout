@@ -2,11 +2,17 @@ README.md
 setup.py
 scout/__init__.py
 scout/curvature.py
+scout/cyto.py
 scout/detection.py
 scout/io.py
 scout/main.py
+scout/multiscale.py
+scout/niche.py
+scout/nuclei.py
+scout/permute.py
 scout/preprocess.py
 scout/score.py
+scout/segment.py
 scout/synthetic.py
 scout/utils.py
 scout.egg-info/PKG-INFO

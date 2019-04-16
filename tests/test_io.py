@@ -3,8 +3,8 @@ from scout import io
 
 
 def test_imread():
-    img = io.imread('tests/example.tif')
+    img = io.imread('tests/data/syto.tif')
     assert img.shape == (64, 128, 128)
     assert img.dtype == 'uint16'
-    assert img.max() == 34528
-    assert img.min() == 1214
+    assert img.max() == 4095
+    assert img.min() == 0

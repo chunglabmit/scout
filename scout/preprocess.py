@@ -168,10 +168,12 @@ def denoise2d(image, sigma, patch_size=0):
 
     """
     output = bm3d(image, sigma, patch_size=patch_size, tau_2D_hard='BIOR', tau_2D_wien='BIOR')
+    output = (output - output.min()) / (output.max() - output.min())  # Scale to [0, 1]
+    output = output * (image.max() - image.min()) + image.min()  # Scale to original range
     # Default useSD_h=True, useSD_w=True are used
     # Not sure why DCT-based filters are not working and giving severe block artifacts
     # Using bidirectional wavelets seems to be more stable
-    return output
+    return output.astype(image.dtype)
 
 
 def denoise(image, sigma, patch_size=0, nb_workers=None):

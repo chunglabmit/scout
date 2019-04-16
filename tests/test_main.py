@@ -7,7 +7,7 @@ from scout import io
 
 @pytest.fixture
 def image_path():
-    return 'tests/data/example.tif'
+    return 'tests/data/syto.tif'
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def zarr_path(tmpdir):
 
 
 def test_preprocess_threshold(image_path, image, zarr_path):
-    threshold = 5000
+    threshold = 2000
     subprocess.call(['scout', 'preprocess', image_path, zarr_path, '-t', str(threshold)])
     data = io.open(zarr_path, mode='r')[:]
     assert np.isclose(data.min(), 0)
@@ -32,9 +32,10 @@ def test_preprocess_threshold(image_path, image, zarr_path):
 
 
 def test_preprocess_denoise(image_path, image, zarr_path):
-    sigma = 200
+    sigma = 20
     subprocess.call(['scout', 'preprocess', image_path, zarr_path, '-s', str(sigma)])
     data = io.open(zarr_path, mode='r')[:]
+    print(data.max(), image.max())
     assert image.dtype == data.dtype
     assert np.isclose(data.min(), image.min(), 0.1)
     assert np.isclose(data.max(), image.max(), 0.1)

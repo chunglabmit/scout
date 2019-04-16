@@ -126,6 +126,8 @@ Niche
 
 Segment
 --------
++ downsampled nuclei Zarr
+
 
 Cyto
 -----

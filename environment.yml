@@ -173,6 +173,7 @@ dependencies:
   - pip:
     - cython==0.29.6
     - lapsolver==1.0.2
+    - multicoretsne==0.1
     - pockets==0.7.2
     - pybm3d==0.2.1
     - pymaxflow==1.2.11

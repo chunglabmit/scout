@@ -182,6 +182,25 @@ def filter_ghosted_points(start_ghosted, start_coord, centers_local, chunks, ove
     return centers_local[np.where(interior)]
 
 
+def read_voxel_size(path):
+    """Reads in the voxel size stored in `path` CSV file with voxel dimensions in nanometers
+
+    Parameters
+    -----------
+    path : str
+        Path to CSV file containing integer values of voxel dimensions in nanometers
+
+    Returns
+    -------
+    size : tuple
+        Physical voxel size in same order as in CSV
+    """
+    with open(path, mode='r') as f:
+        line = f.readline().split('\n')[0]
+    dims = line.split(',')
+    return tuple([int(d) / 1000 for d in dims])
+
+
 def pmap_chunks(f, arr, chunks=None, nb_workers=None, use_imap=False):
     """Maps a function over an array in parallel using chunks
 

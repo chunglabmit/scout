@@ -76,9 +76,9 @@ def segment_main(args):
 SEGMENT
 --------
 segment-foreground
-    zarr -> threshold -> smoothing -> foreground segmentation
+    zarr image -> threshold -> smoothing -> foreground segmentation
 segment-ventricles
-    nuclei zarr -> ventricle probability -> ventricle segmentation
+    nuclei zarr -> ventricle UNet probability -> ventricle segmentation
 segment-regions
     niche labels -> rasterized segmentation -> smoothed segmentation
 combine-segmentations

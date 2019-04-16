@@ -36,7 +36,6 @@ from scout.synthetic import points_to_binary
 
 # Nuclei segmentation
 
-
 def watershed_centers(image, centers, mask, **watershed_kwargs):
     seeds = points_to_binary(tuple(centers.T), image.shape, cval=1)
     markers = ndi.label(seeds)[0]
@@ -82,7 +81,6 @@ def watershed_centers_parallel(prob, centers, mask, output, chunks, overlap, nb_
 
 
 # Fluorescence sampling, statistics, and gating
-
 
 def sample_intensity_cube(center, image, radius):
     start = [max(0, int(c - radius)) for c in center]
@@ -147,7 +145,6 @@ def threshold_mfi(mfi, threshold):
 
 # Nuclei morphological features
 
-
 def morphological_features(seg):
     props = measure.regionprops(seg)
     nb_labels = len(props)
@@ -168,8 +165,12 @@ def morphological_features(seg):
 
 # Define command-line main functions
 
-
 def detect_main(args):
+    if args.voxel_size is not None and args.output_um is None:
+        raise ValueError('A path to output_um array must be specified if given voxel dimensions')
+    elif args.voxel_size is None and args.output_um is not None:
+        raise ValueError('Voxel size must be specified if path to output_um is given')
+
     # Open nuclei Zarr array
     verbose_print(args, f'Detecting nuclei in {args.input}')
     arr = io.open(args.input, mode='r')
@@ -196,11 +197,40 @@ def detect_main(args):
     nb_centroids = centroids.shape[0]
     verbose_print(args, f'Found {nb_centroids} nuclei centroids')
 
+    # Convert to micron if possible
+    if args.voxel_size is not None:
+        voxel_size = utils.read_voxel_size(args.voxel_size)
+        centroids_um = centroids * np.asarray(voxel_size)
+
     # Save centroids
     np.save(args.output, centroids)
     verbose_print(args, f'Saved centroids to {args.output}')
+    if args.output_um is not None:
+        np.save(args.output_um, centroids_um)
+        verbose_print(args, f'Saved centroids in micron to {args.output_um}')
 
     verbose_print(args, f'Nuclei detection done!')
+
+
+def detect_cli(subparsers):
+    detect_parser = subparsers.add_parser('detect', help="Detect all nuclei centroids in image",
+                                          description='Detects nuclei centroids using a curvature-based filter')
+    detect_parser.add_argument('input', help="Path to nuclei image Zarr array")
+    detect_parser.add_argument('probability', help="Path to nuclei probability map Zarr array")
+    detect_parser.add_argument('output', help="Path to save numpy array of nuclei centroids")
+    detect_parser.add_argument('--voxel-size', help="Path to voxel size CSV", default=None)
+    detect_parser.add_argument('--output-um', help="Path to save numpy array of centroids in micron", default=None)
+    detect_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=(1.2, 2.0, 2.0))
+    detect_parser.add_argument('-s', help="Steepness of curvature filter", type=float, default=4000)
+    detect_parser.add_argument('-b', help="Bias of curvature filter", type=float, default=-0.0001)
+    detect_parser.add_argument('-r', help="Reference intensity prior", type=float, default=500)
+    detect_parser.add_argument('-x', help="Crossover intensity prior", type=float, default=1e-5)
+    detect_parser.add_argument('-d', help="Minimum distance between centroids", type=float, default=2)
+    detect_parser.add_argument('-p', help="Minimum probability of a centroid", type=float, default=0.2)
+    detect_parser.add_argument('-c', help="Chunk shape to process at a time", type=int, nargs='+', default=3 * (64,))
+    detect_parser.add_argument('-m', help="Minimum intensity to skip chunk", type=float, default=500)
+    detect_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=4)
+    detect_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def segment_main(args):
@@ -245,6 +275,20 @@ def segment_main(args):
     verbose_print(args, 'Nuclei segmentation done!')
 
 
+def segment_cli(subparsers):
+    segment_parser = subparsers.add_parser('segment', help="Segment all nuclei from probability map",
+                                           description='Segments all nuclei using 3D watershed')
+    segment_parser.add_argument('input', help="Path to nuclei probability map Zarr array")
+    segment_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
+    segment_parser.add_argument('foreground', help="Path to nuclei foreground Zarr array")
+    segment_parser.add_argument('binary', help="Path to nuclei binary segmentation Zarr array")
+    segment_parser.add_argument('output', help="Path to labeled nuclei TIFF image")
+    segment_parser.add_argument('-t', help="Probability threshold for segmentation", type=float, default=0.1)
+    segment_parser.add_argument('-w', help="Number of workers for segmentation", type=int, default=None)
+    segment_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=4)
+    segment_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
 def fluorescence_main(args):
     nb_images = len(args.input)
     verbose_print(args, f'Passed {nb_images} images to measure fluorescence')
@@ -285,6 +329,21 @@ def fluorescence_main(args):
     verbose_print(args, f'Fluorescence measurements done!')
 
 
+def fluorescence_cli(subparsers):
+    fluorescence_parser = subparsers.add_parser('fluorescence', help="Measure fluorescence for each cell",
+                                                description='Measures fluorescence statistics at each centroid')
+    fluorescence_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
+    fluorescence_parser.add_argument('mfi', help="Path to output MFI numpy array")
+    fluorescence_parser.add_argument('stdev', help="Path to output StDev numpy array")
+    fluorescence_parser.add_argument('input', help="Path to input images to sample from", nargs='+')
+    fluorescence_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=None)
+    fluorescence_parser.add_argument('-m', help="Sampling mode {'cube'}", type=str, default='cube')
+    fluorescence_parser.add_argument('-r', help="Sampling radius", type=int, default=1)
+    fluorescence_parser.add_argument('-w', help="Number of workers for segmentation", type=int, default=None)
+    fluorescence_parser.add_argument('-o', help="Overlap in pixels between chunks for smoothing", type=int, default=4)
+    fluorescence_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
 def gate_main(args):
     verbose_print(args, f'Gating cells based on fluorescence in {args.input}')
 
@@ -316,6 +375,19 @@ def gate_main(args):
     verbose_print(args, f'Gating results written to {args.output}')
 
     verbose_print(args, f'Gating cells done!')
+
+
+def gate_cli(subparsers):
+    gate_parser = subparsers.add_parser('gate', help="Gate cells based on fluorescence",
+                                        description='Sets gates and classifies cell-types based on fluorescence')
+    gate_parser.add_argument('input', help="Path to input MFI numpy array")
+    gate_parser.add_argument('output', help="Path to output labels numpy array")
+    gate_parser.add_argument('thresholds', help="MFI gates for each channel", nargs="+", type=float)
+    gate_parser.add_argument('-p', '--plot', help="Flag to show plot", action='store_true')
+    gate_parser.add_argument('-b', help="Number of bins to use in historgram", type=int, default=128)
+    gate_parser.add_argument('-x', help="MFI column index for x-axis", type=int, default=0)
+    gate_parser.add_argument('-y', help="MFI column index for y-axis", type=int, default=1)
+    gate_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def morphology_main(args):
@@ -358,70 +430,6 @@ def morphology_main(args):
     verbose_print(args, f'Computing morphologies done!')
 
 
-# Define command-line interfaces
-
-
-def detect_cli(subparsers):
-    detect_parser = subparsers.add_parser('detect', help="Detect all nuclei centroids in image",
-                                          description='Detects nuclei centroids using a curvature-based filter')
-    detect_parser.add_argument('input', help="Path to nuclei image Zarr array")
-    detect_parser.add_argument('probability', help="Path to nuclei probability map Zarr array")
-    detect_parser.add_argument('output', help="Path to save numpy array of nuclei centroids")
-    detect_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=(1.2, 2.0, 2.0))
-    detect_parser.add_argument('-s', help="Steepness of curvature filter", type=float, default=4000)
-    detect_parser.add_argument('-b', help="Bias of curvature filter", type=float, default=-0.0001)
-    detect_parser.add_argument('-r', help="Reference intensity prior", type=float, default=500)
-    detect_parser.add_argument('-x', help="Crossover intensity prior", type=float, default=1e-5)
-    detect_parser.add_argument('-d', help="Minimum distance between centroids", type=float, default=2)
-    detect_parser.add_argument('-p', help="Minimum probability of a centroid", type=float, default=0.2)
-    detect_parser.add_argument('-c', help="Chunk shape to process at a time", type=int, nargs='+', default=3 * (64,))
-    detect_parser.add_argument('-m', help="Minimum intensity to skip chunk", type=float, default=500)
-    detect_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=4)
-    detect_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
-
-
-def segment_cli(subparsers):
-    segment_parser = subparsers.add_parser('segment', help="Segment all nuclei from probability map",
-                                           description='Segments all nuclei using 3D watershed')
-    segment_parser.add_argument('input', help="Path to nuclei probability map Zarr array")
-    segment_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
-    segment_parser.add_argument('foreground', help="Path to nuclei foreground Zarr array")
-    segment_parser.add_argument('binary', help="Path to nuclei binary segmentation Zarr array")
-    segment_parser.add_argument('output', help="Path to labeled nuclei TIFF image")
-    segment_parser.add_argument('-t', help="Probability threshold for segmentation", type=float, default=0.1)
-    segment_parser.add_argument('-w', help="Number of workers for segmentation", type=int, default=None)
-    segment_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=4)
-    segment_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
-
-
-def fluorescence_cli(subparsers):
-    fluorescence_parser = subparsers.add_parser('fluorescence', help="Measure fluorescence for each cell",
-                                                description='Measures fluorescence statistics at each centroid')
-    fluorescence_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
-    fluorescence_parser.add_argument('mfi', help="Path to output MFI numpy array")
-    fluorescence_parser.add_argument('stdev', help="Path to output StDev numpy array")
-    fluorescence_parser.add_argument('input', help="Path to input images to sample from", nargs='+')
-    fluorescence_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=None)
-    fluorescence_parser.add_argument('-m', help="Sampling mode {'cube'}", type=str, default='cube')
-    fluorescence_parser.add_argument('-r', help="Sampling radius", type=int, default=1)
-    fluorescence_parser.add_argument('-w', help="Number of workers for segmentation", type=int, default=None)
-    fluorescence_parser.add_argument('-o', help="Overlap in pixels between chunks for smoothing", type=int, default=4)
-    fluorescence_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
-
-
-def gate_cli(subparsers):
-    gate_parser = subparsers.add_parser('gate', help="Gate cells based on fluorescence",
-                                        description='Sets gates and classifies cell-types based on fluorescence')
-    gate_parser.add_argument('input', help="Path to input MFI numpy array")
-    gate_parser.add_argument('output', help="Path to output labels numpy array")
-    gate_parser.add_argument('thresholds', help="MFI gates for each channel", nargs="+", type=float)
-    gate_parser.add_argument('-p', '--plot', help="Flag to show plot", action='store_true')
-    gate_parser.add_argument('-b', help="Number of bins to use in historgram", type=int, default=128)
-    gate_parser.add_argument('-x', help="MFI column index for x-axis", type=int, default=0)
-    gate_parser.add_argument('-y', help="MFI column index for y-axis", type=int, default=1)
-    gate_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
-
-
 def morphology_cli(subparsers):
     morphology_parser = subparsers.add_parser('morphology', help="Measure morphological features of nuclei",
                                               description='Uses nuclei segmentation to compute morphological features')
@@ -441,9 +449,6 @@ def nuclei_cli(subparsers):
     gate_cli(nuclei_subparsers)
     morphology_cli(nuclei_subparsers)
     return nuclei_parser
-
-
-# Main nuclei entry point
 
 
 def nuclei_main(args):

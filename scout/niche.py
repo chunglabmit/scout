@@ -7,6 +7,9 @@ This module performs neighborhood analysis.
 These include the following subcommands:
     - radial : compute radial profiles of each cell-type
     - proximity : compute average proximity to each cell-type
+    - sample : randomly subsample cells to allow faster clustering
+    - cluster : cluster cells into niches based on proximity
+    - classify : fit niche classifier to subset and apply to all cell
 
 """
 
@@ -275,6 +278,7 @@ def cluster_main(args):
     # dbscan = DBSCAN(eps=0.1, min_samples=2).fit(proximities)
     # labels = dbscan.labels_
 
+    verbose_print(args, 'Running t-SNE...')
     x_tsne = TSNE(n_components=2, n_jobs=-1, perplexity=800, learning_rate=100).fit_transform(proximities)
 
     if args.plot:

@@ -2,7 +2,13 @@
 Segment Module
 ===============
 
-This module performs organoid regions segmentation.
+This module performs organoid segmentation
+
+These include the following subcommands:
+    - downsample : reduce image size for faster segmentaion
+    - ventricle : segment ventricles from downsampled nuclei image
+    - foreground : segment organoid foreground
+    - smooth : smooth a segmentation
 
 """
 
@@ -14,6 +20,7 @@ from tqdm import tqdm
 from scipy.interpolate import griddata
 from skimage.transform import downscale_local_mean
 from skimage.morphology import binary_closing
+from skimage.segmentation import clear_border
 import torch
 from scout import io
 from scout.preprocess import gaussian_blur
@@ -45,7 +52,7 @@ def downsample(arr, factors):
     return output
 
 
-# Segment ventricles with U-Net
+# Ventricle segmentation
 
 def load_model(path, device):
     model = UNet(1, 1)
@@ -71,39 +78,37 @@ def segment_ventricles(model, data, t, device):
 # Calculate local densities and threshold
 
 
-# rasterize region labels
+# Segment niches (unused)
 
 
-rasterized = None
-
-
-def _rasterize_chunk(args):
-    start, shape, chunks, pts, labels = args
-    global rasterized
-    stop = np.minimum(shape, start + np.asarray(chunks))
-    grid_z, grid_y, grid_x = np.mgrid[start[0]:stop[0], start[1]:stop[1], start[2]:stop[2]]
-    data = griddata(pts, labels, (grid_z, grid_y, grid_x), method='nearest').astype(np.uint8)
-    rasterized = utils.insert_box(rasterized, start, stop, data)
-
-
-def rasterize_regions(pts, labels, shape, chunks=None, nb_workers=None):
-    global rasterized
-    if nb_workers is None:
-        nb_workers = multiprocessing.cpu_count()
-    if chunks is None:
-        grid_z, grid_y, grid_x = np.mgrid[0:shape[0], 0:shape[1], 0:shape[2]]
-        rasterized = griddata(pts, labels, (grid_z, grid_y, grid_x), method='nearest').astype(np.uint8)
-    else:
-        chunk_coords = utils.chunk_coordinates(shape, chunks)
-        args_list = []
-        for start in tqdm(chunk_coords, total=len(chunk_coords)):
-            args_list.append((start, shape, chunks, pts, labels))
-        rasterized = utils.SharedMemory(shape=shape, dtype=np.uint8)
-        with multiprocessing.Pool(processes=nb_workers) as pool:
-            list(tqdm(pool.imap(_rasterize_chunk, args_list), total=len(args_list)))
-    return rasterized
-
-# Smooth with graph-cuts
+# rasterized = None
+#
+#
+# def _rasterize_chunk(args):
+#     start, shape, chunks, pts, labels = args
+#     global rasterized
+#     stop = np.minimum(shape, start + np.asarray(chunks))
+#     grid_z, grid_y, grid_x = np.mgrid[start[0]:stop[0], start[1]:stop[1], start[2]:stop[2]]
+#     data = griddata(pts, labels, (grid_z, grid_y, grid_x), method='nearest').astype(np.uint8)
+#     rasterized = utils.insert_box(rasterized, start, stop, data)
+#
+#
+# def rasterize_regions(pts, labels, shape, chunks=None, nb_workers=None):
+#     global rasterized
+#     if nb_workers is None:
+#         nb_workers = multiprocessing.cpu_count()
+#     if chunks is None:
+#         grid_z, grid_y, grid_x = np.mgrid[0:shape[0], 0:shape[1], 0:shape[2]]
+#         rasterized = griddata(pts, labels, (grid_z, grid_y, grid_x), method='nearest').astype(np.uint8)
+#     else:
+#         chunk_coords = utils.chunk_coordinates(shape, chunks)
+#         args_list = []
+#         for start in tqdm(chunk_coords, total=len(chunk_coords)):
+#             args_list.append((start, shape, chunks, pts, labels))
+#         rasterized = utils.SharedMemory(shape=shape, dtype=np.uint8)
+#         with multiprocessing.Pool(processes=nb_workers) as pool:
+#             list(tqdm(pool.imap(_rasterize_chunk, args_list), total=len(args_list)))
+#     return rasterized
 
 
 # Define command-line functionality
@@ -152,6 +157,16 @@ def ventricle_main(args):
     verbose_print(args, f'Segmentation progress:')
     output = segment_ventricles(model, data, args.t, device)
 
+    # Remove border regions
+    if args.exclude_border:
+        verbose_print(args, f'Removing regions connected to image border')
+        # This could also be done in 3D instead of slice-by-slice
+        # I'm not sure if images will start in ventricle, so doing slice-by-slice to be safe
+        img = np.zeros_like(output)
+        for i, data in tqdm(enumerate(output), total=len(output)):
+            img[i] = clear_border(data)
+        output = img
+
     # Save the result to TIFF
     io.imsave(args.output, output, compress=3)
     verbose_print(args, f'Segmentation written to {args.output}')
@@ -165,7 +180,8 @@ def ventricle_cli(subparsers):
     ventricle_parser.add_argument('input', help="Path to input (downsampled) image")
     ventricle_parser.add_argument('model', help="Path to pretrained Pytorch model")
     ventricle_parser.add_argument('output', help="Path to output ventricle segmentation TIFF")
-    ventricle_parser.add_argument('-t', help="Probability threshold for binarization", type=float, default=0.05)
+    ventricle_parser.add_argument('-t', help="Probability threshold for binarization", type=float, default=0.5)
+    ventricle_parser.add_argument('-e', '--exclude-border', help="Flag to exclude border regions", action='store_true')
     ventricle_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
@@ -225,15 +241,3 @@ def segment_cli(subparsers):
     ventricle_cli(segment_subparsers)
     foreground_cli(segment_subparsers)
     return segment_parser
-
-
-"""
-
-SEGMENT
---------
-segment-regions
-    niche labels -> rasterized segmentation -> smoothed segmentation
-combine-segmentations
-    foreground seg + ventricle seg + region seg -> combined segmentation
-    
-"""

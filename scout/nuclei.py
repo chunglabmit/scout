@@ -14,6 +14,7 @@ These include the following subcommands:
 """
 
 import subprocess
+import os
 import warnings
 from functools import partial
 import multiprocessing
@@ -220,16 +221,16 @@ def detect_cli(subparsers):
     detect_parser.add_argument('output', help="Path to save numpy array of nuclei centroids")
     detect_parser.add_argument('--voxel-size', help="Path to voxel size CSV", default=None)
     detect_parser.add_argument('--output-um', help="Path to save numpy array of centroids in micron", default=None)
-    detect_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=(1.2, 2.0, 2.0))
-    detect_parser.add_argument('-s', help="Steepness of curvature filter", type=float, default=4000)
+    detect_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=(1.0, 2.0, 2.0))
+    detect_parser.add_argument('-s', help="Steepness of curvature filter", type=float, default=500)
     detect_parser.add_argument('-b', help="Bias of curvature filter", type=float, default=-0.0001)
-    detect_parser.add_argument('-r', help="Reference intensity prior", type=float, default=500)
-    detect_parser.add_argument('-x', help="Crossover intensity prior", type=float, default=1e-5)
+    detect_parser.add_argument('-r', help="Reference intensity prior", type=float, default=1.0)
+    detect_parser.add_argument('-x', help="Crossover intensity prior", type=float, default=0.1)
     detect_parser.add_argument('-d', help="Minimum distance between centroids", type=float, default=2)
     detect_parser.add_argument('-p', help="Minimum probability of a centroid", type=float, default=0.2)
     detect_parser.add_argument('-c', help="Chunk shape to process at a time", type=int, nargs='+', default=3 * (64,))
-    detect_parser.add_argument('-m', help="Minimum intensity to skip chunk", type=float, default=500)
-    detect_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=4)
+    detect_parser.add_argument('-m', help="Minimum intensity to skip chunk", type=float, default=0.1)
+    detect_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=8)
     detect_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
@@ -285,12 +286,17 @@ def segment_cli(subparsers):
     segment_parser.add_argument('output', help="Path to labeled nuclei TIFF image")
     segment_parser.add_argument('-t', help="Probability threshold for segmentation", type=float, default=0.1)
     segment_parser.add_argument('-w', help="Number of workers for segmentation", type=int, default=None)
-    segment_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=4)
+    segment_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=8)
     segment_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def fluorescence_main(args):
-    nb_images = len(args.input)
+    if isinstance(args.inputs, list):
+        inputs = args.inputs
+    else:
+        inputs = [args.inputs]
+
+    nb_images = len(inputs)
     verbose_print(args, f'Passed {nb_images} images to measure fluorescence')
 
     # Load centroids
@@ -299,8 +305,8 @@ def fluorescence_main(args):
     # Initialize output arrays
     mfis = np.zeros((centroids.shape[0], nb_images))
     stdevs = np.zeros((centroids.shape[0], nb_images))
-
-    for i, path in enumerate(args.input):
+    for i, path in enumerate(inputs):
+        print(path)
         # Open image
         arr = io.open(path, mode='r')
         shape, dtype, chunks = arr.shape, arr.dtype, arr.chunks
@@ -312,7 +318,8 @@ def fluorescence_main(args):
             verbose_print(args, f'Smoothing {path} with sigma {tuple(args.g)}')
             with tempfile.TemporaryDirectory() as temp_path:
                 smoothed_arr = io.new_zarr(temp_path, shape, chunks, dtype)
-                gaussian_blur_parallel(arr, args.g, smoothed_arr, arr.chunks, args.o, args.w)
+                gaussian_blur_parallel(arr, args.g, smoothed_arr, arr.chunks, args.o, 2)  # Too many workers gives Zarr race condition
+                verbose_print(args, f'Sampling fluorescence from smoothed {path}')
                 intensities = nuclei_centered_intensities(smoothed_arr, centroids, args.r, mode=args.m, nb_workers=args.w)
             # Temporary array deleted when context ends
         else:
@@ -322,9 +329,19 @@ def fluorescence_main(args):
         mfis[:, i] = calculate_mfi(intensities)
         stdevs[:, i] = calculate_stdev(intensities)
 
-    # Save stats
-    np.save(args.mfi, mfis)
-    np.save(args.stdev, stdevs)
+    # Save CSV containing morphologies for each detected centroid
+    basenames = [os.path.basename(path).split('.')[0] for path in inputs]
+    csv_names = ['fluorescence_' + base + '.csv' for base in basenames]
+    csv_paths = [os.path.join(args.output, name) for name in csv_names]
+    for i, (base, path) in enumerate(zip(basenames, csv_paths)):
+        df = pd.DataFrame({'mfi': mfis[:, i], 'stdev': stdevs[:, i]})
+        df.to_csv(path)
+        verbose_print(args, f'Fluorescence statistics for {base} written to {path}')
+
+    # Save numpy array of MFIs
+    mfi_path = os.path.join(args.output, 'nuclei_mfis.npy')
+    np.save(mfi_path, mfis)
+    verbose_print(args, f'MFIs written to {mfi_path}')
 
     verbose_print(args, f'Fluorescence measurements done!')
 
@@ -333,14 +350,13 @@ def fluorescence_cli(subparsers):
     fluorescence_parser = subparsers.add_parser('fluorescence', help="Measure fluorescence for each cell",
                                                 description='Measures fluorescence statistics at each centroid')
     fluorescence_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
-    fluorescence_parser.add_argument('mfi', help="Path to output MFI numpy array")
-    fluorescence_parser.add_argument('stdev', help="Path to output StDev numpy array")
-    fluorescence_parser.add_argument('input', help="Path to input images to sample from", nargs='+')
+    fluorescence_parser.add_argument('output', help="Path to output folder to save fluorescence CSVs")
+    fluorescence_parser.add_argument('inputs', help="Path to input images to sample from", nargs='+')
     fluorescence_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=None)
     fluorescence_parser.add_argument('-m', help="Sampling mode {'cube'}", type=str, default='cube')
     fluorescence_parser.add_argument('-r', help="Sampling radius", type=int, default=1)
     fluorescence_parser.add_argument('-w', help="Number of workers for segmentation", type=int, default=None)
-    fluorescence_parser.add_argument('-o', help="Overlap in pixels between chunks for smoothing", type=int, default=4)
+    fluorescence_parser.add_argument('-o', help="Overlap in pixels between chunks for smoothing", type=int, default=8)
     fluorescence_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
@@ -379,7 +395,7 @@ def gate_main(args):
 
 def gate_cli(subparsers):
     gate_parser = subparsers.add_parser('gate', help="Gate cells based on fluorescence",
-                                        description='Sets gates and classifies cell-types based on fluorescence')
+                                        description='Gates cells and classify cell-types based on fluorescence')
     gate_parser.add_argument('input', help="Path to input MFI numpy array")
     gate_parser.add_argument('output', help="Path to output labels numpy array")
     gate_parser.add_argument('thresholds', help="MFI gates for each channel", nargs="+", type=float)
@@ -401,7 +417,7 @@ def morphology_main(args):
 
     # Load the detected centroids
     centroids = np.load(args.centroids)
-    verbose_print(args, f'Cross-referencing centroids in {args.centroids}')
+    verbose_print(args, f'Matching segmentation centers of mass with {args.centroids}')
 
     # Match segmentation to nearest centroid
     nbrs = NearestNeighbors(n_neighbors=1).fit(centers)
@@ -432,7 +448,7 @@ def morphology_main(args):
 
 def morphology_cli(subparsers):
     morphology_parser = subparsers.add_parser('morphology', help="Measure morphological features of nuclei",
-                                              description='Uses nuclei segmentation to compute morphological features')
+                                              description='Compute morphological features from nuclei segmentation')
     morphology_parser.add_argument('input', help="Path to input nuclei segmentation TIFF")
     morphology_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
     morphology_parser.add_argument('output', help="Path to output morphological features CSV")

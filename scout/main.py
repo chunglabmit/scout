@@ -80,23 +80,31 @@ def main():
     else:
         func(args)
 
+
 """
+
 Commands run on test data
 --------------------------
 
-scout preprocess tests/example.tif tests/example.zarr -s 200 -v
+scout preprocess data/syto.tif data/syto.zarr -t 0.05 -s 0.05 -v -p 8
+scout preprocess data/tbr1.tif data/tbr1.zarr -t 0.05 -s 0.05 -v -p 8
+scout preprocess data/sox2.tif data/sox2.zarr -t 0.05 -s 0.05 -v -p 8
 
-scout nuclei detect tests/data/syto.zarr tests/data/probability.zarr tests/data/centroids.npy -v
-scout nuclei segment tests/data/probability.zarr tests/data/centroids.npy tests/data/foreground.zarr tests/data/binary.zarr tests/data/nuclei_segmentation.tif -v
-scout nuclei fluorescence tests/data/centroids.npy tests/data/fluorescence_mfi.npy tests/data/fluorescence_stdev.npy tests/data/tbr1.zarr tests/data/sox2.zarr -g 0.7 1.0 1.0 -w 1 -v
-scout nuclei gate tests/data/fluorescence_mfi.npy tests/data/gate_labels.npy 450 1150 -v -p
-scout nuclei morphology tests/data/nuclei_segmentation.tif tests/data/centroids.npy tests/data/nuclei_morphology.csv -v
+scout nuclei detect data/syto.zarr data/nuclei_prob.zarr data/centroids.npy --voxel-size data/voxel_size.csv --output-um data/centroids_um.npy -v
+scout nuclei segment data/syto.zarr data/centroids.npy data/nuclei_foreground.zarr data/nuclei_binary.zarr data/nuclei_segmentation.tif -v
+scout nuclei fluorescence data/centroids.npy data data/tbr1.zarr data/sox2.zarr -g 0.7 1.0 1.0 -v
+scout nuclei gate data/nuclei_mfis.npy data/gate_labels.npy 0.08 0.3 -p -v
+scout nuclei morphology data/nuclei_segmentation.tif data/centroids.npy data/nuclei_morphologies.csv -v
 
-scout niche radial tests/data/centroids_um.npy tests/data/gate_labels.npy tests/data/niche_profiles.npy -v
-scout niche proximity tests/data/centroids_um.npy tests/data/gate_labels.npy tests/data/niche_proximity.npy -v
-scout niche sample 1000 -i tests/data/niche_proximity.npy -o tests/data/niche_proximity_sample.npy -v
-scout niche cluster tests/data/niche_proximity_sample.npy tests/data/niche_labels_sample.npy tests/data/niche_tsne_sample.npy -v -n 4 -p
-scout niche classify tests/data/niche_proximity_sample.npy tests/data/niche_labels_sample.npy tests/data/niche_proximity.npy tests/data/niche_labels.npy -v
+# scout niche radial tests/data/centroids_um.npy tests/data/gate_labels.npy tests/data/niche_profiles.npy -v
+scout niche proximity data/centroids_um.npy data/gate_labels.npy data/niche_proximities.npy -r 5 5 -v
+scout niche sample 10000 -i data/niche_proximities.npy -o data/niche_proximities_sample.npy -v
+scout niche cluster data/niche_proximities_sample.npy data/niche_labels_sample.npy data/niche_tsne_sample.npy -v -n 4 -p
+scout niche classify data/niche_proximities_sample.npy data/niche_labels_sample.npy data/niche_proximities.npy data/niche_labels.npy -v
+
+scout segment downsample data/syto.zarr data/syto_down4x.tif 1 4 4 -v
+scout segment ventricle data/syto_down4x.tif models/syto_vz_unet_200.pt data/segment_ventricles.tif -v
+scout segment foreground data/syto_down4x.tif data/segment_foreground.tif -v -t 0.02 -g 8 4 4
 
 
 Input
@@ -127,6 +135,8 @@ Niche
 Segment
 --------
 + downsampled nuclei Zarr
++ ventricle segmentation
+
 
 
 Cyto

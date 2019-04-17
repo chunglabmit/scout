@@ -15,6 +15,7 @@ import numpy as np
 from tqdm import tqdm
 from sklearn.neighbors import NearestNeighbors
 from sklearn.mixture import GaussianMixture
+from sklearn.cluster import KMeans, DBSCAN
 from sklearn.linear_model import LogisticRegression
 import matplotlib.pyplot as plt
 import matplotlib.colors as cm
@@ -90,10 +91,11 @@ def proximity(centroids, celltypes, k, radius):
         distances_list.append(distances)
         indices_list.append(indices)
 
-    # Convert distances to proximity
+    # # Convert distances to proximity by average distance
     # ave_distances = np.asarray([distances.mean(axis=-1) for distances in distances_list]).T
     # proximities = np.asarray([1 / (1 + ave_dist / r) for (ave_dist, r) in zip(ave_distances.T, radius)]).T
 
+    # Convert distances to proximity by product
     proximities = np.asarray([(1 / (1 + dist / r)).prod(axis=-1) for (dist, r) in zip(distances_list, radius)]).T
 
     return proximities
@@ -102,11 +104,9 @@ def proximity(centroids, celltypes, k, radius):
 # Sampling
 
 def randomly_sample(n, *items, return_idx=False):
-    print(items[0])
     idx = np.arange(len(items[0]))
     np.random.shuffle(idx)
     idx = idx[:n]
-    print(idx.dtype, idx.shape, n)
     if return_idx:
         return tuple(item[idx] for item in items), idx
     else:
@@ -184,7 +184,7 @@ def proximity_main(args):
 
     # Show plot
     if args.plot:
-        plt.plot(proximities[:, 0], proximities[:, 1], '.')
+        plt.plot(proximities[:, 0], proximities[:, 1], '.', alpha=0.01)
         plt.show()
 
     # Save the proximities
@@ -196,12 +196,12 @@ def proximity_main(args):
 
 def proximity_cli(subparsers):
     proximity_parser = subparsers.add_parser('proximity', help="Calculate cell-type proxiomities",
-                                             description='Calculates proximities for each cell-type')
+                                             description='Calculates spatial proximities to each cell-type')
     proximity_parser.add_argument('centroids', help="Path to input nuclei centroids in micron numpy array")
     proximity_parser.add_argument('celltypes', help="Path to input cell-type labels numpy array")
     proximity_parser.add_argument('output', help="Path to output proximity numpy array")
     proximity_parser.add_argument('-r', help="Reference radii in micron for each cell-type", type=float, nargs='+', default=None)
-    proximity_parser.add_argument('-k', help="Number of neighbors in proximity", type=int, default=10)
+    proximity_parser.add_argument('-k', help="Number of neighbors in proximity", type=int, default=3)
     proximity_parser.add_argument('-p', '--plot', help="Flag to show plots", action='store_true')
     proximity_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
@@ -252,28 +252,43 @@ def cluster_main(args):
 
     proximities = np.load(args.proximity)
 
-    gmm = GaussianMixture(n_components=args.n, n_init=args.i).fit(proximities)
+    # # GMM clustering
+    # gmm = GaussianMixture(n_components=args.n, n_init=args.i).fit(proximities)
+    #
+    # verbose_print(args, f'GMM means:\n{gmm.means_}')
+    # verbose_print(args, f'GMM weights (fractions):\n{gmm.weights_}')
+    # verbose_print(args, f'GMM converged flag: {gmm.converged_}')
+    # verbose_print(args, f'GMM ELBO: {gmm.lower_bound_:.6f}')
+    # verbose_print(args, f'GMM BIC: {gmm.bic(proximities):.3f}')
+    #
+    # labels = gmm.predict(proximities)
 
-    verbose_print(args, f'GMM means:\n{gmm.means_}')
-    verbose_print(args, f'GMM weights (fractions):\n{gmm.weights_}')
-    verbose_print(args, f'GMM converged flag: {gmm.converged_}')
-    verbose_print(args, f'GMM ELBO: {gmm.lower_bound_:.6f}')
-    verbose_print(args, f'GMM BIC: {gmm.bic(proximities):.3f}')
+    # K-means
+    kmeans = KMeans(n_clusters=args.n, n_init=args.i).fit(proximities)
 
-    labels = gmm.predict(proximities)
+    verbose_print(args, f'Cluster centers:\n{kmeans.cluster_centers_}')
+    verbose_print(args, f'Total inertia:\n{kmeans.inertia_:.8f}')
 
-    x_tsne = TSNE(n_components=2, n_jobs=-1, perplexity=50).fit_transform(proximities)
+    labels = kmeans.predict(proximities)
+
+    # # DBSCAN
+    # dbscan = DBSCAN(eps=0.1, min_samples=2).fit(proximities)
+    # labels = dbscan.labels_
+
+    x_tsne = TSNE(n_components=2, n_jobs=-1, perplexity=800, learning_rate=100).fit_transform(proximities)
 
     if args.plot:
         # Show proximities
         for i in range(args.n):
             idx = np.where(labels == i)[0]
-            plt.plot(proximities[idx, 0], proximities[idx, 1], '.')
+            plt.plot(proximities[idx, 0], proximities[idx, 1], '.', label=f'Cluster {i}')
+        plt.legend()
         plt.show()
         # Show tSNE
         for i in range(args.n):
             idx = np.where(labels == i)[0]
-            plt.plot(x_tsne[idx, 0], x_tsne[idx, 1], '.')
+            plt.plot(x_tsne[idx, 0], x_tsne[idx, 1], '.', label=f'Cluster {i}')
+        plt.legend()
         plt.show()
 
     # Save the cluster labels and t-SNE coordinates
@@ -298,11 +313,13 @@ def cluster_cli(subparsers):
 
 
 def classify_main(args):
-    verbose_print(args, f'Training logistic model based on {args.proximity} and {args.labels}')
+    verbose_print(args, f'Training logistic model based on {args.proximity_train} and {args.labels_train}')
 
     # Load training data
-    x = np.load(args.proximity)
-    y = np.load(args.labels)
+    x = np.load(args.proximity_train)
+    y = np.load(args.labels_train)
+
+    classes = np.unique(y)
 
     # Train model
     clf = LogisticRegression(random_state=0,
@@ -316,7 +333,12 @@ def classify_main(args):
     # Apply classifier
     proximities = np.load(args.proximity)
     labels = clf.predict(proximities)
-    verbose_print(args, f'Classified {len(labels)} cells')
+
+    nb_cells = len(proximities)
+    verbose_print(args, f'Classified {nb_cells} cells into {len(classes)} niche classes')
+    for c in classes:
+        count = len(np.where(labels == c)[0])
+        verbose_print(args, f'Class {c}: {count:10d} cells {100 * count / nb_cells:10.3f}%')
 
     # Save the niche labels
     np.save(args.labels, labels)

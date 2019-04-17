@@ -1,8 +1,8 @@
 # full assembly of the sub-parts to form the complete net
 
-import torch.nn.functional as F
-
+import torch
 from .unet_parts import *
+
 
 class UNet(nn.Module):
     def __init__(self, n_channels, n_classes):
@@ -29,4 +29,5 @@ class UNet(nn.Module):
         x = self.up3(x, x2)
         x = self.up4(x, x1)
         x = self.outc(x)
-        return F.sigmoid(x)
+        output = torch.sigmoid(x)
+        return output

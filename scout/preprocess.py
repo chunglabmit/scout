@@ -14,8 +14,11 @@ from functools import partial
 import numpy as np
 import tqdm
 from skimage.filters import gaussian
-from skimage.exposure import equalize_adapthist
-from pybm3d.bm3d import bm3d
+from skimage.exposure import equalize_adapthist, rescale_intensity
+from skimage.restoration import denoise_wavelet
+from skimage import img_as_float32
+# from pybm3d.bm3d import bm3d
+import matplotlib.pyplot as plt
 from scout.utils import extract_ghosted_chunk, extract_box, insert_box, pmap_chunks, verbose_print
 from scout import io
 
@@ -125,6 +128,7 @@ def clahe(image, kernel_size, clip_limit=0.01, nbins=256, nb_workers=None):
     image_min = image.min()
     image_max = image.max()
     output = np.asarray(results) * (image_max - image_min) + image_min
+    print(image.dtype)
     return output.astype(image.dtype)
 
 
@@ -148,9 +152,9 @@ def remove_background(image, threshold):
     return image * mask
 
 
-def denoise2d(image, sigma, patch_size=0):
+def denoise2d(image, sigma, wavelet='db1'):
     """
-    Denoise input `image` using BM3D collaborative filtering
+    Denoise input `image` using wavelet filtering filtering
 
     Parameters
     ----------
@@ -158,8 +162,8 @@ def denoise2d(image, sigma, patch_size=0):
         Input 2D image
     sigma : float
         Noise standard deviation
-    patch_size : int
-        Size of patches to use in filtering. Default behavior, 0.
+    wavelet : str
+        Wavelet to use in DWT. Default, 'db1'.
 
     Returns
     -------
@@ -167,18 +171,20 @@ def denoise2d(image, sigma, patch_size=0):
         Denoised 2D image
 
     """
-    output = bm3d(image, sigma, patch_size=patch_size, tau_2D_hard='BIOR', tau_2D_wien='BIOR')
+    output = denoise_wavelet(image, sigma, wavelet=wavelet)
     output = (output - output.min()) / (output.max() - output.min())  # Scale to [0, 1]
     output = output * (image.max() - image.min()) + image.min()  # Scale to original range
-    # Default useSD_h=True, useSD_w=True are used
-    # Not sure why DCT-based filters are not working and giving severe block artifacts
-    # Using bidirectional wavelets seems to be more stable
-    return output.astype(image.dtype)
+    # Old PyBM3D code
+    # output = bm3d(image, sigma, patch_size=patch_size, tau_2D_hard='BIOR', tau_2D_wien='BIOR')
+    # # Default useSD_h=True, useSD_w=True are used
+    # # Not sure why DCT-based filters are not working and giving severe block artifacts
+    # # Using bidirectional wavelets seems to be more stable
+    return output
 
 
-def denoise(image, sigma, patch_size=0, nb_workers=None):
+def denoise(image, sigma, wavelet='db1', nb_workers=None):
     """
-    Denoise input `image` slice-by-slice with BM3D collaborative filtering
+    Denoise input `image` slice-by-slice with wavelet filtering
 
     Parameters
     ----------
@@ -186,8 +192,8 @@ def denoise(image, sigma, patch_size=0, nb_workers=None):
         Input 3D image
     sigma : float
         Noise standard deviation
-    patch_size : int
-        Patches to use in filtering. Default behavior, 0.
+    wavelet : str
+        Wavelet to use in DWT. Default, 'db1'.
     nb_workers : int
         Number of parallel processes to use. Default, cpu_count()
 
@@ -199,7 +205,7 @@ def denoise(image, sigma, patch_size=0, nb_workers=None):
     """
     if nb_workers is None:
         nb_workers = multiprocessing.cpu_count()
-    f = partial(denoise2d, sigma=sigma, patch_size=patch_size)
+    f = partial(denoise2d, sigma=sigma, wavelet=wavelet)
     with multiprocessing.Pool(nb_workers) as pool:
         results = list(tqdm.tqdm(pool.imap(f, image), total=image.shape[0]))
     return np.asarray(results)
@@ -214,9 +220,11 @@ def preprocess_cli(subparsers):
     preprocess_parser.add_argument('image', help="Path to input TIFF image")
     preprocess_parser.add_argument('zarr', help="Path to output Zarr array")
     preprocess_parser.add_argument('-s', help="Standard deviation of noise", type=float, default=None)
+    preprocess_parser.add_argument('-w', help="Wavelet to use in denoising", default='db10')
     preprocess_parser.add_argument('-t', help="Threshold for background removal", type=float, default=None)
     preprocess_parser.add_argument('-k', help="CLAHE kernel size. (Use 0 for default)", type=int, default=None)
     preprocess_parser.add_argument('-c', help="Chunk size of output Zarr array", type=int, nargs='+', default=3*(64,))
+    preprocess_parser.add_argument('-p', help="Plot before and after of specified z-slice", type=int, default=None)
     preprocess_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
     return preprocess_parser
 
@@ -231,6 +239,14 @@ def preprocess_main(args):
     shape, dtype = img.shape, img.dtype
     verbose_print(args, f"Loaded image: {shape} {dtype}")
 
+    # Normalize and convert to float
+    img = rescale_intensity(img_as_float32(img))
+    verbose_print(args, f"Converted to normalized float32: min {img.min():.3f}, max {img.max():.3f}")
+
+    # Keep reference to before image if plotting
+    if args.p is not None:
+        before = img[args.p]
+
     # Background removal
     if args.t is not None:
         verbose_print(args, f"Performing background removal with threshold {args.t}")
@@ -238,8 +254,8 @@ def preprocess_main(args):
 
     # Denoising
     if args.s is not None:
-        verbose_print(args, f"Performing noise removal with sigma {args.s}")
-        img = denoise(img, args.s)
+        verbose_print(args, f"Performing noise removal with sigma {args.s} and wavelet {args.w}")
+        img = denoise(img, args.s, args.w)
 
     # Histogram equalization
     if args.k is not None:
@@ -251,9 +267,19 @@ def preprocess_main(args):
             kernel_size = args.k
         img = clahe(img, kernel_size=kernel_size)
 
+    # Show A/B plot
+    if args.p is not None:
+        plt.subplot(121)
+        plt.imshow(before)
+        plt.title('Before')
+        plt.subplot(122)
+        plt.imshow(img[args.p])
+        plt.title('After')
+        plt.show()
+
     # Convert to Zarr
     verbose_print(args, f"Saving result to {args.zarr}")
-    arr = io.new_zarr(args.zarr, shape=shape, dtype=dtype, chunks=tuple(args.c))
+    arr = io.new_zarr(args.zarr, shape=img.shape, dtype=img.dtype, chunks=tuple(args.c))
     arr[:] = img
 
     verbose_print(args, f"Preprocessing done!")

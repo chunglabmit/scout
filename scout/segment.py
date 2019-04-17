@@ -8,12 +8,15 @@ This module performs organoid regions segmentation.
 
 import subprocess
 import multiprocessing
+import warnings
 import numpy as np
 from tqdm import tqdm
 from scipy.interpolate import griddata
 from skimage.transform import downscale_local_mean
+from skimage.morphology import binary_closing
 import torch
 from scout import io
+from scout.preprocess import gaussian_blur
 from scout import utils
 from scout.utils import verbose_print
 from scout.unet_model import UNet
@@ -49,6 +52,20 @@ def load_model(path, device):
     model.load_state_dict(torch.load(path))
     model.to(device)
     return model
+
+
+def segment_ventricles(model, data, t, device):
+    output = np.empty(data.shape, dtype=np.uint8)
+    for i, img in tqdm(enumerate(data), total=len(data)):
+        img = img.astype(np.float32)[np.newaxis, np.newaxis]
+        img_tensor = torch.from_numpy(img).to(device)
+        with warnings.catch_warnings():  # Suppress deprecated warning for Upsampling
+            warnings.simplefilter('ignore')
+            prob_tensor = model(img_tensor)
+        prob = prob_tensor.detach().cpu().numpy()[0, 0]
+        binary = (prob > t).astype(np.uint8)
+        output[i] = binary
+    return output
 
 
 # Calculate local densities and threshold
@@ -122,34 +139,75 @@ def downsample_cli(subparsers):
 def ventricle_main(args):
     verbose_print(args, f'Segmenting ventricles in {args.input}')
 
+    # Load the input image
     data = io.imread(args.input)
 
+    # Load the model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = load_model(args.model, device)
-
+    model = model.eval()
     verbose_print(args, f'Model successfully loaded from {args.model} to {device} device')
 
-    for img in tqdm(data, total=len(data)):
-        img_tensor = torch.from_numpy(img.astype(np.float32)).to(device)
-        prob = model(img_tensor)
-        print(prob.max())
+    # Segment the input image
+    verbose_print(args, f'Segmentation progress:')
+    output = segment_ventricles(model, data, args.t, device)
 
+    # Save the result to TIFF
+    io.imsave(args.output, output, compress=3)
+    verbose_print(args, f'Segmentation written to {args.output}')
+
+    verbose_print(args, f'Ventricle segmentation done!')
 
 
 def ventricle_cli(subparsers):
-    ventricle_parser = subparsers.add_parser('ventricle', help="Downsample images",
-                                              description='Image downsampling tool for segmentation')
+    ventricle_parser = subparsers.add_parser('ventricle', help="Segment ventricles",
+                                             description='Ventricle segmentation tool using pretrained UNet')
     ventricle_parser.add_argument('input', help="Path to input (downsampled) image")
     ventricle_parser.add_argument('model', help="Path to pretrained Pytorch model")
     ventricle_parser.add_argument('output', help="Path to output ventricle segmentation TIFF")
+    ventricle_parser.add_argument('-t', help="Probability threshold for binarization", type=float, default=0.05)
     ventricle_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
+
+def foreground_main(args):
+    verbose_print(args, f'Segmenting foreground from {args.input}')
+
+    # Load the input image
+    data = io.imread(args.input)
+
+    # Smoothing
+    if args.g is not None:
+        data = gaussian_blur(data, args.g).astype(data.dtype)
+
+    # Threshold image
+    foreground = (data > args.t)  # .astype(np.uint8)
+
+    # Fill small holes
+    foreground = binary_closing(foreground).astype(np.uint8)
+    foreground *= 255
+
+    # Save the result to TIFF
+    io.imsave(args.output, foreground, compress=3)
+    verbose_print(args, f'Segmentation written to {args.output}')
+
+    verbose_print(args, f'Foreground segmentation done!')
+
+
+def foreground_cli(subparsers):
+    foreground_parser = subparsers.add_parser('foreground', help="Segment foreground",
+                                              description='Foreground segmentation tool')
+    foreground_parser.add_argument('input', help="Path to input (downsampled) image")
+    foreground_parser.add_argument('output', help="Path to output ventricle segmentation TIFF")
+    foreground_parser.add_argument('-g', help="Amount of gaussian smoothing", type=float, nargs='+', default=None)
+    foreground_parser.add_argument('-t', help="Probability threshold", type=float, default=0.1)
+    foreground_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def segment_main(args):
     commands_dict = {
         'downsample': downsample_main,
         'ventricle': ventricle_main,
+        'foreground': foreground_main,
     }
     func = commands_dict.get(args.segment_command, None)
     if func is None:
@@ -165,6 +223,7 @@ def segment_cli(subparsers):
     segment_subparsers = segment_parser.add_subparsers(dest='segment_command', title='segment subcommands')
     downsample_cli(segment_subparsers)
     ventricle_cli(segment_subparsers)
+    foreground_cli(segment_subparsers)
     return segment_parser
 
 
@@ -172,10 +231,6 @@ def segment_cli(subparsers):
 
 SEGMENT
 --------
-segment-foreground
-    zarr image -> threshold -> smoothing -> foreground segmentation
-segment-ventricles
-    nuclei zarr -> ventricle UNet probability -> ventricle segmentation
 segment-regions
     niche labels -> rasterized segmentation -> smoothed segmentation
 combine-segmentations

@@ -21,7 +21,8 @@ from scout import curvature
 
 
 def smooth(image, sigma):
-    image = img_as_float32(image)
+    if image.dtype != 'float32':
+        image = img_as_float32(image)
     g = gaussian(image, sigma=sigma, preserve_range=True)
     return g
 
@@ -77,7 +78,6 @@ def intensity_probability(image, I0=None, stdev=None):
     normalized = image / I0
     if stdev is None:
         stdev = normalized.std()
-        # print(stdev)
     return 1 - np.exp(-normalized ** 2 / (2 * stdev ** 2))
 
 
@@ -101,7 +101,10 @@ def nucleus_probability(image, sigma, steepness=500, offset=0.0005, I0=None, std
         Nuclei probability map
 
     """
-    g = smooth(image, sigma)
+    if sigma is not None:
+        g = smooth(image, sigma)
+    else:
+        g = image
     eigvals = curvature.eigvals_of_weingarten(g)
     p_curvature = curvature_probability(eigvals, steepness, offset)
     p_intensity = intensity_probability(g, I0, stdev)

@@ -5,7 +5,11 @@ Cyto Module
 This module performs organoid cytoarchitecture analysis
 
 These include the following subcommands:
-    - smooth : compute radial profiles of each cell-type
+    - mesh : compute surface mesh from segmentation
+    - profiles : compute profiles along surface normals
+    - sample : randomly sample profiles
+    - cluster : cluster profiles into cytoarchitectures
+    - classify : classify profiles into cytoacritectures
 
 """
 
@@ -422,7 +426,7 @@ def classify_cli(subparsers):
 def cyto_cli(subparsers):
     cyto_parser = subparsers.add_parser('cyto', help="cytoarchitecture analysis",
                                         description="Organoid cytoarchitecture analysis")
-    cyto_subparsers = cyto_parser.add_subparsers(dest='cyto_command', title='segment subcommands')
+    cyto_subparsers = cyto_parser.add_subparsers(dest='cyto_command', title='cyto subcommands')
     mesh_cli(cyto_subparsers)
     profiles_cli(cyto_subparsers)
     sample_cli(cyto_subparsers)
@@ -445,21 +449,3 @@ def cyto_main(args):
         subprocess.call(['scout', 'cyto', '-h'])
     else:
         func(args)
-
-
-"""
-
-CYTOARCHITECTURE
------------------
-compute-normals
-    ventricle seg -> mesh
-sample-normals
-    mesh -> subset of normals
-compute-profiles
-    subset of normal + centroids + cell-type labels -> profiles
-cluster-profiles
-    profiles -> tSNE + cytoarchitecture labels
-classify-niches
-    profiles + subset of cytoarchitecture labels -> train logistic model -> model weights + all normal labels
-
-"""

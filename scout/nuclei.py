@@ -23,7 +23,7 @@ import numpy as np
 import pandas as pd
 from scipy import ndimage as ndi
 from skimage import morphology
-from skimage import measure
+from skimage.measure import regionprops
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 import matplotlib.pyplot as plt
@@ -147,7 +147,7 @@ def threshold_mfi(mfi, threshold):
 # Nuclei morphological features
 
 def morphological_features(seg):
-    props = measure.regionprops(seg)
+    props = regionprops(seg)
     nb_labels = len(props)
     centers = np.zeros((nb_labels, seg.ndim))
     volumes = np.zeros(nb_labels)
@@ -413,6 +413,7 @@ def morphology_main(args):
     seg = io.imread(args.input).astype(np.int32)
 
     # Compute morphological features
+    # TODO: Make this consider voxel dimensions
     centers, volumes, eq_diams, minor_lengths, major_lengths, axis_ratios = morphological_features(seg)
 
     # Load the detected centroids

@@ -19,8 +19,8 @@ import numpy as np
 from tqdm import tqdm
 from scipy.interpolate import griddata
 from skimage.transform import downscale_local_mean
-from skimage.morphology import binary_closing
 from skimage.segmentation import clear_border
+from scipy.ndimage.morphology import binary_fill_holes
 import torch
 from scout import io
 from scout.preprocess import gaussian_blur
@@ -114,14 +114,14 @@ def segment_ventricles(model, data, t, device):
 # Define command-line functionality
 
 def downsample_main(args):
+    verbose_print(args, f'Downsampling {args.input} with factors {args.factor}')
+
+    arr = io.open(args.input, mode='r')
+
     if isinstance(args.factor, int):
         factors = tuple(args.factor for _ in range(arr.ndim))
     else:
         factors = tuple(args.factor)
-
-    verbose_print(args, f'Downsampling {args.input} with factors {factors}')
-
-    arr = io.open(args.input, mode='r')
 
     data = downsample(arr, factors)
 
@@ -198,12 +198,16 @@ def foreground_main(args):
     # Threshold image
     foreground = (data > args.t)  # .astype(np.uint8)
 
-    # Fill small holes
-    foreground = binary_closing(foreground).astype(np.uint8)
-    foreground *= 255
+    # Fill holes
+    # This is done slice-by-slice for now since there could be imaging problems where
+    # a part of a ventricle is actually in the image at z = 0 or z = -1
+    output = np.empty(foreground.shape, dtype=np.uint8)
+    for i, img in enumerate(foreground):
+        output[i] = binary_fill_holes(img)
+    output *= 255
 
     # Save the result to TIFF
-    io.imsave(args.output, foreground, compress=3)
+    io.imsave(args.output, output, compress=3)
     verbose_print(args, f'Segmentation written to {args.output}')
 
     verbose_print(args, f'Foreground segmentation done!')
@@ -213,9 +217,9 @@ def foreground_cli(subparsers):
     foreground_parser = subparsers.add_parser('foreground', help="Segment foreground",
                                               description='Foreground segmentation tool')
     foreground_parser.add_argument('input', help="Path to input (downsampled) image")
-    foreground_parser.add_argument('output', help="Path to output ventricle segmentation TIFF")
+    foreground_parser.add_argument('output', help="Path to output foreground segmentation TIFF")
     foreground_parser.add_argument('-g', help="Amount of gaussian smoothing", type=float, nargs='+', default=None)
-    foreground_parser.add_argument('-t', help="Probability threshold", type=float, default=0.1)
+    foreground_parser.add_argument('-t', help="Intensity threshold", type=float, default=0.1)
     foreground_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 

@@ -346,6 +346,7 @@ def classify_main(args):
 
     # Save the niche labels
     np.save(args.labels, labels)
+    verbose_print(args, f'Labels saved to {args.labels}')
 
     verbose_print(args, f'Classifying done!')
 

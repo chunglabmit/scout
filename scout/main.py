@@ -106,6 +106,13 @@ scout segment downsample data/syto.zarr data/syto_down4x.tif 1 4 4 -v
 scout segment ventricle data/syto_down4x.tif models/syto_vz_unet_200.pt data/segment_ventricles.tif -v
 scout segment foreground data/syto_down4x.tif data/segment_foreground.tif -v -t 0.02 -g 8 4 4
 
+scout cyto mesh data/segment_ventricles_exclude.tif data/voxel_size.csv data/mesh_ventricles.pkl -d 1 4 4 -g 2 -p -v
+scout cyto profiles data/mesh_ventricles.pkl data/centroids_um.npy data/gate_labels.npy data/cyto_profiles.npy -v -p
+scout cyto sample 5000 -i data/cyto_profiles.npy -o data/cyto_profiles_sample.npy -v
+scout cyto cluster data/cyto_profiles_sample.npy data/cyto_labels_sample.npy data/cyto_tsne_sample.npy -n 8 -v
+scout cyto classify data/cyto_profiles_sample.npy data/cyto_labels_sample.npy data/cyto_profiles.npy data/cyto_labels.npy -v
+
+
 
 Input
 -----
@@ -136,11 +143,16 @@ Segment
 --------
 + downsampled nuclei Zarr
 + ventricle segmentation
-
-
++ foreground segmentation
 
 Cyto
 -----
++ mesh parameters (mesh)
++ normal profiles (profiles)
+
++ normal profiles sample (sample)
++ normal labels sample (cluster)
++ normal labels (classify)
 
 Multiscale
 -----------

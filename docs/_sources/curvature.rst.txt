@@ -1,0 +1,2 @@
+.. automodule:: scout.curvature
+   :members:

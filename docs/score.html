@@ -1,0 +1,403 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Score Module &mdash; SCOUT 0.1.0a documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Niche Module" href="niche.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SCOUT
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Score Module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SCOUT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Score Module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/score.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-scout.score"></span><div class="section" id="score-module">
+<h1>Score Module<a class="headerlink" href="#score-module" title="Permalink to this headline">¶</a></h1>
+<p>This module contains code for assessing the accuracy of automatic nuclei detection.</p>
+<p>The strategy is to match automatically detected nuclei centroids with human-annotated centroids using
+by solving a linear-sum assignment problem to match corresponding centroids. After matching, unmatched
+detections and human annotations are considered false positives (FP) and false negatives (FN), respectively.</p>
+<dl class="function">
+<dt id="scout.score.f_score">
+<code class="descclassname">scout.score.</code><code class="descname">f_score</code><span class="sig-paren">(</span><em>n_true_positive</em>, <em>n_false_positive</em>, <em>n_false_negative</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.f_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute f-score (f-measure) from true/false positive/negative</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_true_positive</strong> (<em>int</em>) – # of true positives in sample</li>
+<li><strong>n_false_positive</strong> (<em>int</em>) – # of false positives in sample</li>
+<li><strong>n_false_negative</strong> (<em>int</em>) – # of false negatives in sample</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>f-score</strong> – the harmonic mean of precision and recall</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.main">
+<code class="descclassname">scout.score.</code><code class="descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute f-score, precision and recall from the command-line</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.match_centroids">
+<code class="descclassname">scout.score.</code><code class="descname">match_centroids</code><span class="sig-paren">(</span><em>c1</em>, <em>c2</em>, <em>max_distance</em>, <em>inf=100000.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.match_centroids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the best matching of centroids in c1 to centroids in c2</p>
+<p>Match centroids in <cite>c1</cite> to those in <cite>c2</cite>, minimizing total distance between
+pairs with the constraint that no match is further away than <cite>max_distance</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>c1</strong> (<em>array</em>) – an N1xM array of centroid coordinates (M is the dimension of the volume).</li>
+<li><strong>c2</strong> (<em>array</em>) – another N2xM array of centroid coordinates</li>
+<li><strong>max_distance</strong> (<em>float</em>) – the maximum allowed distance between pairs</li>
+<li><strong>inf</strong> (<em>float</em>) – a ridiculously large distance to use in place of true infinity</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"><ul class="simple">
+<li><strong>c1_idxs</strong> (<em>array</em>) – the index of the matching centroid in <cite>c2</cite> for each <cite>c1</cite>. Index -1 means no match.</li>
+<li><strong>c2_idxs</strong> (<em>array</em>) – the index of the matching centroid in <cite>c1</cite> for each <cite>c2</cite>. Index of -1 means no match.</li>
+</ul>
+</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.parse_into_array">
+<code class="descclassname">scout.score.</code><code class="descname">parse_into_array</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.parse_into_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse either a numpy or json-format array</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – path to array saved using either numpy.save or json.dump</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.precision">
+<code class="descclassname">scout.score.</code><code class="descname">precision</code><span class="sig-paren">(</span><em>n_true_positive</em>, <em>n_false_positive</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.precision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute precision from true/false positive/negative</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_true_positive</strong> (<em>int</em>) – # of true positives in sample</li>
+<li><strong>n_false_positive</strong> (<em>int</em>) – # of false positives in sample</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>precision</strong> – true positives / (true positives + false positives)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<p>“precision is the fraction of relevant instances among the retrieved
+instances <a class="footnote-reference" href="#id2" id="id1">[1]</a>”</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td><a class="reference external" href="https://en.wikipedia.org/wiki/Precision_and_recall">https://en.wikipedia.org/wiki/Precision_and_recall</a></td></tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.recall">
+<code class="descclassname">scout.score.</code><code class="descname">recall</code><span class="sig-paren">(</span><em>n_true_positive</em>, <em>n_false_negative</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.recall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute recall from true/false positive/negative</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>n_true_positive</strong> (<em>int</em>) – # of true positives in sample</li>
+<li><strong>n_false_negative</strong> (<em>int</em>) – # of false negatives in sample</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>recall</strong> – positives / (true positives + false negatives)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">float</p>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">References</p>
+<p>“recall  is the fraction of relevant instances that have been retrieved
+over the total amount of relevant instances <a class="footnote-reference" href="#id4" id="id3">[2]</a>”</p>
+<table class="docutils footnote" frame="void" id="id4" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[2]</a></td><td><a class="reference external" href="https://en.wikipedia.org/wiki/Precision_and_recall">https://en.wikipedia.org/wiki/Precision_and_recall</a></td></tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.score_centroids">
+<code class="descclassname">scout.score.</code><code class="descname">score_centroids</code><span class="sig-paren">(</span><em>c_detected</em>, <em>c_gt</em>, <em>max_distance</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.score_centroids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute precision/recall stats on centroids</p>
+<p>Find the best match of detected to ground-truth and then compute
+precision, recall and f_score from those.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>c_detected</strong> (<em>array</em>) – an N1xM array of the detected centroids</li>
+<li><strong>c_gt</strong> (<em>array</em>) – an N2xM array of the ground-truth centroids</li>
+<li><strong>max_distance</strong> (<em>float</em>) – maximum allowed distance of a match</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<dl class="docutils">
+<dt>a CentroidsScore contains the following attributes:</dt>
+<dd><dl class="first last docutils">
+<dt>gt_per_detected</dt>
+<dd>an array of the indices of the ground-truth match for each detected centroid. An index of -1 indicates that there was no match (false positive)</dd>
+<dt>detected_per_gt</dt>
+<dd>an array of the indices of the detected match for each ground-truth centroid. An index of -1 indicates that there was no match (false negative)</dd>
+<dt>precision</dt>
+<dd>the precision of matching - # truly detected / # detected</dd>
+<dt>recall</dt>
+<dd>the recall of matching # truly detected / # in ground truth</dd>
+<dt>f_score</dt>
+<dd>the f-score</dd>
+</dl>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><strong>CentroidScore</strong> – a CentroidsScore object with the final metrics</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">object</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="niche.html" class="btn btn-neutral float-left" title="Niche Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Justin Swaney
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

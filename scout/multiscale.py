@@ -5,6 +5,7 @@ Multiscale Module
 This module builds the multiscale organoid feature vectors
 
 These include the following subcommands:
+
     - metadata : attach metadata to multiscale features
     - features : consolidate multiscale features with optional metadata
     - summarize : display an organoid summary

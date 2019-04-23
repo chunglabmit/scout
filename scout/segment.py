@@ -5,6 +5,7 @@ Segment Module
 This module performs organoid segmentation
 
 These include the following subcommands:
+
     - downsample : reduce image size for faster segmentaion
     - ventricle : segment ventricles from downsampled nuclei image
     - foreground : segment organoid foreground

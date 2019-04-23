@@ -5,6 +5,7 @@ Nuclei Module
 This module performs nuclei detection, segmentation, and cytometry.
 
 These include the following subcommands:
+
     - detect : detect all nuclei in image
     - segment : segment all detected nuclei
     - fluorescence : measure fluorescence for each cell

@@ -5,6 +5,7 @@ Cyto Module
 This module performs organoid cytoarchitecture analysis
 
 These include the following subcommands:
+
     - mesh : compute surface mesh from segmentation
     - profiles : compute profiles along surface normals
     - sample : randomly sample profiles

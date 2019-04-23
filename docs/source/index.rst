@@ -1,35 +1,23 @@
 Welcome to SCOUT's documentation!
 =================================
 
-.. automodule:: scout.io
-   :members:
-
-.. automodule:: scout.utils
-   :members:
-
-.. automodule:: scout.preprocess
-   :members:
-
-.. automodule:: scout.curvature
-   :members:
-
-.. automodule:: scout.detection
-   :members:
-
-.. automodule:: scout.nuclei
-   :members:
-
-.. automodule:: scout.niche
-   :members:
-
-.. automodule:: scout.score
-   :members:
-
+SCOUT is a Python library for performing high-dimensional phenotypic analysis of cerebral organoids.
+The library provides a command-line interface (CLI) for extracting multiscale features and performing
+permutation-based statistical tests.
 
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
+
+   io
+   utils
+   preprocess
+   curvature
+   detection
+   nuclei
+   niche
+   score
 
 
 Indices and tables

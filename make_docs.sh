@@ -1,3 +1,4 @@
+#!/bin/bash
 rm -R docs/doctrees
 mv docs html
 cd html

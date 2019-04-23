@@ -5,6 +5,7 @@ Niche Module
 This module performs neighborhood analysis.
 
 These include the following subcommands:
+
     - radial : compute radial profiles of each cell-type
     - proximity : compute average proximity to each cell-type
     - sample : randomly subsample cells to allow faster clustering

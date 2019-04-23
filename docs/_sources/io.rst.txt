@@ -1,0 +1,2 @@
+.. automodule:: scout.io
+   :members:

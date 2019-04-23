@@ -128,7 +128,6 @@ def clahe(image, kernel_size, clip_limit=0.01, nbins=256, nb_workers=None):
     image_min = image.min()
     image_max = image.max()
     output = np.asarray(results) * (image_max - image_min) + image_min
-    print(image.dtype)
     return output.astype(image.dtype)
 
 
@@ -179,7 +178,7 @@ def denoise2d(image, sigma, wavelet='db1'):
     # # Default useSD_h=True, useSD_w=True are used
     # # Not sure why DCT-based filters are not working and giving severe block artifacts
     # # Using bidirectional wavelets seems to be more stable
-    return output
+    return output.astype(image.dtype)
 
 
 def denoise(image, sigma, wavelet='db1', nb_workers=None):
@@ -225,6 +224,7 @@ def preprocess_cli(subparsers):
     preprocess_parser.add_argument('-k', help="CLAHE kernel size. (Use 0 for default)", type=int, default=None)
     preprocess_parser.add_argument('-c', help="Chunk size of output Zarr array", type=int, nargs='+', default=3*(64,))
     preprocess_parser.add_argument('-p', help="Plot before and after of specified z-slice", type=int, default=None)
+    preprocess_parser.add_argument('-f', '--float', help="Flag to convert to float", action='store_true')
     preprocess_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
     return preprocess_parser
 
@@ -239,10 +239,6 @@ def preprocess_main(args):
     shape, dtype = img.shape, img.dtype
     verbose_print(args, f"Loaded image: {shape} {dtype}")
 
-    # Normalize and convert to float
-    img = rescale_intensity(img_as_float32(img))
-    verbose_print(args, f"Converted to normalized float32: min {img.min():.3f}, max {img.max():.3f}")
-
     # Keep reference to before image if plotting
     if args.p is not None:
         before = img[args.p]
@@ -251,11 +247,6 @@ def preprocess_main(args):
     if args.t is not None:
         verbose_print(args, f"Performing background removal with threshold {args.t}")
         img = remove_background(img, args.t)
-
-    # Denoising
-    if args.s is not None:
-        verbose_print(args, f"Performing noise removal with sigma {args.s} and wavelet {args.w}")
-        img = denoise(img, args.s, args.w)
 
     # Histogram equalization
     if args.k is not None:
@@ -266,6 +257,16 @@ def preprocess_main(args):
             verbose_print(args, f"Performing histogram equalization with kernel size {args.k}")
             kernel_size = args.k
         img = clahe(img, kernel_size=kernel_size)
+
+    # Normalize and convert to float
+    if args.float:
+        img = rescale_intensity(img_as_float32(img))
+        verbose_print(args, f"Converted to normalized float32: min {img.min():.3f}, max {img.max():.3f}")
+
+    # Denoising
+    if args.s is not None:
+        verbose_print(args, f"Performing noise removal with sigma {args.s} and wavelet {args.w}")
+        img = denoise(img, args.s, args.w)
 
     # Show A/B plot
     if args.p is not None:

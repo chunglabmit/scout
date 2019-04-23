@@ -1,0 +1,454 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Curvature Module &mdash; SCOUT 0.1.0a documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Detection Module" href="detection.html" />
+    <link rel="prev" title="Preprocess Module" href="preprocess.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SCOUT
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Curvature Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SCOUT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Curvature Module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/curvature.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <span class="target" id="module-scout.curvature"></span><div class="section" id="curvature-module">
+<h1>Curvature Module<a class="headerlink" href="#curvature-module" title="Permalink to this headline">¶</a></h1>
+<p>This module implements a GPU-accelerated and CPU-only principal curvature calculations.</p>
+<p>These routines are needed for curvature-based seeded watershed to segment densely-packed nuclei:
+<a class="reference external" href="https://www.mdpi.com/2313-433X/2/4/31">https://www.mdpi.com/2313-433X/2/4/31</a></p>
+<dl class="function">
+<dt id="scout.curvature.dx">
+<code class="descclassname">scout.curvature.</code><code class="descname">dx</code><span class="sig-paren">(</span><em>x</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in the X direction</p>
+<p>Note that this function does not pad the image so the output is reduced
+in size.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – Input array</li>
+<li><strong>xum</strong> (<em>float</em>) – microns per voxel in the X direction</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dx</strong> – The gradient in the X direction, reduced in size by one at each edge</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.dy">
+<code class="descclassname">scout.curvature.</code><code class="descname">dy</code><span class="sig-paren">(</span><em>x</em>, <em>yum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in the Y direction</p>
+<p>Note that this function does not pad the image so the output is reduced
+in size.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>y</strong> (<em>ndarray</em>) – Input array</li>
+<li><strong>yum</strong> (<em>float</em>) – The number of microns per voxel in the Y direction</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dy</strong> – The gradient in the Y direction, reduced in size by one at each edge</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.dz">
+<code class="descclassname">scout.curvature.</code><code class="descname">dz</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in the Z direction</p>
+<p>Note that this function does not pad the image so the output is reduced
+in size.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – Input array</li>
+<li><strong>zum</strong> (<em>float</em>) – microns per voxel in the z direction</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dz</strong> – The gradient in the Z direction, reduced in size by one at each edge</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.eigen3">
+<code class="descclassname">scout.curvature.</code><code class="descname">eigen3</code><span class="sig-paren">(</span><em>A</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.eigen3" title="Permalink to this definition">¶</a></dt>
+<dd><p>The eigenvalues of a 3x3 matrix of arrays</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>A</strong> (<em>ndarray</em>) – a 3x3 matrix of arrays, e.g. a list of lists</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>eigenvals</strong> – a 3 tuple of arrays - the eigenvalues of each 3x3 of the matrix in ascending order.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.eigvals_of_weingarten">
+<code class="descclassname">scout.curvature.</code><code class="descname">eigvals_of_weingarten</code><span class="sig-paren">(</span><em>x</em>, <em>ew_block_size=64</em>, <em>zum=1</em>, <em>yum=1</em>, <em>xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.eigvals_of_weingarten" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the eigenvalues of the weingarten operator</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – an NxMxP 3D array</li>
+<li><strong>ew_block_size</strong> (<em>int</em>) – the block size for the blocks to be processed. The algorithm needs approximately 128 bytes per voxel processed.</li>
+<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
+<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
+<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>eigvals</strong> – an NxMxPx3 array of the 3 eigenvalues of the weingarten operator for the space.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.gradient">
+<code class="descclassname">scout.curvature.</code><code class="descname">gradient</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1.0</em>, <em>yum=1.0</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.gradient" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in all three directions</p>
+<p>Note that the images returned are reduced in size by 1 - there is no padding</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – Input array</li>
+<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
+<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
+<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>grad</strong> – A tuple of the z, y, and x gradients.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.gradient_numpy">
+<code class="descclassname">scout.curvature.</code><code class="descname">gradient_numpy</code><span class="sig-paren">(</span><em>data</em>, <em>zum=1.0</em>, <em>yum=1.0</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.gradient_numpy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the gradient in units of intensity / micron</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>data</strong> (<em>ndarray</em>) – 3d numpy array</li>
+<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
+<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
+<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>grad</strong> – A 4-dimensional matrix with the last dimension being the z==0, y==1, x==2 selector of the gradient direction</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.structure_tensor">
+<code class="descclassname">scout.curvature.</code><code class="descname">structure_tensor</code><span class="sig-paren">(</span><em>dz</em>, <em>dy</em>, <em>dx</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.structure_tensor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct the structure tensor from the gradient</p>
+<p>The structure tensor is the cross product of the gradient with itself:
+dz * dz   dy * dz   dx * dz
+dz * dy   dy * dy   dx * dy
+dz * dx   dy * dx   dx * dx</p>
+<p>Note - the arrays of the structure tensor are reduced in size by 1 on
+each side to match the dimensions of the Hessian</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>dz</strong> (<em>ndarray</em>) – The gradient in the Z direction</li>
+<li><strong>dy</strong> (<em>ndarray</em>) – The gradient in the Y direction</li>
+<li><strong>dx</strong> (<em>ndarray</em>) – The gradient in the X direction</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> – A 3 tuple of 3 tuples representing the structure tensor of the gradient</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.curvature.weingarten">
+<code class="descclassname">scout.curvature.</code><code class="descname">weingarten</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1</em>, <em>yum=1</em>, <em>xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.weingarten" title="Permalink to this definition">¶</a></dt>
+<dd><p>The Weingarten shape operator on a 3D image</p>
+<p>See <a class="reference external" href="http://mathworld.wolfram.com/ShapeOperator.html">http://mathworld.wolfram.com/ShapeOperator.html</a> for instance.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>x</strong> (<em>ndarray</em>) – The 3-D image to be processed</li>
+<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
+<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
+<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>weingarten</strong> – A 3 tuple of 3 tuples representing the 3 x 3 matrix of the
+shape operator per voxel. The 3D elements of the matrix are reduced in
+size by 2 at each edge (a total of 4 voxels smaller in each dimension)
+because of the double differentiation of the Hessian.</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="detection.html" class="btn btn-neutral float-right" title="Detection Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="preprocess.html" class="btn btn-neutral float-left" title="Preprocess Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Justin Swaney
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

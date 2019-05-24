@@ -20,6 +20,10 @@ The following CLIs are defined:
 import argparse
 import subprocess
 import os
+
+# Patch matplotlib backend for use on leviathan
+import matplotlib; matplotlib.use('agg')
+
 from scout.preprocess import preprocess_cli, preprocess_main
 from scout.nuclei import nuclei_cli, nuclei_main
 from scout.niche import niche_cli, niche_main

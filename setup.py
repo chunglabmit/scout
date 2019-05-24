@@ -24,7 +24,6 @@ setup(
         "pandas",
         "tifffile",
         "lapsolver",
-        "pybm3d",
     ],
     author="Kwanghun Chung Lab",
     packages=["scout",

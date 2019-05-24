@@ -192,7 +192,6 @@ dependencies:
     - mayavi==4.6.2
     - multicoretsne==0.1
     - pockets==0.7.2
-    - pybm3d==0.2.1
     - pyface==6.0.0
     - pyqt5==5.12.1
     - pyqt5-sip==4.19.15

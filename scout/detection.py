@@ -130,7 +130,7 @@ def nuclei_centers_probability(prob, threshold, min_dist):
         Coordinates of detected centroids
 
     """
-    prob = remove_background(prob, threshold)
+    # prob = remove_background(prob, threshold)
     return peak_local_max(prob, min_distance=min_dist, threshold_abs=threshold)
 
 

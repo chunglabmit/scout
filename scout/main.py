@@ -81,24 +81,35 @@ def main():
         func(args)
 
 
+if __name__ == '__main__':
+    main()
+
+
 """
 
 Commands run on test data
 --------------------------
 
+# Preprocessing used for confocal images
 scout preprocess data/syto.tif data/syto.zarr -t 0.05 -s 0.05 -v -p 8
 scout preprocess data/tbr1.tif data/tbr1.zarr -t 0.05 -s 0.05 -v -p 8
 scout preprocess data/sox2.tif data/sox2.zarr -t 0.05 -s 0.05 -v -p 8
 
-scout nuclei detect data/syto.zarr data/nuclei_prob.zarr data/centroids.npy --voxel-size data/voxel_size.csv --output-um data/centroids_um.npy -v
-scout nuclei segment data/syto.zarr data/centroids.npy data/nuclei_foreground.zarr data/nuclei_binary.zarr data/nuclei_segmentation.tif -v
-scout nuclei fluorescence data/centroids.npy data data/tbr1.zarr data/sox2.zarr -g 0.7 1.0 1.0 -v
-scout nuclei gate data/nuclei_mfis.npy data/gate_labels.npy 0.08 0.3 -p -v
-scout nuclei morphology data/nuclei_segmentation.tif data/centroids.npy data/nuclei_morphologies.csv -v
+# Preprocessing used for SPIM
+scout preprocess histogram Ex_0_Em_0_destriped_stitched_master/ Ex0_hist.csv -s 50 -v
+scout preprocess rescale Ex_0_Em_0_destriped_stitched_master/ Ex0_hist.csv Ex0_rescaled -t 120 -v (or 100)
+scout preprocess denoise Ex0_rescaled/ Ex0_denoised -s 0.005 -v (or 0.001 for SOX2 TBR1)
+scout preprocess convert Ex0_denoised/ syto.zarr -v
+
+scout nuclei detect syto.zarr nuclei_probability.zarr centroids.npy --voxel-size voxel_size.csv --output-um centroids_um.npy -v
+scout nuclei segment nuclei_probability.zarr centroids.npy nuclei_foreground.zarr nuclei_binary.zarr -v
+scout nuclei fluorescence centroids.npy fluorescence sox2.zarr tbr1.zarr -g 0.7 1.0 1.0 -v
+scout nuclei gate fluorescence/nuclei_mfis.npy fluorescence/gate_labels.npy 0.08 0.3 -p -v
+scout nuclei morphology nuclei_binary.zarr centroids.npy nuclei_segmentations.npz nuclei_morphologies.csv -v
 
 # scout niche radial tests/data/centroids_um.npy tests/data/gate_labels.npy tests/data/niche_profiles.npy -v
 scout niche proximity data/centroids_um.npy data/gate_labels.npy data/niche_proximities.npy -r 5 5 -v
-scout niche sample 10000 -i data/niche_proximities.npy -o data/niche_proximities_sample.npy -v
+scout niche sample 10000 niche_sample_index.npy -i data/niche_proximities.npy -o data/niche_proximities_sample.npy -v
 scout niche cluster data/niche_proximities_sample.npy data/niche_labels_sample.npy data/niche_tsne_sample.npy -v -n 4 -p
 scout niche classify data/niche_proximities_sample.npy data/niche_labels_sample.npy data/niche_proximities.npy data/niche_labels.npy -v
 
@@ -149,13 +160,13 @@ Cyto
 -----
 + mesh parameters (mesh)
 + normal profiles (profiles)
-
 + normal profiles sample (sample)
 + normal labels sample (cluster)
 + normal labels (classify)
 
 Multiscale
 -----------
++ combine sampled features from each organoid
 
 Permute
 --------

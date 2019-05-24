@@ -11,6 +11,7 @@ large chunk-compressed arrays in parallel.
 
 import contextlib
 import os
+import json
 from itertools import product, starmap
 import multiprocessing
 import numpy as np
@@ -23,6 +24,50 @@ if sys.platform.startswith("linux"):
 else:
     is_linux = False
     import mmap
+
+
+def files_in_dir(path):
+    """Searches a path for all files
+
+    Parameters
+    ----------
+    path : str
+        The directory path to check for files
+
+    Returns
+    -------
+    list
+        list of all files and subdirectories in the input path (excluding . and ..)
+
+    """
+    return sorted(os.listdir(path))
+
+
+def tifs_in_dir(path):
+    """Searches input path for tif files
+
+    Parameters
+    ----------
+    path : str
+        path of the directory to check for tif images
+
+    Returns
+    -------
+    tif_paths : list
+        list of paths to tiffs in path
+    tif_filenames : list
+        list of tiff filenames (with the extension) in path
+
+    """
+    abspath = os.path.abspath(path)
+    files = files_in_dir(abspath)
+    tif_paths = []
+    tif_filenames = []
+    for f in files:
+        if f.endswith('.tif') or f.endswith('.tiff'):
+            tif_paths.append(os.path.join(abspath, f))
+            tif_filenames.append(f)
+    return tif_paths, tif_filenames
 
 
 def chunk_dims(img_shape, chunk_shape):
@@ -182,6 +227,19 @@ def filter_ghosted_points(start_ghosted, start_coord, centers_local, chunks, ove
     return centers_local[np.where(interior)]
 
 
+def write_csv(path, data):
+    with open(path, mode='w') as f:
+        for d in data[:-1]:
+            f.write(str(d) + ',')
+        f.write(str(data[-1]))
+
+
+def read_csv(path):
+    with open(path, mode='r') as f:
+        line = f.readline().split('\n')[0]
+    return line.split(',')
+
+
 def read_voxel_size(path):
     """Reads in the voxel size stored in `path` CSV file with voxel dimensions in nanometers
 
@@ -195,13 +253,11 @@ def read_voxel_size(path):
     size : tuple
         Physical voxel size in same order as in CSV
     """
-    with open(path, mode='r') as f:
-        line = f.readline().split('\n')[0]
-    dims = line.split(',')
+    dims = read_csv(path)
     return tuple([int(d) / 1000 for d in dims])
 
 
-def pmap_chunks(f, arr, chunks=None, nb_workers=None, use_imap=False):
+def pmap_chunks(f, arr, chunks=None, nb_workers=None, use_imap=False, unordered=False, chunksize=None):
     """Maps a function over an array in parallel using chunks
 
     The function `f` should take a reference to the array, a starting index, and the chunk size.
@@ -247,7 +303,10 @@ def pmap_chunks(f, arr, chunks=None, nb_workers=None, use_imap=False):
     if nb_workers > 1:
         with multiprocessing.Pool(processes=nb_workers) as pool:
             if use_imap:
-                results = list(tqdm.tqdm(pool.imap(f, args_list), total=len(args_list)))
+                if unordered:
+                    results = list(tqdm.tqdm(pool.imap_unordered(f, args_list, chunksize=chunksize), total=len(args_list)))
+                else:
+                    results = list(tqdm.tqdm(pool.imap(f, args_list), total=len(args_list)))
             else:
                 results = list(pool.starmap(f, args_list))
     else:
@@ -364,3 +423,8 @@ class SharedMemory:
 
 def verbose_print(args, msg):
     print(msg) if args.verbose else None
+
+
+def read_json(path):
+    with open(path) as json_file:
+        return json.load(json_file)

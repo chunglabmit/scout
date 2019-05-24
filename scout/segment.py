@@ -13,6 +13,7 @@ These include the following subcommands:
 
 """
 
+import os
 import subprocess
 import multiprocessing
 import warnings
@@ -46,8 +47,11 @@ def downsample(arr, factors):
     output : ndarray
 
     """
-    # Load image
-    data = arr[:]
+    if not isinstance(arr, np.ndarray):
+        # Load image
+        data = arr[:]
+    else:
+        data = arr
     # Resize image
     output = downscale_local_mean(data, factors).astype(arr.dtype)
     return output
@@ -117,18 +121,28 @@ def segment_ventricles(model, data, t, device):
 def downsample_main(args):
     verbose_print(args, f'Downsampling {args.input} with factors {args.factor}')
 
-    arr = io.open(args.input, mode='r')
-
-    if isinstance(args.factor, int):
-        factors = tuple(args.factor for _ in range(arr.ndim))
+    if args.tiff:
+        os.makedirs(args.output, exist_ok=True)
+        paths, filenames = utils.tifs_in_dir(args.input)
+        for i, (path, filename) in enumerate(zip(paths, filenames)):
+            verbose_print(args, f'Downsampling {filename}')
+            arr = io.imread(path)
+            if isinstance(args.factor, int):
+                factors = tuple(args.factor for _ in range(arr.ndim))
+            else:
+                factors = tuple(args.factor)
+            data = downsample(arr, factors)
+            output = os.path.join(args.output, filename)
+            io.imsave(output, data, compress=3)
     else:
-        factors = tuple(args.factor)
-
-    data = downsample(arr, factors)
-
-    verbose_print(args, f'Writing result to {args.output}')
-
-    io.imsave(args.output, data, compress=3)
+        arr = io.open(args.input, mode='r')
+        if isinstance(args.factor, int):
+            factors = tuple(args.factor for _ in range(arr.ndim))
+        else:
+            factors = tuple(args.factor)
+        data = downsample(arr, factors)
+        verbose_print(args, f'Writing result to {args.output}')
+        io.imsave(args.output, data, compress=3)
 
     verbose_print(args, f'Downsampling done!')
 
@@ -139,6 +153,7 @@ def downsample_cli(subparsers):
     downsample_parser.add_argument('input', help="Path to input image to be downsampled")
     downsample_parser.add_argument('output', help="Path to output downsampled TIFF image")
     downsample_parser.add_argument('factor', help="Downsample factor", type=int, nargs='+')
+    downsample_parser.add_argument('-t', '--tiff', help="TIFF folder flag", action='store_true')
     downsample_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 

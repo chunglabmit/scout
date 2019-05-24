@@ -9,8 +9,10 @@ These include the following subcommands:
     - radial : compute radial profiles of each cell-type
     - proximity : compute average proximity to each cell-type
     - sample : randomly subsample cells to allow faster clustering
+    - combine : combine single-cell features from multiple organoids
     - cluster : cluster cells into niches based on proximity
-    - classify : fit niche classifier to subset and apply to all cell
+    - classify : fit niche classifier to subset and apply to all cells
+    - name : assign names to niches
 
 """
 
@@ -21,10 +23,11 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.mixture import GaussianMixture
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.linear_model import LogisticRegression
+from sklearn.externals import joblib
 import matplotlib.pyplot as plt
 import matplotlib.colors as cm
 from MulticoreTSNE import MulticoreTSNE as TSNE
-from scout.utils import verbose_print
+from scout.utils import verbose_print, write_csv
 
 
 # Query neighbors
@@ -141,6 +144,7 @@ def radial_main(args):
     distances, indices = query_radius(nbrs, centroids, args.r)
 
     # Compute profiles for each cell-type
+
     profiles = np.zeros((celltypes.shape[-1], celltypes.shape[0], args.b))
     for i, labels in enumerate(celltypes.T):
         verbose_print(args, f'Counting cell-type {i}')
@@ -188,7 +192,10 @@ def proximity_main(args):
 
     # Show plot
     if args.plot:
-        plt.plot(proximities[:, 0], proximities[:, 1], '.', alpha=0.01)
+        idx = np.arange(len(proximities))
+        np.random.shuffle(idx)
+        idx = idx[:100000]
+        plt.plot(proximities[idx, 0], proximities[idx, 1], '.', alpha=0.01)
         plt.show()
 
     # Save the proximities
@@ -231,12 +238,15 @@ def sample_main(args):
     input_arrs = [np.load(path) for path in args.inputs]
 
     # Randomly sample
-    sampled_data = randomly_sample(args.samples, *input_arrs, return_idx=False)
+
+    sampled_data, idx = randomly_sample(args.samples, *input_arrs, return_idx=True)
 
     # Save sample
     for output, samples in zip(outputs, sampled_data):
         np.save(output, samples)
         verbose_print(args, f'Saved samples to {output}')
+    np.save(args.index, idx)
+    verbose_print(args, f'Saved sample index to {args.index}')
 
     verbose_print(args, f'Randomly sampling done!')
 
@@ -245,10 +255,37 @@ def sample_cli(subparsers):
     sample_parser = subparsers.add_parser('sample', help="Randomly sample cells",
                                           description='Randomly sample cells before clustering')
     sample_parser.add_argument('samples', help="Number of samples to take", type=int)
+    sample_parser.add_argument('index', help="Path to save sample index numpy array")
     sample_parser.add_argument('-i', '--inputs', help="Path to input numpy arrays", nargs='+', required=True)
     sample_parser.add_argument('-o', '--outputs', help="Path to sampled output numpy arrays", nargs='+', required=True)
     sample_parser.add_argument('-s', '--seed', help="Random seed", type=int, default=1)
     sample_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
+def combine_main(args):
+    verbose_print(args, f'Combining features from {len(args.inputs)} arrays')
+
+    input_arrays = [np.load(path) for path in args.inputs]
+    combined = np.concatenate(input_arrays, axis=args.a)
+
+    verbose_print(args, f'Saving combined features to {args.output} with shape {combined.shape}')
+    np.save(args.output, combined)
+
+    verbose_print(args, f'Saving organoid labels to {args.sample}')
+    names = np.concatenate([i*np.ones(len(arr)) for i, arr in enumerate(input_arrays)])
+    np.save(args.sample, names)
+
+    verbose_print(args, f'Combining features done!')
+
+
+def combine_cli(subparsers):
+    combine_parser = subparsers.add_parser('combine', help="Combine data from multiple organoids",
+                                           description='Combine data from multiple organoids by concatenation')
+    combine_parser.add_argument('inputs', help="Path to input numpy arrays", nargs='+')
+    combine_parser.add_argument('-o', '--output', help="Path to output combined numpy array", required=True)
+    combine_parser.add_argument('-s', '--sample', help="Path to output with sample name", required=True)
+    combine_parser.add_argument('-a', help="Axis to concatenate", type=int, default=0)
+    combine_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def cluster_main(args):
@@ -267,17 +304,21 @@ def cluster_main(args):
     #
     # labels = gmm.predict(proximities)
 
-    # K-means
-    kmeans = KMeans(n_clusters=args.n, n_init=args.i).fit(proximities)
+    # # K-means
+    # kmeans = KMeans(n_clusters=args.n, n_init=args.i).fit(proximities)
+    # labels = kmeans.predict(proximities)
+    # verbose_print(args, f'Cluster centers:\n{kmeans.cluster_centers_}')
+    # verbose_print(args, f'Total inertia:\n{kmeans.inertia_:.8f}')
 
-    verbose_print(args, f'Cluster centers:\n{kmeans.cluster_centers_}')
-    verbose_print(args, f'Total inertia:\n{kmeans.inertia_:.8f}')
-
-    labels = kmeans.predict(proximities)
-
-    # # DBSCAN
-    # dbscan = DBSCAN(eps=0.1, min_samples=2).fit(proximities)
-    # labels = dbscan.labels_
+    # Threshold
+    sox2_adjacent = (proximities[:, 0] > 0.42)
+    tbr1_adjacent = (proximities[:, 1] > 0.42)
+    btm_left = np.logical_not(np.logical_or(sox2_adjacent, tbr1_adjacent))
+    btm_right = np.logical_and(sox2_adjacent, np.logical_not(tbr1_adjacent))
+    top_left = np.logical_and(tbr1_adjacent, np.logical_not(sox2_adjacent))
+    top_right = np.logical_and(sox2_adjacent, tbr1_adjacent)
+    onehot = np.asarray([btm_left, btm_right, top_left, top_right])
+    labels = np.argmax(onehot, axis=0)
 
     verbose_print(args, 'Running t-SNE...')
     x_tsne = TSNE(n_components=2, n_jobs=-1, perplexity=800, learning_rate=100).fit_transform(proximities)
@@ -323,17 +364,25 @@ def classify_main(args):
     # Load training data
     x = np.load(args.proximity_train)
     y = np.load(args.labels_train)
-
     classes = np.unique(y)
 
-    # Train model
-    clf = LogisticRegression(random_state=0,
-                             solver='lbfgs',
-                             multi_class='multinomial',
-                             n_jobs=-1).fit(x, y)
-    verbose_print(args, f'Training accuracy: {clf.score(x, y):.4f}')
-    verbose_print(args, f'Model coefficients:\n{clf.coef_}')
-    verbose_print(args, f'Model intercepts:\n{clf.intercept_}')
+    if args.load is None:
+        verbose_print(args, f'Training new model')
+        # Train model
+        clf = LogisticRegression(random_state=0,
+                                 solver='lbfgs',
+                                 multi_class='multinomial',
+                                 n_jobs=-1).fit(x, y)
+        verbose_print(args, f'Training accuracy: {clf.score(x, y):.4f}')
+        verbose_print(args, f'Model coefficients:\n{clf.coef_}')
+        verbose_print(args, f'Model intercepts:\n{clf.intercept_}')
+    else:
+        verbose_print(args, f'Loading model from {args.load}')
+        clf = joblib.load(args.load)
+
+    if args.save is not None:
+        verbose_print(args, f'Saving model to {args.save}')
+        joblib.dump(clf, args.save)
 
     # Apply classifier
     proximities = np.load(args.proximity)
@@ -359,7 +408,23 @@ def classify_cli(subparsers):
     classify_parser.add_argument('labels_train', help="Path to output niche labels numpy array for training")
     classify_parser.add_argument('proximity', help="Path to input proximity numpy array to classify")
     classify_parser.add_argument('labels', help="Path to output niche labels numpy array")
+    classify_parser.add_argument('--save', help="Path to save trained model", default=None)
+    classify_parser.add_argument('--load', help="Path to load a trained model", default=None)
     classify_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
+def name_main(args):
+    verbose_print(args, f'Writing cluster names to {args.output}')
+    write_csv(args.output, args.names)
+    verbose_print(args, f'Naming done!')
+
+
+def name_cli(subparsers):
+    name_parser = subparsers.add_parser('name', help="Assign names to each group",
+                                        description='Assign names to each group by writing to file')
+    name_parser.add_argument('names', help="Names of each group", nargs='+')
+    name_parser.add_argument('--output', '-o', help="Path to output names file", required=True)
+    name_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def niche_main(args):
@@ -367,8 +432,10 @@ def niche_main(args):
         'radial': radial_main,
         'proximity': proximity_main,
         'sample': sample_main,
+        'combine': combine_main,
         'cluster': cluster_main,
         'classify': classify_main,
+        'name': name_main,
     }
     func = commands_dict.get(args.niche_command, None)
     if func is None:
@@ -385,6 +452,8 @@ def niche_cli(subparsers):
     radial_cli(niche_subparsers)
     proximity_cli(niche_subparsers)
     sample_cli(niche_subparsers)
+    combine_cli(niche_subparsers)
     cluster_cli(niche_subparsers)
     classify_cli(niche_subparsers)
+    name_cli(niche_subparsers)
     return niche_parser

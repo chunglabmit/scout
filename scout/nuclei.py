@@ -11,6 +11,7 @@ These include the following subcommands:
     - fluorescence : measure fluorescence for each cell
     - gate : assign cell-type labels by fluorescence thresholding
     - morphology : compute morphological features of segmented nuclei
+    - name : assign names to each cell-type
 
 """
 
@@ -22,21 +23,31 @@ import multiprocessing
 import tempfile
 import numpy as np
 import pandas as pd
+import zarr
 from scipy import ndimage as ndi
 from skimage import morphology
 from skimage.measure import regionprops
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
 import matplotlib.pyplot as plt
+from matplotlib import colors
 from scout import io
 from scout.preprocess import gaussian_blur_parallel
 from scout import detection
 from scout import utils
 from scout.utils import verbose_print
 from scout.synthetic import points_to_binary
+from scout.niche import name_cli, name_main
 
 
 # Nuclei segmentation
+
+def _threshold_chunk(inputs, threshold, output):
+    arr, start, chunks = inputs
+    prob, _, stop = utils.extract_ghosted_chunk(arr, start, chunks, overlap=0)
+    foreground = (prob > threshold).astype(np.uint8)
+    utils.insert_box(output, start, stop, foreground)
+
 
 def watershed_centers(image, centers, mask, **watershed_kwargs):
     seeds = points_to_binary(tuple(centers.T), image.shape, cval=1)
@@ -49,13 +60,20 @@ def _watershed_probability_chunk(input_tuple, output, centers, mask, overlap, **
     arr, start_coord, chunks = input_tuple
 
     # extract ghosted chunk of data
-    data_overlap, start_ghosted, stop_ghosted = utils.extract_ghosted_chunk(arr, start_coord, chunks, overlap)
-    mask_overlap, _, _ = utils.extract_ghosted_chunk(mask, start_coord, chunks, overlap)
+    mask_overlap, start_ghosted, stop_ghosted = utils.extract_ghosted_chunk(mask, start_coord, chunks, overlap)
+    if not np.any(mask_overlap):
+        # # write zeros for blank chunk
+        # start_local = start_coord - start_ghosted
+        # stop_local = np.minimum(start_local + np.asarray(chunks), np.asarray(arr.shape) - start_ghosted)
+        # binary_seg = np.zeros(tuple(stop_local - start_local), output.dtype)
+        # stop_coord = start_coord + np.asarray(binary_seg.shape)
+        # utils.insert_box(output, start_coord, stop_coord, binary_seg)
+        return
+    data_overlap, _, _ = utils.extract_ghosted_chunk(arr, start_coord, chunks, overlap)
 
     # Find seeds within the ghosted chunk
     centers_internal = utils.filter_points_in_box(centers, start_ghosted, stop_ghosted)
     centers_internal_local = centers_internal - start_ghosted
-
     # segment the chunk
     labels_overlap = watershed_centers(data_overlap,
                                        centers_internal_local,
@@ -79,7 +97,8 @@ def watershed_centers_parallel(prob, centers, mask, output, chunks, overlap, nb_
                 centers=centers,
                 mask=mask,
                 overlap=overlap)
-    utils.pmap_chunks(f, prob, chunks, nb_workers, use_imap=True)
+    utils.pmap_chunks(f, prob, chunks, nb_workers, use_imap=True, unordered=True, chunksize=10)
+    # utils.pmap_chunks(f, prob, chunks, 2, use_imap=True)
 
 
 # Fluorescence sampling, statistics, and gating
@@ -147,7 +166,54 @@ def threshold_mfi(mfi, threshold):
 
 # Nuclei morphological features
 
+def segment_centroid(centroid, window_size, label, binary_seg):
+    window_size = np.asarray(window_size)
+
+    # Extract ROI centered on centroid
+    start = np.maximum(np.zeros(3), centroid - window_size // 2).astype(np.int)
+    stop = np.minimum(np.asarray(binary_seg.shape), centroid + window_size // 2).astype(np.int)
+    patch = utils.extract_box(binary_seg, start, stop)
+    lbl, _ = ndi.label(patch)
+
+    # Extract pixels with the same label as the centroid
+    centroid_local = centroid - start
+    value = lbl[centroid_local[0], centroid_local[1], centroid_local[2]]
+    if value > 0:
+        # print('Found segmentation!')
+        single = (lbl == value).astype(np.uint8)
+    else:
+        print('No foreground on centroid point!')
+        single = np.zeros(patch.shape, np.uint8)
+        single[centroid_local[0], centroid_local[1], centroid_local[2]] = 1
+
+    # Compute morphological features
+    region = regionprops(single)[0]
+    center = region.centroid + start
+    volume = region.area
+    eq_diam = region.equivalent_diameter
+    minor_length = region.minor_axis_length
+    major_length = region.major_axis_length
+    axis_ratio = major_length / np.clip(minor_length, 1, None)
+    features = np.array([center[0], center[1], center[2], volume, eq_diam, minor_length, major_length, axis_ratio])
+
+    # Pad to window_size if needed
+    # This needs to happen after center of mass is computed because padding will offset from original start
+    if single.shape != tuple(window_size):
+        middle = window_size // 2
+        start_offset = tuple(np.clip(middle - centroid_local, 0, None))  # pre-padding
+        stop_offset = tuple(np.clip(middle - (stop - centroid), 0, None))  # post-padding
+        pad_width = tuple(zip(start_offset, stop_offset))
+        single = np.pad(single, pad_width, 'constant')
+
+    return features, single
+
+
+def _segment_centroid(inputs):
+    return segment_centroid(*inputs)
+
+
 def morphological_features(seg):
+    # Old code, replaced with centroid labeling
     props = regionprops(seg)
     nb_labels = len(props)
     centers = np.zeros((nb_labels, seg.ndim))
@@ -222,20 +288,25 @@ def detect_cli(subparsers):
     detect_parser.add_argument('output', help="Path to save numpy array of nuclei centroids")
     detect_parser.add_argument('--voxel-size', help="Path to voxel size CSV", default=None)
     detect_parser.add_argument('--output-um', help="Path to save numpy array of centroids in micron", default=None)
-    detect_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=(1.0, 2.0, 2.0))
-    detect_parser.add_argument('-s', help="Steepness of curvature filter", type=float, default=500)
-    detect_parser.add_argument('-b', help="Bias of curvature filter", type=float, default=-0.0001)
+    detect_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=(1.0, 3.0, 3.0))
+    detect_parser.add_argument('-s', help="Steepness of curvature filter", type=float, default=10000)
+    detect_parser.add_argument('-b', help="Bias of curvature filter", type=float, default=-0.0005)
     detect_parser.add_argument('-r', help="Reference intensity prior", type=float, default=1.0)
-    detect_parser.add_argument('-x', help="Crossover intensity prior", type=float, default=0.1)
+    detect_parser.add_argument('-x', help="Crossover intensity prior", type=float, default=0.06)
     detect_parser.add_argument('-d', help="Minimum distance between centroids", type=float, default=2)
     detect_parser.add_argument('-p', help="Minimum probability of a centroid", type=float, default=0.2)
     detect_parser.add_argument('-c', help="Chunk shape to process at a time", type=int, nargs='+', default=3 * (64,))
-    detect_parser.add_argument('-m', help="Minimum intensity to skip chunk", type=float, default=0.1)
+    detect_parser.add_argument('-m', help="Minimum intensity to skip chunk", type=float, default=0.04)
     detect_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=8)
     detect_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def segment_main(args):
+    if args.n is None:
+        nb_workers = multiprocessing.cpu_count()
+    else:
+        nb_workers = args.n
+
     # Open probability map Zarr array
     verbose_print(args, f'Segmenting nuclei in {args.input}')
     prob_arr = io.open(args.input, mode='r')
@@ -246,47 +317,36 @@ def segment_main(args):
 
     # Load nuclei centroids
     centroids = np.load(args.centroids)
-    nb_centroids = centroids.shape[0]
 
-    # TODO: Move the foreground and segmentation Zarr arrays to temporary directory by default
-
-    # Create watershed mask by thresholding the probability map
-    prob = prob_arr[:]
-    foreground = (prob > args.t).astype(np.uint8)
+    # Create foreground mask by thresholding the probability map
+    verbose_print(args, f'Thresholding probability at {args.t}, writing foreground to {args.foreground}')
     foreground_arr = io.new_zarr(args.foreground, shape=shape, chunks=chunks, dtype='uint8')
-    foreground_arr[:] = foreground
+    f = partial(_threshold_chunk, threshold=args.t, output=foreground_arr)
+    utils.pmap_chunks(f, prob_arr, chunks, 1, use_imap=True)
 
-    # Create output Zarr array for binary segmentation
-    binary_seg = io.new_zarr(args.binary, shape, chunks, 'uint8')
-
-    # segment and label nuclei
-    verbose_print(args, f'Performing watershed with {args.w} workers')
+    # Add watershed lines to the foreground mask to break up touching nuclei
+    verbose_print(args, f'Performing watershed, writing binary segmentation to {args.output}')
+    binary_seg = io.new_zarr(args.output, shape, chunks, 'uint8')
     watershed_centers_parallel(prob_arr,
                                centers=centroids,
                                mask=foreground_arr,
                                output=binary_seg,
                                chunks=chunks,
                                overlap=args.o,
-                               nb_workers=args.w)
-    labeled, nb_lbls = ndi.label(binary_seg[:])
-    verbose_print(args, f'{nb_lbls} labeled nuclei in segmentation ({100*nb_lbls/nb_centroids:.1f}% of detected)')
-
-    # Save the labeled segmentation
-    io.imsave(args.output, labeled, compress=3)
+                               nb_workers=nb_workers)
 
     verbose_print(args, 'Nuclei segmentation done!')
 
 
 def segment_cli(subparsers):
     segment_parser = subparsers.add_parser('segment', help="Segment all nuclei from probability map",
-                                           description='Segments all nuclei using 3D watershed')
+                                           description='Segments all nuclei to binary using 3D watershed')
     segment_parser.add_argument('input', help="Path to nuclei probability map Zarr array")
     segment_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
     segment_parser.add_argument('foreground', help="Path to nuclei foreground Zarr array")
-    segment_parser.add_argument('binary', help="Path to nuclei binary segmentation Zarr array")
-    segment_parser.add_argument('output', help="Path to labeled nuclei TIFF image")
+    segment_parser.add_argument('output', help="Path to nuclei binary segmentation Zarr array")
     segment_parser.add_argument('-t', help="Probability threshold for segmentation", type=float, default=0.1)
-    segment_parser.add_argument('-w', help="Number of workers for segmentation", type=int, default=None)
+    segment_parser.add_argument('-n', help="Number of workers for segmentation", type=int, default=None)
     segment_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=8)
     segment_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
@@ -307,7 +367,6 @@ def fluorescence_main(args):
     mfis = np.zeros((centroids.shape[0], nb_images))
     stdevs = np.zeros((centroids.shape[0], nb_images))
     for i, path in enumerate(inputs):
-        print(path)
         # Open image
         arr = io.open(path, mode='r')
         shape, dtype, chunks = arr.shape, arr.dtype, arr.chunks
@@ -317,9 +376,9 @@ def fluorescence_main(args):
         if args.g is not None:
             # Perform smoothing in a temporary array
             verbose_print(args, f'Smoothing {path} with sigma {tuple(args.g)}')
-            with tempfile.TemporaryDirectory() as temp_path:
+            with tempfile.TemporaryDirectory(prefix=os.path.abspath('.')) as temp_path:
                 smoothed_arr = io.new_zarr(temp_path, shape, chunks, dtype)
-                gaussian_blur_parallel(arr, args.g, smoothed_arr, arr.chunks, args.o, 2)  # Too many workers gives Zarr race condition
+                gaussian_blur_parallel(arr, args.g, smoothed_arr, arr.chunks, args.o, args.w)  # Too many workers gives Zarr race condition
                 verbose_print(args, f'Sampling fluorescence from smoothed {path}')
                 intensities = nuclei_centered_intensities(smoothed_arr, centroids, args.r, mode=args.m, nb_workers=args.w)
             # Temporary array deleted when context ends
@@ -330,19 +389,28 @@ def fluorescence_main(args):
         mfis[:, i] = calculate_mfi(intensities)
         stdevs[:, i] = calculate_stdev(intensities)
 
+    # Make output folder
+    os.makedirs(args.output, exist_ok=True)
+
+    # Save numpy array of MFIs and stdevs
+    mfi_path = os.path.join(args.output, 'nuclei_mfis.npy')
+    np.save(mfi_path, mfis)
+    verbose_print(args, f'MFIs written to {mfi_path}')
+
+    stdev_path = os.path.join(args.output, 'nuclei_stdevs.npy')
+    np.save(stdev_path, stdevs)
+    verbose_print(args, f'StDevs written to {stdev_path}')
+
     # Save CSV containing morphologies for each detected centroid
-    basenames = [os.path.basename(path).split('.')[0] for path in inputs]
-    csv_names = ['fluorescence_' + base + '.csv' for base in basenames]
+    # sox2.zarr/ <-- forward slash makes os.path.basename eval to empty string
+    # Can use os.path.dirname(path) to get sox2.zarr, then use basename on that
+    basenames = [os.path.basename(os.path.dirname(path)).split('.')[0] for path in inputs]
+    csv_names = ['fluorescence_' + str(base) + '.csv' for base in basenames]
     csv_paths = [os.path.join(args.output, name) for name in csv_names]
     for i, (base, path) in enumerate(zip(basenames, csv_paths)):
         df = pd.DataFrame({'mfi': mfis[:, i], 'stdev': stdevs[:, i]})
         df.to_csv(path)
         verbose_print(args, f'Fluorescence statistics for {base} written to {path}')
-
-    # Save numpy array of MFIs
-    mfi_path = os.path.join(args.output, 'nuclei_mfis.npy')
-    np.save(mfi_path, mfis)
-    verbose_print(args, f'MFIs written to {mfi_path}')
 
     verbose_print(args, f'Fluorescence measurements done!')
 
@@ -356,9 +424,11 @@ def fluorescence_cli(subparsers):
     fluorescence_parser.add_argument('-g', help="Amount of gaussian blur", type=float, nargs='+', default=None)
     fluorescence_parser.add_argument('-m', help="Sampling mode {'cube'}", type=str, default='cube')
     fluorescence_parser.add_argument('-r', help="Sampling radius", type=int, default=1)
-    fluorescence_parser.add_argument('-w', help="Number of workers for segmentation", type=int, default=None)
+    fluorescence_parser.add_argument('-w', help="Number of workers", type=int, default=None)
     fluorescence_parser.add_argument('-o', help="Overlap in pixels between chunks for smoothing", type=int, default=8)
     fluorescence_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+# scout niche radial tests/data/centroids_um.npy tests/data/gate_lp="Verbose flag", action='store_true')
 
 
 def gate_main(args):
@@ -375,17 +445,25 @@ def gate_main(args):
 
         mfi_x, mfi_y = mfis[:, args.x], mfis[:, args.y]
 
-        plt.hist2d(mfi_x, mfi_y, bins=args.b)
-        plt.plot([args.thresholds[0], args.thresholds[0]], [0, mfi_y.max()], 'r-')
-        plt.plot([0, mfi_x.max()], [args.thresholds[1], args.thresholds[1]], 'r-')
-        plt.xlim([0, mfi_x.max()])
-        plt.ylim([0, mfi_y.max()])
+        if args.r is None:
+            x_max = mfi_x.max()
+            y_max = mfi_y.max()
+        else:
+            x_max = args.r[0]
+            y_max = args.r[1]
+
+        plt.hist2d(mfi_x, mfi_y, bins=args.b, norm=colors.PowerNorm(0.25), range=((0, x_max), (0, y_max)))
+        plt.plot([args.thresholds[0], args.thresholds[0]], [0, y_max], 'r-')
+        plt.plot([0, x_max], [args.thresholds[1], args.thresholds[1]], 'r-')
+        plt.xlim([0, x_max])
+        plt.ylim([0, y_max])
         plt.xlabel(f'MFI column {args.x}')
         plt.ylabel(f'MFI column {args.y}')
         plt.show()
 
     # Gate each channel
     labels = np.asarray([threshold_mfi(mfi, t) for mfi, t in zip(mfis.T, args.thresholds)], dtype=np.uint8).T
+    # TODO: Add DN labels in here
 
     # Save the result
     np.save(args.output, labels)
@@ -402,45 +480,59 @@ def gate_cli(subparsers):
     gate_parser.add_argument('thresholds', help="MFI gates for each channel", nargs="+", type=float)
     gate_parser.add_argument('-p', '--plot', help="Flag to show plot", action='store_true')
     gate_parser.add_argument('-b', help="Number of bins to use in historgram", type=int, default=128)
+    gate_parser.add_argument('-r', help="Ranges for each axis", nargs="+", type=float, default=None)
     gate_parser.add_argument('-x', help="MFI column index for x-axis", type=int, default=0)
     gate_parser.add_argument('-y', help="MFI column index for y-axis", type=int, default=1)
     gate_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def morphology_main(args):
+    if args.n is None:
+        nb_workers = multiprocessing.cpu_count()
+    else:
+        nb_workers = args.n
+
     verbose_print(args, f'Computing morphological features for {args.input}')
 
-    # Load nuclei segmentation
-    seg = io.imread(args.input).astype(np.int32)
+    # Get window size
+    window_size = np.asarray(args.w)
+    verbose_print(args, f'Using window size of {window_size} around each cell')
 
-    # Compute morphological features
-    # TODO: Make this consider voxel dimensions
-    centers, volumes, eq_diams, minor_lengths, major_lengths, axis_ratios = morphological_features(seg)
+    # Load the detected centroids and open binary segmentation
+    centroids = np.load(args.centroids)  # TODO: Make this consider voxel dimensions
+    binary_seg = io.open(args.input, mode='r')
 
-    # Load the detected centroids
-    centroids = np.load(args.centroids)
-    verbose_print(args, f'Matching segmentation centers of mass with {args.centroids}')
+    # Compute labeled segmentation and morphologies for each cell
+    verbose_print(args, f'Computing labeled segmentation and morphologies with {nb_workers} workers')
+    args_list = [(centroid, window_size, i + 1, binary_seg) for i, centroid in enumerate(centroids)]
+    with multiprocessing.Pool(nb_workers) as pool:
+        results = list(tqdm(pool.imap(_segment_centroid, args_list), total=len(args_list)))
+    # Unpack morphological features
+    # features = np.array([center, volume, eq_diam, minor_length, major_length, axis_ratio])
+    features = np.asarray([r[0] for r in results])  # N x feats
+    centers_z = features[:, 0]
+    centers_y = features[:, 1]
+    centers_x = features[:, 2]
+    volumes = features[:, 3]
+    eq_diams = features[:, 4]
+    minor_lengths = features[:, 5]
+    major_lengths = features[:, 6]
+    axis_ratios = features[:, 7]
 
-    # Match segmentation to nearest centroid
-    nbrs = NearestNeighbors(n_neighbors=1).fit(centers)
-    distances, indices = nbrs.kneighbors(centroids)
-    centroids_idx = indices[:, 0].astype(np.int)  # Index into segmented centers for each detected centroid
+    # Save each segmentation
+    verbose_print(args, f'Saving single-cell segmentations to {args.segmentations}')
+    singles = np.asarray([r[1] for r in results])
+    np.savez_compressed(args.segmentations, singles)
 
     # Save CSV containing morphologies for each detected centroid
-    data = {
-        'z': centroids[:, 0],
-        'y': centroids[:, 1],
-        'x': centroids[:, 2],
-        'com_z': centers[:, 0][centroids_idx],
-        'com_y': centers[:, 1][centroids_idx],
-        'com_x': centers[:, 2][centroids_idx],
-        'com_idx': centroids_idx,
-        'volume': volumes[centroids_idx],
-        'eq_diam': eq_diams[centroids_idx],
-        'minor_length': minor_lengths[centroids_idx],
-        'major_length': major_lengths[centroids_idx],
-        'axis_ratio': axis_ratios[centroids_idx],
-    }
+    data = {'com_z': centers_z,
+            'com_y': centers_y,
+            'com_x': centers_x,
+            'volume': volumes,
+            'eq_diam': eq_diams,
+            'minor_length': minor_lengths,
+            'major_length': major_lengths,
+            'axis_ratio': axis_ratios}
     df = pd.DataFrame(data)
     df.to_csv(args.output)
     verbose_print(args, f'Morphological features written to {args.output}')
@@ -451,9 +543,12 @@ def morphology_main(args):
 def morphology_cli(subparsers):
     morphology_parser = subparsers.add_parser('morphology', help="Measure morphological features of nuclei",
                                               description='Compute morphological features from nuclei segmentation')
-    morphology_parser.add_argument('input', help="Path to input nuclei segmentation TIFF")
+    morphology_parser.add_argument('input', help="Path to input nuclei binary segmentation Zarr")
     morphology_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
+    morphology_parser.add_argument('segmentations', help="Path to output nuclei segmentations numpy array")
     morphology_parser.add_argument('output', help="Path to output morphological features CSV")
+    morphology_parser.add_argument('-w', help="Window size", type=int, nargs='+', default=(16, 32, 32))
+    morphology_parser.add_argument('-n', help="Number of workers for segmentation", type=int, default=None)
     morphology_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
@@ -466,6 +561,7 @@ def nuclei_cli(subparsers):
     fluorescence_cli(nuclei_subparsers)
     gate_cli(nuclei_subparsers)
     morphology_cli(nuclei_subparsers)
+    name_cli(nuclei_subparsers)
     return nuclei_parser
 
 
@@ -476,6 +572,7 @@ def nuclei_main(args):
         'fluorescence': fluorescence_main,
         'gate': gate_main,
         'morphology': morphology_main,
+        'name': name_main,
     }
     func = commands_dict.get(args.nuclei_command, None)
     if func is None:
@@ -483,3 +580,6 @@ def nuclei_main(args):
         subprocess.call(['scout', 'nuclei', '-h'])
     else:
         func(args)
+
+
+# scout nuclei morphology nuclei_binary_segmentation.zarr/ centroids.npy nuclei_segmentations.npz nuclei_morphologies.csv -v

@@ -9,8 +9,10 @@ These include the following subcommands:
     - mesh : compute surface mesh from segmentation
     - profiles : compute profiles along surface normals
     - sample : randomly sample profiles
-    - cluster : cluster profiles into cytoarchitectures
-    - classify : classify profiles into cytoacritectures
+    - combine : combine cytoarchitecture features from multiple organoids
+    - cluster : cluster profiles into cytoarchitecture classes
+    - classify : classify profiles into distinct cytoarchitectures
+    - name : assign names to cytoarchitectures
 
 """
 
@@ -23,11 +25,13 @@ from skimage.measure import marching_cubes_lewiner
 from sklearn.preprocessing import scale
 from sklearn.cluster import KMeans
 from sklearn.linear_model import LogisticRegression
+from sklearn.externals import joblib
 from MulticoreTSNE import MulticoreTSNE as TSNE
 from mayavi import mlab
 import matplotlib.pyplot as plt
 from scout.preprocess import gaussian_blur
 from scout.niche import sample_main
+from scout.niche import combine_cli, combine_main, name_cli, name_main
 from scout import io
 from scout.utils import verbose_print, read_voxel_size
 
@@ -189,9 +193,11 @@ def compute_profiles(verts, normals, length, bins, radius, centers_um, sox2_labe
 
 # Profile clustering
 
-def profiles_to_features(profiles):
+def profiles_to_features(profiles, normalize=True):
     features = profiles.reshape((len(profiles), -1)).astype(np.float)  # Flattened profiles
-    return scale(features)  # Normalize each feature (cell bin) to unit mean, zero variance
+    if normalize:
+        features = scale(features)  # Normalize each feature (cell bin) to unit mean, zero variance
+    return features
 
 
 # Define command-line functionality
@@ -253,6 +259,7 @@ def mesh_main(args):
     # Calculate mesh surface
     verts, faces, normals, values = marching_cubes(seg, args.l, voxel_down, args.s)
     mesh = {'verts': verts, 'faces': faces, 'normals': normals, 'values': values}
+    verbose_print(args, f'Computed mesh with {len(normals)} normals')
 
     # Plot mesh
     if args.plot:
@@ -353,7 +360,7 @@ def cluster_main(args):
 
     for i in range(args.n):
         idx = np.where(labels == i)[0]
-        plt.plot(x_tsne[idx, 0], x_tsne[idx, 1], '.')
+        plt.plot(x_tsne[idx, 0], x_tsne[idx, 1], '.', alpha=1.0, markersize=3)
     plt.show()
 
     # Save the labels
@@ -386,19 +393,28 @@ def classify_main(args):
     y_train = np.load(args.labels_train)
     classes = np.unique(y_train)
 
-    # Train model
-    clf = LogisticRegression(random_state=0,
-                             solver='lbfgs',
-                             multi_class='multinomial',
-                             max_iter=200,
-                             n_jobs=-1).fit(x_train, y_train)
-    verbose_print(args, f'Training accuracy: {clf.score(x_train, y_train):.4f}')
-    # verbose_print(args, f'Model coefficients:\n{clf.coef_}')
-    # verbose_print(args, f'Model intercepts:\n{clf.intercept_}')
+    if args.load is None:
+        verbose_print(args, f'Training new model')
+        # Train model
+        clf = LogisticRegression(random_state=0,
+                                 solver='lbfgs',
+                                 multi_class='multinomial',
+                                 max_iter=200,
+                                 n_jobs=-1).fit(x_train, y_train)
+        verbose_print(args, f'Training accuracy: {clf.score(x_train, y_train):.4f}')
+        # verbose_print(args, f'Model coefficients:\n{clf.coef_}')
+        # verbose_print(args, f'Model intercepts:\n{clf.intercept_}')'
+    else:
+        verbose_print(args, f'Loading model from {args.load}')
+        clf = joblib.load(args.load)
+
+    if args.save is not None:
+        verbose_print(args, f'Saving model to {args.save}')
+        joblib.dump(clf, args.save)
 
     # Apply classifier
     profiles = np.load(args.profiles)
-    x = profiles_to_features(profiles)  # Scale the data
+    x = profiles_to_features(profiles, normalize=False)  # Don't scale profiles, not all orgs have same distribution
     labels = clf.predict(x)
 
     nb_cells = len(profiles)
@@ -421,6 +437,8 @@ def classify_cli(subparsers):
     classify_parser.add_argument('labels_train', help="Path to output cyto labels numpy array for training")
     classify_parser.add_argument('profiles', help="Path to input profiles numpy array to classify")
     classify_parser.add_argument('labels', help="Path to output cyto labels numpy array")
+    classify_parser.add_argument('--save', help="Path to save trained model", default=None)
+    classify_parser.add_argument('--load', help="Path to load a trained model", default=None)
     classify_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
@@ -431,8 +449,10 @@ def cyto_cli(subparsers):
     mesh_cli(cyto_subparsers)
     profiles_cli(cyto_subparsers)
     sample_cli(cyto_subparsers)
+    combine_cli(cyto_subparsers)
     cluster_cli(cyto_subparsers)
     classify_cli(cyto_subparsers)
+    name_cli(cyto_subparsers)
     return cyto_parser
 
 
@@ -441,8 +461,10 @@ def cyto_main(args):
         'mesh': mesh_main,
         'profiles': profiles_main,
         'sample': sample_main,
+        'combine': combine_main,
         'cluster': cluster_main,
         'classify': classify_main,
+        'name': name_main,
     }
     func = commands_dict.get(args.cyto_command, None)
     if func is None:

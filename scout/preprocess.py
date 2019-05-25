@@ -26,7 +26,6 @@ from skimage.filters import gaussian
 from skimage.exposure import equalize_adapthist, rescale_intensity, histogram
 from skimage.restoration import denoise_wavelet, estimate_sigma
 from skimage import img_as_float32
-import matplotlib.pyplot as plt
 from scout.utils import extract_ghosted_chunk, extract_box, insert_box, pmap_chunks, verbose_print, tifs_in_dir
 from scout import io
 import matplotlib.pyplot as plt

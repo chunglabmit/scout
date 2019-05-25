@@ -63,11 +63,12 @@ def load_model(path, device):
     model = UNet(1, 1)
     model.load_state_dict(torch.load(path))
     model.to(device)
+    # model.half()  # Convert weights to 16-bit floats for less GPU memory usage
     return model
 
 
 def segment_ventricles(model, data, t, device):
-    output = np.empty(data.shape, dtype=np.uint8)
+    output = np.empty(data.shape, dtype=np.float32)
     for i, img in tqdm(enumerate(data), total=len(data)):
         img = img.astype(np.float32)[np.newaxis, np.newaxis]
         img_tensor = torch.from_numpy(img).to(device)
@@ -165,6 +166,7 @@ def ventricle_main(args):
 
     # Load the model
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    # device = torch.device("cpu")
     model = load_model(args.model, device)
     model = model.eval()
     verbose_print(args, f'Model successfully loaded from {args.model} to {device} device')

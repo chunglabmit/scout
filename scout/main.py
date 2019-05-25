@@ -20,10 +20,6 @@ The following CLIs are defined:
 import argparse
 import subprocess
 import os
-
-# Patch matplotlib backend for use on leviathan
-import matplotlib; matplotlib.use('agg')
-
 from scout.preprocess import preprocess_cli, preprocess_main
 from scout.nuclei import nuclei_cli, nuclei_main
 from scout.niche import niche_cli, niche_main
@@ -112,17 +108,17 @@ scout nuclei gate fluorescence/nuclei_mfis.npy fluorescence/gate_labels.npy 0.08
 scout nuclei morphology nuclei_binary.zarr centroids.npy nuclei_segmentations.npz nuclei_morphologies.csv -v
 
 # scout niche radial tests/data/centroids_um.npy tests/data/gate_labels.npy tests/data/niche_profiles.npy -v
-scout niche proximity data/centroids_um.npy data/gate_labels.npy data/niche_proximities.npy -r 5 5 -v
-scout niche sample 10000 niche_sample_index.npy -i data/niche_proximities.npy -o data/niche_proximities_sample.npy -v
+scout niche proximity centroids_um.npy fluorescence/gate_labels.npy niche_proximities.npy -r 5 5 -v
+scout niche sample 10000 niche_sample_index.npy -i niche_proximities.npy -o niche_proximities_sample.npy -v
 scout niche cluster data/niche_proximities_sample.npy data/niche_labels_sample.npy data/niche_tsne_sample.npy -v -n 4 -p
 scout niche classify data/niche_proximities_sample.npy data/niche_labels_sample.npy data/niche_proximities.npy data/niche_labels.npy -v
 
-scout segment downsample data/syto.zarr data/syto_down4x.tif 1 4 4 -v
-scout segment ventricle data/syto_down4x.tif models/syto_vz_unet_200.pt data/segment_ventricles.tif -v
-scout segment foreground data/syto_down4x.tif data/segment_foreground.tif -v -t 0.02 -g 8 4 4
+scout segment downsample syto.zarr syto_down6x.tif 1 6 6 -v
+scout segment ventricle syto_down6x.tif /home/jswaney/scout/models/syto_vz_unet_200.pt segment_ventricles.tif -v
+scout segment foreground syto_down6x.tif segment_foreground.tif -v -t 0.02 -g 8 4 4
 
-scout cyto mesh data/segment_ventricles_exclude.tif data/voxel_size.csv data/mesh_ventricles.pkl -d 1 4 4 -g 2 -p -v
-scout cyto profiles data/mesh_ventricles.pkl data/centroids_um.npy data/gate_labels.npy data/cyto_profiles.npy -v -p
+scout cyto mesh segment_ventricles.tif voxel_size.csv mesh_ventricles.pkl -d 1 6 6 -g 2 -s 2 -p -v
+scout cyto profiles mesh_ventricles.pkl centroids_um.npy nuclei_fluorescence/gate_labels.npy cyto_profiles.npy -v -p
 scout cyto sample 5000 -i data/cyto_profiles.npy -o data/cyto_profiles_sample.npy -v
 scout cyto cluster data/cyto_profiles_sample.npy data/cyto_labels_sample.npy data/cyto_tsne_sample.npy -n 8 -v
 scout cyto classify data/cyto_profiles_sample.npy data/cyto_labels_sample.npy data/cyto_profiles.npy data/cyto_labels.npy -v

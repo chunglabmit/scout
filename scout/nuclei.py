@@ -166,7 +166,7 @@ def threshold_mfi(mfi, threshold):
 
 # Nuclei morphological features
 
-def segment_centroid(centroid, window_size, label, binary_seg):
+def segment_centroid(centroid, window_size, binary_seg, return_seg=False):
     window_size = np.asarray(window_size)
 
     # Extract ROI centered on centroid
@@ -205,7 +205,10 @@ def segment_centroid(centroid, window_size, label, binary_seg):
         pad_width = tuple(zip(start_offset, stop_offset))
         single = np.pad(single, pad_width, 'constant')
 
-    return features, single
+    if return_seg:
+        return features, single
+    else:
+        return (features,)
 
 
 def _segment_centroid(inputs):
@@ -492,6 +495,11 @@ def morphology_main(args):
     else:
         nb_workers = args.n
 
+    if args.segmentations is not None:
+        return_seg = True
+    else:
+        return_seg = False
+
     verbose_print(args, f'Computing morphological features for {args.input}')
 
     # Get window size
@@ -503,8 +511,11 @@ def morphology_main(args):
     binary_seg = io.open(args.input, mode='r')
 
     # Compute labeled segmentation and morphologies for each cell
-    verbose_print(args, f'Computing labeled segmentation and morphologies with {nb_workers} workers')
-    args_list = [(centroid, window_size, i + 1, binary_seg) for i, centroid in enumerate(centroids)]
+    if return_seg:
+        verbose_print(args, f'Computing segmentations and morphologies with {nb_workers} workers')
+    else:
+        verbose_print(args, f'Computing morphologies with {nb_workers} workers')
+    args_list = [(centroid, window_size, binary_seg, return_seg) for centroid in centroids]
     with multiprocessing.Pool(nb_workers) as pool:
         results = list(tqdm(pool.imap(_segment_centroid, args_list), total=len(args_list)))
     # Unpack morphological features
@@ -520,9 +531,10 @@ def morphology_main(args):
     axis_ratios = features[:, 7]
 
     # Save each segmentation
-    verbose_print(args, f'Saving single-cell segmentations to {args.segmentations}')
-    singles = np.asarray([r[1] for r in results])
-    np.savez_compressed(args.segmentations, singles)
+    if return_seg:
+        verbose_print(args, f'Saving single-cell segmentations to {args.segmentations}')
+        singles = np.asarray([r[1] for r in results])
+        np.savez_compressed(args.segmentations, singles)
 
     # Save CSV containing morphologies for each detected centroid
     data = {'com_z': centers_z,
@@ -545,9 +557,9 @@ def morphology_cli(subparsers):
                                               description='Compute morphological features from nuclei segmentation')
     morphology_parser.add_argument('input', help="Path to input nuclei binary segmentation Zarr")
     morphology_parser.add_argument('centroids', help="Path to nuclei centroids numpy array")
-    morphology_parser.add_argument('segmentations', help="Path to output nuclei segmentations numpy array")
     morphology_parser.add_argument('output', help="Path to output morphological features CSV")
-    morphology_parser.add_argument('-w', help="Window size", type=int, nargs='+', default=(16, 32, 32))
+    morphology_parser.add_argument('--segmentations', help="Path to output nuclei segmentations numpy array", default=None)
+    morphology_parser.add_argument('-w', help="Window size", type=int, nargs='+', default=(8, 25, 25))
     morphology_parser.add_argument('-n', help="Number of workers for segmentation", type=int, default=None)
     morphology_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 

@@ -70,7 +70,7 @@ def load_model(path, device):
 def segment_ventricles(model, data, t, device):
     output = np.empty(data.shape, dtype=np.float32)
     for i, img in tqdm(enumerate(data), total=len(data)):
-        img = img.astype(np.float32)[np.newaxis, np.newaxis]
+        img = img.astype(np.float32)[np.newaxis, np.newaxis] * 5
         img_tensor = torch.from_numpy(img).to(device)
         with warnings.catch_warnings():  # Suppress deprecated warning for Upsampling
             warnings.simplefilter('ignore')

@@ -23,7 +23,7 @@ from sklearn.neighbors import NearestNeighbors
 from sklearn.mixture import GaussianMixture
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.linear_model import LogisticRegression
-from sklearn.externals import joblib
+import joblib
 import matplotlib.pyplot as plt
 import matplotlib.colors as cm
 from MulticoreTSNE import MulticoreTSNE as TSNE
@@ -99,11 +99,12 @@ def proximity(centroids, celltypes, k, radius):
         indices_list.append(indices)
 
     # # Convert distances to proximity by average distance
-    # ave_distances = np.asarray([distances.mean(axis=-1) for distances in distances_list]).T
+    ave_distances = np.asarray([distances.mean(axis=-1) for distances in distances_list]).T
     # proximities = np.asarray([1 / (1 + ave_dist / r) for (ave_dist, r) in zip(ave_distances.T, radius)]).T
 
     # Convert distances to proximity by product
     proximities = np.asarray([(1 / (1 + dist / r)).prod(axis=-1) for (dist, r) in zip(distances_list, radius)]).T
+    # proximities = np.asarray([(np.exp(-dist / r)).prod(axis=-1) for (dist, r) in zip(distances_list, radius)]).T
 
     return proximities
 
@@ -217,6 +218,60 @@ def proximity_cli(subparsers):
     proximity_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
+def gate_main(args):
+    verbose_print(args, f'Gating cells into niches based on {args.proximity}')
+    proximities = np.load(args.proximity)
+
+    # # Gate proximities
+    # adjacent_ax0 = (proximities[:, 0] > args.t[0])
+    # adjacent_ax1 = (proximities[:, 1] > args.t[1])
+    # btm_left = np.logical_not(np.logical_or(adjacent_ax0, adjacent_ax1))
+    # btm_right = np.logical_and(adjacent_ax0, np.logical_not(adjacent_ax1))
+    # top_left = np.logical_and(adjacent_ax1, np.logical_not(adjacent_ax0))
+    # top_right = np.logical_and(adjacent_ax0, adjacent_ax1)
+    # onehot = np.asarray([btm_left, btm_right, top_left, top_right])
+    # labels = np.argmax(onehot, axis=0)
+    high_right = (proximities[:, 0] > args.high[0])
+    high_top = (proximities[:, 1] > args.high[1])
+    low_right = (proximities[:, 0] > args.low[0])
+    low_top = (proximities[:, 1] > args.low[1])
+    btm_left = np.logical_not(np.logical_or(low_right, low_top))
+    btm_right = np.logical_and(high_right, np.logical_not(high_top))
+    top_left = np.logical_and(high_top, np.logical_not(high_right))
+    top_right = np.logical_and(high_right, high_top)
+    intermediate = np.logical_and(np.logical_not(btm_left), np.logical_not(np.logical_or(high_right, high_top)))
+    onehot = np.asarray([btm_left, btm_right, top_left, top_right, intermediate])
+    labels = np.argmax(onehot, axis=0)
+
+    if args.plot:
+        proximities_sample, labels_sample = randomly_sample(100000, proximities, labels)
+        names = ['DNeg', 'SOX2', 'TBR1', 'DPos', 'Intermediate']
+        # Show proximities
+        for i in range(5):
+            idx = np.where(labels_sample == i)[0]
+            if len(idx) == 0:
+                continue
+            plt.plot(proximities_sample[idx, 0], proximities_sample[idx, 1], '.', alpha=args.alpha, label=names[i])
+        # plt.legend()
+        plt.show()
+
+    # Save the niche labels
+    np.save(args.labels, labels)
+    verbose_print(args, f'Labels saved to {args.labels}')
+
+
+def gate_cli(subparsers):
+    gate_parser = subparsers.add_parser('gate', help="Gate cells into distinct niches",
+                                        description='Gate cells into distinct niches based on proximities')
+    gate_parser.add_argument('proximity', help="Path to input proximity numpy array")
+    gate_parser.add_argument('labels', help="Path to output niche labels numpy array")
+    gate_parser.add_argument('--low', help='Low proximity threshold', nargs='+', type=float, required=True)
+    gate_parser.add_argument('--high', help='High proximity threshold', nargs='+', type=float, required=True)
+    gate_parser.add_argument('-p', '--plot', help="Flag to show plots", action='store_true')
+    gate_parser.add_argument('-a', '--alpha', help="Flag to show plots", type=float, default=0.01)
+    gate_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
 def sample_main(args):
     if isinstance(args.inputs, list):
         inputs = args.inputs
@@ -238,7 +293,6 @@ def sample_main(args):
     input_arrs = [np.load(path) for path in args.inputs]
 
     # Randomly sample
-
     sampled_data, idx = randomly_sample(args.samples, *input_arrs, return_idx=True)
 
     # Save sample
@@ -288,129 +342,91 @@ def combine_cli(subparsers):
     combine_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
-def cluster_main(args):
-    verbose_print(args, f'Clustering cells into niches based on {args.proximity}')
+def tsne_main(args):
+    verbose_print(args, f'Loaded niche labels from {args.labels}')
+    labels = np.load(args.labels)
 
+    verbose_print(args, f'Running t-SNE based on {args.proximity}')
     proximities = np.load(args.proximity)
 
-    # # GMM clustering
-    # gmm = GaussianMixture(n_components=args.n, n_init=args.i).fit(proximities)
-    #
-    # verbose_print(args, f'GMM means:\n{gmm.means_}')
-    # verbose_print(args, f'GMM weights (fractions):\n{gmm.weights_}')
-    # verbose_print(args, f'GMM converged flag: {gmm.converged_}')
-    # verbose_print(args, f'GMM ELBO: {gmm.lower_bound_:.6f}')
-    # verbose_print(args, f'GMM BIC: {gmm.bic(proximities):.3f}')
-    #
-    # labels = gmm.predict(proximities)
-
-    # # K-means
-    # kmeans = KMeans(n_clusters=args.n, n_init=args.i).fit(proximities)
-    # labels = kmeans.predict(proximities)
-    # verbose_print(args, f'Cluster centers:\n{kmeans.cluster_centers_}')
-    # verbose_print(args, f'Total inertia:\n{kmeans.inertia_:.8f}')
-
-    # Threshold
-    sox2_adjacent = (proximities[:, 0] > 0.42)
-    tbr1_adjacent = (proximities[:, 1] > 0.42)
-    btm_left = np.logical_not(np.logical_or(sox2_adjacent, tbr1_adjacent))
-    btm_right = np.logical_and(sox2_adjacent, np.logical_not(tbr1_adjacent))
-    top_left = np.logical_and(tbr1_adjacent, np.logical_not(sox2_adjacent))
-    top_right = np.logical_and(sox2_adjacent, tbr1_adjacent)
-    onehot = np.asarray([btm_left, btm_right, top_left, top_right])
-    labels = np.argmax(onehot, axis=0)
-
-    verbose_print(args, 'Running t-SNE...')
     x_tsne = TSNE(n_components=2, n_jobs=-1, perplexity=800, learning_rate=100).fit_transform(proximities)
 
     if args.plot:
-        # Show proximities
-        for i in range(args.n):
-            idx = np.where(labels == i)[0]
-            plt.plot(proximities[idx, 0], proximities[idx, 1], '.', label=f'Cluster {i}')
-        plt.legend()
-        plt.show()
         # Show tSNE
-        for i in range(args.n):
+        for i in range(4):
             idx = np.where(labels == i)[0]
+            if len(idx) == 0:
+                continue
             plt.plot(x_tsne[idx, 0], x_tsne[idx, 1], '.', label=f'Cluster {i}')
         plt.legend()
         plt.show()
 
-    # Save the cluster labels and t-SNE coordinates
-    np.save(args.labels, labels)
-    verbose_print(args, f'Niche labels saved to {args.labels}')
+    # Save the t-SNE coordinates
     np.save(args.tsne, x_tsne)
     verbose_print(args, f't-SNE coordinates saved to {args.tsne}')
 
     verbose_print(args, f'Niche clustering done!')
 
 
-def cluster_cli(subparsers):
-    cluster_parser = subparsers.add_parser('cluster', help="Cluster cells into niches",
-                                           description='Clusters cells into niches based on proximity to cell-types')
-    cluster_parser.add_argument('proximity', help="Path to input proximity numpy array")
-    cluster_parser.add_argument('labels', help="Path to output niche labels numpy array")
-    cluster_parser.add_argument('tsne', help="Path to output t-SNE coordinates numpy array")
-    cluster_parser.add_argument('-n', help="Number of clusters", type=int, default=4)
-    cluster_parser.add_argument('-i', help="Number of KMeans initializations", type=int, default=10)
-    cluster_parser.add_argument('-p', '--plot', help="Flag to show plots", action='store_true')
-    cluster_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+def tsne_cli(subparsers):
+    tsne_parser = subparsers.add_parser('cluster', help="Cluster cells into niches",
+                                        description='Clusters cells into niches based on proximity to cell-types')
+    tsne_parser.add_argument('proximity', help="Path to input proximity numpy array")
+    tsne_parser.add_argument('labels', help="Path to input niche labels numpy array")
+    tsne_parser.add_argument('tsne', help="Path to output t-SNE coordinates numpy array")
+    tsne_parser.add_argument('-p', '--plot', help="Flag to show plots", action='store_true')
+    tsne_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
-def classify_main(args):
-    verbose_print(args, f'Training logistic model based on {args.proximity_train} and {args.labels_train}')
-
-    # Load training data
-    x = np.load(args.proximity_train)
-    y = np.load(args.labels_train)
-    classes = np.unique(y)
-
-    if args.load is None:
-        verbose_print(args, f'Training new model')
-        # Train model
-        clf = LogisticRegression(random_state=0,
-                                 solver='lbfgs',
-                                 multi_class='multinomial',
-                                 n_jobs=-1).fit(x, y)
-        verbose_print(args, f'Training accuracy: {clf.score(x, y):.4f}')
-        verbose_print(args, f'Model coefficients:\n{clf.coef_}')
-        verbose_print(args, f'Model intercepts:\n{clf.intercept_}')
-    else:
-        verbose_print(args, f'Loading model from {args.load}')
-        clf = joblib.load(args.load)
-
-    if args.save is not None:
-        verbose_print(args, f'Saving model to {args.save}')
-        joblib.dump(clf, args.save)
-
-    # Apply classifier
-    proximities = np.load(args.proximity)
-    labels = clf.predict(proximities)
-
-    nb_cells = len(proximities)
-    verbose_print(args, f'Classified {nb_cells} cells into {len(classes)} niche classes')
-    for c in classes:
-        count = len(np.where(labels == c)[0])
-        verbose_print(args, f'Class {c}: {count:10d} cells {100 * count / nb_cells:10.3f}%')
-
-    # Save the niche labels
-    np.save(args.labels, labels)
-    verbose_print(args, f'Labels saved to {args.labels}')
-
-    verbose_print(args, f'Classifying done!')
-
-
-def classify_cli(subparsers):
-    classify_parser = subparsers.add_parser('classify', help="Cluster cells into niches",
-                                            description='Clusters cells into niches based on proximity to cell-types')
-    classify_parser.add_argument('proximity_train', help="Path to input proximity numpy array for training")
-    classify_parser.add_argument('labels_train', help="Path to output niche labels numpy array for training")
-    classify_parser.add_argument('proximity', help="Path to input proximity numpy array to classify")
-    classify_parser.add_argument('labels', help="Path to output niche labels numpy array")
-    classify_parser.add_argument('--save', help="Path to save trained model", default=None)
-    classify_parser.add_argument('--load', help="Path to load a trained model", default=None)
-    classify_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+# def classify_main(args):
+#     verbose_print(args, f'Training logistic model based on {args.proximity_train} and {args.labels_train}')
+#
+#     # Load training data
+#     x = np.load(args.proximity_train)
+#     y = np.load(args.labels_train)
+#     classes = np.unique(y)
+#
+#     if args.load is None:
+#         verbose_print(args, f'Training new model')
+#         # Train model
+#         clf = LogisticRegression(random_state=0,
+#                                  solver='lbfgs',
+#                                  multi_class='multinomial',
+#                                  n_jobs=-1).fit(x, y)
+#         verbose_print(args, f'Training accuracy: {clf.score(x, y):.4f}')
+#         verbose_print(args, f'Model coefficients:\n{clf.coef_}')
+#         verbose_print(args, f'Model intercepts:\n{clf.intercept_}')
+#     else:
+#         verbose_print(args, f'Loading model from {args.load}')
+#         clf = joblib.load(args.load)
+#
+#     if args.save is not None:
+#         verbose_print(args, f'Saving model to {args.save}')
+#         joblib.dump(clf, args.save)
+#
+#     # Apply classifier
+#     proximities = np.load(args.proximity)
+#     labels = clf.predict(proximities)
+#
+#     nb_cells = len(proximities)
+#     verbose_print(args, f'Classified {nb_cells} cells into {len(classes)} niche classes')
+#     for c in classes:
+#         count = len(np.where(labels == c)[0])
+#         verbose_print(args, f'Class {c}: {count:10d} cells {100 * count / nb_cells:10.3f}%')
+#
+#     verbose_print(args, f'Classifying done!')
+#
+#
+# def classify_cli(subparsers):
+#     classify_parser = subparsers.add_parser('classify', help="Cluster cells into niches",
+#                                             description='Clusters cells into niches based on proximity to cell-types')
+#     classify_parser.add_argument('proximity_train', help="Path to input proximity numpy array for training")
+#     classify_parser.add_argument('labels_train', help="Path to output niche labels numpy array for training")
+#     classify_parser.add_argument('proximity', help="Path to input proximity numpy array to classify")
+#     classify_parser.add_argument('labels', help="Path to output niche labels numpy array")
+#     classify_parser.add_argument('--save', help="Path to save trained model", default=None)
+#     classify_parser.add_argument('--load', help="Path to load a trained model", default=None)
+#     classify_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def name_main(args):
@@ -431,10 +447,11 @@ def niche_main(args):
     commands_dict = {
         'radial': radial_main,
         'proximity': proximity_main,
+        'gate': gate_main,
         'sample': sample_main,
         'combine': combine_main,
-        'cluster': cluster_main,
-        'classify': classify_main,
+        'tsne': tsne_main,
+        # 'classify': classify_main,
         'name': name_main,
     }
     func = commands_dict.get(args.niche_command, None)
@@ -451,9 +468,10 @@ def niche_cli(subparsers):
     niche_subparsers = niche_parser.add_subparsers(dest='niche_command', title='niche subcommands')
     radial_cli(niche_subparsers)
     proximity_cli(niche_subparsers)
+    gate_cli(niche_subparsers)
     sample_cli(niche_subparsers)
     combine_cli(niche_subparsers)
-    cluster_cli(niche_subparsers)
-    classify_cli(niche_subparsers)
+    tsne_cli(niche_subparsers)
+    # classify_cli(niche_subparsers)
     name_cli(niche_subparsers)
     return niche_parser

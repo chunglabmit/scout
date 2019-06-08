@@ -35,6 +35,29 @@ import matplotlib.pyplot as plt
 # Define command-line functionality
 # ==================================
 
+"""
+Required files:
+
+nuclei_gating.npy
+nuclei_morphologies.csv
+niche_proximities.npy
+niche_labels.npy
+celltype_names.csv
+niche_names.csv
+cyto_names.csv
+cyto_profiles.npy
+cyto_labels.npy
+voxel_size.csv
+segment_foreground.tif
+segment_ventricles.tif
+centroids_um.npy
+
+Written output:
+
+organoid_features.xlsx
+
+"""
+
 
 def features_main(args):
     verbose_print(args, f'Calculating multiscale features')
@@ -50,6 +73,7 @@ def features_main(args):
     niche_labels = np.load(os.path.join(args.input, 'niche_labels.npy'))
 
     # Add in double negatives
+    # TODO: Move this to nuclei module
     negatives = np.logical_and(gate_labels[:, 0] == 0, gate_labels[:, 1] == 0)
     gate_labels = np.hstack([gate_labels, negatives[:, np.newaxis]])
 
@@ -305,8 +329,8 @@ def features_main(args):
     features[f'ventricle axis ratio stdev'] = stdev_axis_ratio
 
     # Distance to surface
-    mask = io.imread(os.path.join(args.input, 'segment_foreground.tif')) > 0
-    verbose_print(args, f'Loaded foreground mask: {mask.shape}')
+    mask = foreground > 0
+    verbose_print(args, f'Made foreground mask: {mask.shape}')
 
     # Find surface coordinates
     eroded = binary_erosion(mask)

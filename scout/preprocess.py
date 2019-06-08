@@ -446,6 +446,7 @@ def rescale_cli(subparsers):
     rescale_parser.add_argument('-t', help="Threshold for removing background", type=float, default=0)
     rescale_parser.add_argument('-n', help="Number of workers. Default, cpu_count", type=int, default=None)
     rescale_parser.add_argument('-c', help="Output TIFF compression (0-9)", type=int, default=3)
+    rescale_parser.add_argument('-p', help="Percentile to normalize to", type=float, default=99.7)
     rescale_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
@@ -475,10 +476,17 @@ def rescale_main(args):
     paths, filenames = tifs_in_dir(args.input)
     verbose_print(args, f"Found {len(paths)} TIFFs")
 
-    # Load histogram
+    # Load histogram and compute percentile from CDF
     df = pd.read_csv(args.histogram)
-    bins = list(df['intensity'])
-    min_val, max_val = bins[0], bins[-1]
+    bins = df['intensity'].to_numpy()
+    counts = df['count'].to_numpy()
+    total = counts.sum()
+    cdf = np.cumsum(counts)
+    target = total * (args.p / 100)
+    abs_diff = np.abs(cdf - target)
+    idx = np.where(abs_diff == abs_diff.min())[0]
+    max_val = bins[idx][0]
+    # min_val, max_val = bins[0], bins[-1]
 
     # Make the output folder
     os.makedirs(args.output, exist_ok=True)

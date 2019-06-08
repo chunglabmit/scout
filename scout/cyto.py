@@ -24,9 +24,11 @@ from tqdm import tqdm
 from skimage.measure import marching_cubes_lewiner
 from sklearn.preprocessing import scale
 from sklearn.cluster import KMeans
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.externals import joblib
+import joblib
 from MulticoreTSNE import MulticoreTSNE as TSNE
+from umap import UMAP
 from mayavi import mlab
 import matplotlib.pyplot as plt
 from scout.preprocess import gaussian_blur
@@ -337,6 +339,7 @@ def sample_cli(subparsers):
     sample_parser = subparsers.add_parser('sample', help="Randomly sample profiles",
                                           description='Randomly sample profiles before clustering')
     sample_parser.add_argument('samples', help="Number of samples to take", type=int)
+    sample_parser.add_argument('index', help="Path to save sample index numpy array")
     sample_parser.add_argument('-i', '--inputs', help="Path to input numpy arrays", nargs='+', required=True)
     sample_parser.add_argument('-o', '--outputs', help="Path to sampled output numpy arrays", nargs='+', required=True)
     sample_parser.add_argument('-s', '--seed', help="Random seed", type=int, default=1)
@@ -344,6 +347,8 @@ def sample_cli(subparsers):
 
 
 def cluster_main(args):
+    # This is OLD... See the "determine cyto clusters" notebook
+
     verbose_print(args, f'Clustering profiles from {args.input}')
 
     # Load profiles
@@ -356,12 +361,14 @@ def cluster_main(args):
     kmeans = KMeans(n_clusters=args.n, random_state=0, n_init=10).fit(features)
     labels = kmeans.labels_
 
-    x_tsne = TSNE(n_components=2, n_jobs=-1, perplexity=500).fit_transform(features)
+    # x_tsne = TSNE(n_components=2, n_jobs=-1, perplexity=500).fit_transform(features)
+    x_tsne = UMAP().fit_transform(features)
 
-    for i in range(args.n):
-        idx = np.where(labels == i)[0]
-        plt.plot(x_tsne[idx, 0], x_tsne[idx, 1], '.', alpha=1.0, markersize=3)
-    plt.show()
+    if args.plot:
+        for i in range(args.n):
+            idx = np.where(labels == i)[0]
+            plt.plot(x_tsne[idx, 0], x_tsne[idx, 1], '.', alpha=1.0, markersize=3)
+        plt.show()
 
     # Save the labels
     np.save(args.labels, labels)
@@ -381,6 +388,7 @@ def cluster_cli(subparsers):
     cluster_parser.add_argument('labels', help="Path to output labels")
     cluster_parser.add_argument('tsne', help="Path to output t-SNE coordinates")
     cluster_parser.add_argument('-n', help="Number of clusters", type=int, default=5)
+    cluster_parser.add_argument('-p', '--plot', help="Plotting flag", action='store_true')
     cluster_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
@@ -389,21 +397,26 @@ def classify_main(args):
 
     # Load training data
     profiles_train = np.load(args.profiles_train)
-    x_train = profiles_to_features(profiles_train)  # Normalizes the data (should we do this?)
+    x_train = profiles_to_features(profiles_train, normalize=False)  # Normalizes the data (should we do this?)
+    if args.umap is not None:
+        model = joblib.load(args.umap)
+        x_train = model.transform(x_train)
     y_train = np.load(args.labels_train)
     classes = np.unique(y_train)
 
     if args.load is None:
         verbose_print(args, f'Training new model')
         # Train model
-        clf = LogisticRegression(random_state=0,
-                                 solver='lbfgs',
-                                 multi_class='multinomial',
-                                 max_iter=200,
-                                 n_jobs=-1).fit(x_train, y_train)
+        # Logistic regression model
+        # clf = LogisticRegression(random_state=0,
+        #                          solver='lbfgs',
+        #                          multi_class='multinomial',
+        #                          max_iter=200,
+        #                          n_jobs=-1).fit(x_train, y_train)
+        # KNN classifier
+        clf = KNeighborsClassifier(n_neighbors=1)
+        clf.fit(x_train, y_train)
         verbose_print(args, f'Training accuracy: {clf.score(x_train, y_train):.4f}')
-        # verbose_print(args, f'Model coefficients:\n{clf.coef_}')
-        # verbose_print(args, f'Model intercepts:\n{clf.intercept_}')'
     else:
         verbose_print(args, f'Loading model from {args.load}')
         clf = joblib.load(args.load)
@@ -414,7 +427,9 @@ def classify_main(args):
 
     # Apply classifier
     profiles = np.load(args.profiles)
-    x = profiles_to_features(profiles, normalize=False)  # Don't scale profiles, not all orgs have same distribution
+    x = profiles_to_features(profiles, normalize=False)
+    if args.umap is not None:
+        x = model.transform(x)
     labels = clf.predict(x)
 
     nb_cells = len(profiles)
@@ -437,6 +452,7 @@ def classify_cli(subparsers):
     classify_parser.add_argument('labels_train', help="Path to output cyto labels numpy array for training")
     classify_parser.add_argument('profiles', help="Path to input profiles numpy array to classify")
     classify_parser.add_argument('labels', help="Path to output cyto labels numpy array")
+    classify_parser.add_argument('--umap', help="Path to fit UMAP embedding", default=None)
     classify_parser.add_argument('--save', help="Path to save trained model", default=None)
     classify_parser.add_argument('--load', help="Path to load a trained model", default=None)
     classify_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')

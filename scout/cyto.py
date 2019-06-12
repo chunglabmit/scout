@@ -35,7 +35,7 @@ from scout.preprocess import gaussian_blur
 from scout.niche import sample_main
 from scout.niche import combine_cli, combine_main, name_cli, name_main
 from scout import io
-from scout.utils import verbose_print, read_voxel_size
+from scout.utils import verbose_print, read_voxel_size, filter_points_in_box
 
 
 # Meshing and normals
@@ -133,6 +133,11 @@ def compute_profile(vert, vi, ci, length, bins, radius):
     pts = centers_um_global
     sox2_labels = sox2_labels_global
     tbr1_labels = tbr1_labels_global
+
+    # Filter points within a box centered at the normal start
+    start = vert - length - radius
+    stop = vert + length + radius
+    pts = filter_points_in_box(pts, start, stop)
 
     # Translate points to origin
     pts_translated = pts - vert

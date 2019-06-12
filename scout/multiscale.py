@@ -26,15 +26,6 @@ from scout.utils import verbose_print, read_voxel_size, read_csv
 import matplotlib.pyplot as plt
 
 
-# =====================
-# Single-cell features
-# =====================
-
-
-# ==================================
-# Define command-line functionality
-# ==================================
-
 """
 Required files:
 
@@ -59,28 +50,10 @@ organoid_features.xlsx
 """
 
 
-def features_main(args):
-    verbose_print(args, f'Calculating multiscale features')
-
-    # Create a dictionary for holding all features
-    features = {'input': args.input}
-
-    # Load all single-cell data
-    verbose_print(args, f'Loading input single cell measurements')
-    gate_labels = np.load(os.path.join(args.input, 'nuclei_gating.npy'))
-    nuclei_morphologies = pd.read_csv(os.path.join(args.input, 'nuclei_morphologies.csv'))
-    niche_proximities = np.load(os.path.join(args.input, 'niche_proximities.npy'))
-    niche_labels = np.load(os.path.join(args.input, 'niche_labels.npy'))
-
-    # Add in double negatives
-    # TODO: Move this to nuclei module
-    negatives = np.logical_and(gate_labels[:, 0] == 0, gate_labels[:, 1] == 0)
-    gate_labels = np.hstack([gate_labels, negatives[:, np.newaxis]])
-
-    # Get cell-type, niche, and cytoachitecture names
-    celltypes = read_csv('celltype_names.csv')
-    niches = read_csv('niche_names.csv')
-    cytoarchitectures = read_csv('cyto_names.csv')
+def singlecell_features(args, features, gate_labels, niche_labels, nuclei_morphologies, niche_proximities):
+    # Get cell-type and niche names
+    celltypes = read_csv(os.path.join(args.input, 'celltype_names.csv'))
+    niches = read_csv(os.path.join(args.input, 'niche_names.csv'))
 
     # Niche cell counts
     print('cell counts')
@@ -143,8 +116,13 @@ def features_main(args):
             features[f'niche {niche_name}, celltype {celltype_name}, TBR1 proximity stdev'] = stdev_proximities[1]
 
     # 84 Single-cell so far
-    # =========================
+    return features
 
+
+def cytoarchitecture_features(args, features):
+    # Load the cytoarchitecture info needed
+    celltypes = read_csv(os.path.join(args.input, 'celltype_names.csv'))
+    cytoarchitectures = read_csv(os.path.join(args.input, 'cyto_names.csv'))
     cyto_profiles = np.load(os.path.join(args.input, 'cyto_profiles.npy'))
     cyto_labels = np.load(os.path.join(args.input, 'cyto_labels.npy'))
     print(cyto_profiles.shape, cyto_labels.shape)
@@ -209,7 +187,12 @@ def features_main(args):
             features[f'cytoarchitecture {cyto_name} average profile, celltype {celltype_name}, profile stdev'] = ave_stdev[i]
 
     # 80 cytoarchitecture so far (if 8 clusters)
-    # =========================
+    return features
+
+
+def wholeorg_features(args, features, gate_labels, niche_labels):
+    celltypes = read_csv(os.path.join(args.input, 'celltype_names.csv'))
+    niches = read_csv(os.path.join(args.input, 'niche_names.csv'))
 
     if args.d is None:
         downsample_factor = 1
@@ -278,7 +261,8 @@ def features_main(args):
         verbose_print(args, f'Resampling ventricles to isotropic: {voxel_isotropic}')
         factors = np.asarray(voxel_isotropic) / np.asarray(voxel_down)
         shape_isotropic = tuple([int(s / f) for s, f in zip(ventricles.shape, factors)])
-        ventricles = resize(ventricles, output_shape=shape_isotropic, order=0, preserve_range=True).astype(ventricles.dtype)
+        ventricles = resize(ventricles, output_shape=shape_isotropic, order=0, preserve_range=True).astype(
+            ventricles.dtype)
         verbose_print(args, f'Resampled ventricle segmentation: {ventricles.shape}')
     else:
         voxel_isotropic = voxel_down
@@ -360,12 +344,37 @@ def features_main(args):
             features[f'niche {niche_name}, celltype {celltype_name}, surface distance mean (um)'] = ave_surface_dist
             features[f'niche {niche_name}, celltype {celltype_name}, surface distance stdev (um)'] = stdev_surface_dist
 
-    # Results
-    df = pd.Series(features)
+    return features
 
+
+def features_main(args):
+    verbose_print(args, f'Calculating multiscale features')
+
+    # Create a dictionary for holding all features
+    features = {'input': args.input}
+
+    # Load all single-cell data
+    verbose_print(args, f'Loading input single cell measurements')
+    gate_labels = np.load(os.path.join(args.input, 'nuclei_gating.npy'))
+    nuclei_morphologies = pd.read_csv(os.path.join(args.input, 'nuclei_morphologies.csv'))
+    niche_proximities = np.load(os.path.join(args.input, 'niche_proximities.npy'))
+    niche_labels = np.load(os.path.join(args.input, 'niche_labels.npy'))
+
+    # Add in double negatives
+    # TODO: Move this to nuclei module
+    negatives = np.logical_and(gate_labels[:, 0] == 0, gate_labels[:, 1] == 0)
+    gate_labels = np.hstack([gate_labels, negatives[:, np.newaxis]])
+
+    # Calculate multiscale features
+    features = singlecell_features(args, features, gate_labels, niche_labels, nuclei_morphologies, niche_proximities)
+    features = cytoarchitecture_features(args, features, gate_labels, niche_labels)
+    features = wholeorg_features(args, features, gate_labels, niche_labels)
+
+    # Save results
+    df = pd.Series(features)
     df.to_excel(os.path.join(args.input, 'organoid_features.xlsx'))
 
-    verbose_print(args, f'Features done!')
+    verbose_print(args, f'Multiscale features done!')
 
 
 def features_cli(subparsers):

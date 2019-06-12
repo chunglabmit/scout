@@ -74,6 +74,10 @@ def _watershed_probability_chunk(input_tuple, output, centers, mask, overlap, **
     # Find seeds within the ghosted chunk
     centers_internal = utils.filter_points_in_box(centers, start_ghosted, stop_ghosted)
     centers_internal_local = centers_internal - start_ghosted
+    # Skip if no centers in ghosted chunk
+    if len(centers_internal) == 0:
+        return
+
     # segment the chunk
     labels_overlap = watershed_centers(data_overlap,
                                        centers_internal_local,

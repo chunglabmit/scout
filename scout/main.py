@@ -105,11 +105,11 @@ scout nuclei detect syto.zarr nuclei_probability.zarr centroids.npy --voxel-size
 scout nuclei segment nuclei_probability.zarr centroids.npy nuclei_foreground.zarr nuclei_binary.zarr -v
 scout nuclei morphology nuclei_binary.zarr centroids.npy nuclei_morphologies.csv -v [--segmentations nuclei_segmentations.npz]
 scout nuclei fluorescence centroids.npy fluorescence sox2.zarr/ tbr1.zarr/ -g 0.7 1.0 1.0 -v
-scout nuclei gate fluorescence/nuclei_mfis.npy nuclei_gating.npy 0.08 0.3 -p -v
+scout nuclei gate fluorescence/nuclei_mfis.npy nuclei_gating.npy 0.1 0.1 -p -v -r 1.5 1.5
 scout nuclei name sox2 tbr1 dn -o celltype_names.csv -v
 
 scout niche proximity centroids_um.npy nuclei_gating.npy niche_proximities.npy -r 25 25 -v -p -k 2
-scout niche gate niche_proximities.npy niche_labels.npy --low 0.35 0.30 --high 0.66 0.63 -p -v --alpha 0.002
+scout niche gate niche_proximities.npy niche_labels.npy --low 0.35 0.30 --high 0.66 0.63 -p -v --alpha 0.01
 scout niche name DN SOX2 TBR1 DP Intermediate -o niche_names.csv -v
 # Can skip the tSNE-related stuff for niches
 scout niche sample 5000 niche_sample_index.npy -i niche_proximities.npy niche_labels.npy -o niche_proximities_sample.npy niche_labels_sample.npy -v

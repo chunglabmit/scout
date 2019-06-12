@@ -328,9 +328,9 @@ def profiles_cli(subparsers):
     profiles_parser.add_argument('centroids', help="Path to input centroids in micron")
     profiles_parser.add_argument('labels', help="Path to cell-type labels")
     profiles_parser.add_argument('output', help="Path to output profiles numpy array")
-    profiles_parser.add_argument('-l', help='Length in micron of the profiles', type=float, default=200)
-    profiles_parser.add_argument('-r', help='Radius of profile bins', type=int, default=20)
-    profiles_parser.add_argument('-b', help='Number of bins in each profile', type=int, default=5)
+    profiles_parser.add_argument('-l', help='Length in micron of the profiles', type=float, default=300)
+    profiles_parser.add_argument('-r', help='Radius of profile bins', type=int, default=25)
+    profiles_parser.add_argument('-b', help='Number of bins in each profile', type=int, default=6)
     profiles_parser.add_argument('-p', '--plot', help="Flag to show plot", action='store_true')
     profiles_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 

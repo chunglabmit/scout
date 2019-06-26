@@ -367,7 +367,7 @@ def features_main(args):
 
     # Calculate multiscale features
     features = singlecell_features(args, features, gate_labels, niche_labels, nuclei_morphologies, niche_proximities)
-    features = cytoarchitecture_features(args, features, gate_labels, niche_labels)
+    features = cytoarchitecture_features(args, features)
     features = wholeorg_features(args, features, gate_labels, niche_labels)
 
     # Save results
@@ -401,7 +401,7 @@ def combine_main(args):
     df = df.set_index('feature')
     df.columns = df.loc['input']
     df = df.drop('input', axis=0)
-    df.to_excel('combined_features.xlsx')
+    df.to_excel(args.output)
 
     verbose_print(args, f'Combining multiscale features done!')
 
@@ -410,6 +410,7 @@ def combine_cli(subparsers):
     combine_parser = subparsers.add_parser('combine', help="Combine organoid features",
                                            description='Combine organoid features for a study')
     combine_parser.add_argument('inputs', help="Path to input organoid folders", nargs='+')
+    combine_parser.add_argument('--output', '-o', help="Path to output Excel table", default='combined_features.xlsx')
     combine_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 

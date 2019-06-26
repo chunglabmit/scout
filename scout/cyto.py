@@ -137,7 +137,9 @@ def compute_profile(vert, vi, ci, length, bins, radius):
     # Filter points within a box centered at the normal start
     start = vert - length - radius
     stop = vert + length + radius
-    pts = filter_points_in_box(pts, start, stop)
+    pts, idx = filter_points_in_box(pts, start, stop, return_idx=True)
+    sox2_labels = sox2_labels[idx]
+    tbr1_labels = tbr1_labels[idx]
 
     # Translate points to origin
     pts_translated = pts - vert

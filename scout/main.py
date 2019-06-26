@@ -104,8 +104,8 @@ scout preprocess convert Ex0_rescaled/ syto.zarr -v -n 4
 scout nuclei detect syto.zarr nuclei_probability.zarr centroids.npy --voxel-size voxel_size.csv --output-um centroids_um.npy -v
 scout nuclei segment nuclei_probability.zarr centroids.npy nuclei_foreground.zarr nuclei_binary.zarr -v
 scout nuclei morphology nuclei_binary.zarr centroids.npy nuclei_morphologies.csv -v [--segmentations nuclei_segmentations.npz]
-scout nuclei fluorescence centroids.npy fluorescence sox2.zarr/ tbr1.zarr/ -g 0.7 1.0 1.0 -v
-scout nuclei gate fluorescence/nuclei_mfis.npy nuclei_gating.npy 0.1 0.1 -p -v -r 1.5 1.5
+scout nuclei fluorescence centroids.npy nuclei_fluorescence sox2.zarr/ tbr1.zarr/ -v [-g 0.7 1.0 1.0]
+scout nuclei gate nuclei_fluorescence/nuclei_mfis.npy nuclei_gating.npy 0.1 0.1 -p -v -r 1.5 1.5
 scout nuclei name sox2 tbr1 dn -o celltype_names.csv -v
 
 scout niche proximity centroids_um.npy nuclei_gating.npy niche_proximities.npy -r 25 25 -v -p -k 2
@@ -117,7 +117,7 @@ scout niche combine arr1.npy arr2.npy arr3.npy -o arr_combined.npy -s arr_sample
 scout niche tsne niche_proximities_combined.npy niche_labels_combined.npy niche_tsne_combined.npy -v -p
 
 scout segment downsample Ex0_rescaled/ syto_down6x 6 6 -v -t
-scout segment ventricle syto_down6x.tif /home/jswaney/scout/models/syto_vz_unet_200.pt segment_ventricles.tif -v
+scout segment ventricle syto_down6x.tif /home/jswaney/scout/models/unet_d35_d60_200.pt segment_ventricles.tif -t 0.01 -v
 scout segment foreground syto_down6x.tif segment_foreground.tif -v -t 0.02 -g 8 4 4
 
 scout cyto mesh segment_ventricles.tif voxel_size.csv mesh_ventricles.pkl -d 1 6 6 -g 2 -s 2 -p -v
@@ -125,9 +125,10 @@ scout cyto profiles mesh_ventricles.pkl centroids_um.npy nuclei_gating.npy cyto_
 scout cyto sample 5000 cyto_sample_index.npy -i cyto_profiles.npy -o cyto_profiles_sample.npy -v
 scout cyto combine sample1/cyto_profiles_sample.npy sample2/cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
 scout cyto cluster cyto_profiles_combined.npy cyto_labels_combined.npy cyto_tsne_combined.npy -n 8 -v -p
-scout cyto classify cyto_profiles_combined.npy cyto_labels_copmbined.npy cyto_profiles.npy cyto_labels.npy -v
+scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy -v
 scout cyto name name1 name2 ... -o cyto_names.csv -v
 
+scout multiscale features
 
 Input
 -----

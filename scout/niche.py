@@ -235,19 +235,23 @@ def gate_main(args):
     high_top = (proximities[:, 1] > args.high[1])
     low_right = (proximities[:, 0] > args.low[0])
     low_top = (proximities[:, 1] > args.low[1])
+
     btm_left = np.logical_not(np.logical_or(low_right, low_top))
     btm_right = np.logical_and(high_right, np.logical_not(high_top))
     top_left = np.logical_and(high_top, np.logical_not(high_right))
     top_right = np.logical_and(high_right, high_top)
-    intermediate = np.logical_and(np.logical_not(btm_left), np.logical_not(np.logical_or(high_right, high_top)))
-    onehot = np.asarray([btm_left, btm_right, top_left, top_right, intermediate])
+    mid_left = np.logical_and(np.logical_and(low_top, np.logical_not(high_top)), np.logical_not(low_right))
+    mid_right = np.logical_and(np.logical_and(low_right, np.logical_not(high_right)), np.logical_not(low_top))
+    mid_inter = np.logical_and(np.logical_and(low_right, np.logical_not(high_right)), np.logical_and(low_top, np.logical_not(high_top)))
+
+    onehot = np.asarray([btm_left, btm_right, top_left, top_right, mid_left, mid_right, mid_inter])
     labels = np.argmax(onehot, axis=0)
 
     if args.plot:
         proximities_sample, labels_sample = randomly_sample(100000, proximities, labels)
-        names = ['DNeg', 'SOX2', 'TBR1', 'DPos', 'Intermediate']
+        names = ['DNeg', 'SOX2', 'TBR1', 'DPos', 'Mid-Left', 'Mid-Right', 'Mid-Inter']
         # Show proximities
-        for i in range(5):
+        for i in range(len(names)):
             idx = np.where(labels_sample == i)[0]
             if len(idx) == 0:
                 continue

@@ -110,7 +110,7 @@ scout nuclei name sox2 tbr1 dn -o celltype_names.csv -v
 
 scout niche proximity centroids_um.npy nuclei_gating.npy niche_proximities.npy -r 25 25 -v -p -k 2
 scout niche gate niche_proximities.npy niche_labels.npy --low 0.35 0.30 --high 0.66 0.63 -p -v --alpha 0.01
-scout niche name DN SOX2 TBR1 DP Intermediate -o niche_names.csv -v
+scout niche name DN SOX2 TBR1 DP MidTBR1 MidSOX2 MidInter -o niche_names.csv -v
 # Can skip the tSNE-related stuff for niches
 scout niche sample 5000 niche_sample_index.npy -i niche_proximities.npy niche_labels.npy -o niche_proximities_sample.npy niche_labels_sample.npy -v
 scout niche combine arr1.npy arr2.npy arr3.npy -o arr_combined.npy -s arr_samples.npy -v
@@ -124,11 +124,11 @@ scout cyto mesh segment_ventricles.tif voxel_size.csv mesh_ventricles.pkl -d 1 6
 scout cyto profiles mesh_ventricles.pkl centroids_um.npy nuclei_gating.npy cyto_profiles.npy -v -p
 scout cyto sample 5000 cyto_sample_index.npy -i cyto_profiles.npy -o cyto_profiles_sample.npy -v
 scout cyto combine sample1/cyto_profiles_sample.npy sample2/cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
-scout cyto cluster cyto_profiles_combined.npy cyto_labels_combined.npy cyto_tsne_combined.npy -n 8 -v -p
-scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy -v
+scout cyto cluster cyto_profiles_combined.npy cyto_labels_combined.npy cyto_tsne_combined.npy -n 8 -v -p  # Skip, use notebook
+scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy -v --umap model.umap
 scout cyto name name1 name2 ... -o cyto_names.csv -v
 
-scout multiscale features
+scout multiscale features . -d 1 6 6 -v
 
 Input
 -----

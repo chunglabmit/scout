@@ -61,10 +61,40 @@ def singlecell_features(args, features, gate_labels, niche_labels, nuclei_morpho
         niche_idx = np.where(niche_labels == n)
         gate_labels_niche = gate_labels[niche_idx]
         niche_counts = gate_labels_niche.sum(axis=0)
-        print("niche", niche_name, "counts", niche_counts)
+        print("neighborhood", niche_name, "counts", niche_counts)
         for c, niche_count in enumerate(niche_counts):
-            print(niche_count)
-            features[f'niche {niche_name}, celltype {celltypes[c]}, count'] = niche_count
+            features[f'{niche_name} nbrhd, {celltypes[c]} count'] = niche_count
+
+    # Niche proportions
+    print('neighborhood proportions')
+    niche_counts = []
+    for n, niche_name in enumerate(niches):
+        niche_idx = np.where(niche_labels == n)[0]
+        niche_counts.append(len(niche_idx))
+    niche_counts = np.asarray(niche_counts)
+    total = niche_counts.sum()
+    niche_fracs = niche_counts / total
+    print(niche_fracs)
+    for niche_name, niche_frac in zip(niches, niche_fracs):
+        features[f'{niche_name} nbrhd fraction'] = niche_frac
+
+    # Niche ratios
+    print('neighborhood ratios')
+    # TBR1 / SOX2 -> 2 / 1
+    i, j = 2, 1
+    ratio = niche_counts[i] / np.clip(niche_counts[j], 1, None)
+    print(f'{niches[i]} / {niches[j]} ratio', ratio)
+    features[f'{niches[i]} / {niches[j]} ratio'] = ratio
+    # MidTBR1 / MidSOX2 -> 4 / 5
+    i, j = 4, 5
+    ratio = niche_counts[i] / np.clip(niche_counts[j], 1, None)
+    print(f'{niches[i]} / {niches[j]} ratio', ratio)
+    features[f'{niches[i]} / {niches[j]} ratio'] = ratio
+    # MidInter / DN -> 6 / 0
+    i, j = 6, 0
+    ratio = niche_counts[i] / np.clip(niche_counts[j], 1, None)
+    print(f'{niches[i]} / {niches[j]} ratio', ratio)
+    features[f'{niches[i]} / {niches[j]} ratio'] = ratio
 
     # Niche equivalent diameters
     print('eq. diam')
@@ -73,8 +103,8 @@ def singlecell_features(args, features, gate_labels, niche_labels, nuclei_morpho
         eq_diams = np.asarray(nuclei_morphologies['eq_diam'])
         eq_diams_niche = eq_diams[niche_idx]
         print(eq_diams_niche.mean(), eq_diams_niche.std())
-        features[f'niche {niche_name}, eq diam mean'] = eq_diams_niche.mean()
-        features[f'niche {niche_name}, eq diam stdev'] = eq_diams_niche.std()
+        features[f'{niche_name} nbrhd, eq diam mean'] = eq_diams_niche.mean()
+        features[f'{niche_name} nbrhd, eq diam stdev'] = eq_diams_niche.std()
 
     # Niche major lengths
     print('Major lengths')
@@ -83,8 +113,8 @@ def singlecell_features(args, features, gate_labels, niche_labels, nuclei_morpho
         major_length = np.asarray(nuclei_morphologies['major_length'])
         major_length_niche = major_length[niche_idx]
         print(major_length_niche.mean(), major_length_niche.std())
-        features[f'niche {niche_name}, major axis mean'] = major_length_niche.mean()
-        features[f'niche {niche_name}, major axis stdev'] = major_length_niche.std()
+        features[f'{niche_name} nbrhd, major axis mean'] = major_length_niche.mean()
+        features[f'{niche_name} nbrhd, major axis stdev'] = major_length_niche.std()
 
     # Niche axis ratio
     print('axis ratio')
@@ -93,13 +123,13 @@ def singlecell_features(args, features, gate_labels, niche_labels, nuclei_morpho
         axis_ratio = np.asarray(nuclei_morphologies['axis_ratio'])
         axis_ratio_niche = axis_ratio[niche_idx]
         print(axis_ratio_niche.mean(), axis_ratio_niche.std())
-        features[f'niche {niche_name}, axis ratio mean'] = axis_ratio_niche.mean()
-        features[f'niche {niche_name}, axis ratio stdev'] = axis_ratio_niche.std()
+        features[f'{niche_name} nbrhd, axis ratio mean'] = axis_ratio_niche.mean()
+        features[f'{niche_name} nbrhd, axis ratio stdev'] = axis_ratio_niche.std()
 
     # Niche proximities
     print('proximties')
     for n, niche_name in enumerate(niches):
-        print('niche', n)
+        print('neighborhood', n)
         niche_idx = np.where(niche_labels == n)
         proximities = niche_proximities[niche_idx]
         gate_labels_niche = gate_labels[niche_idx]
@@ -110,10 +140,10 @@ def singlecell_features(args, features, gate_labels, niche_labels, nuclei_morpho
             print("SOX2, TBR1", proximities_celltype.mean(axis=0), proximities_celltype.std(axis=0), f"n = {len(celltype_idx)}")
             mean_proximities = proximities_celltype.mean(axis=0)
             stdev_proximities = proximities_celltype.std(axis=0)
-            features[f'niche {niche_name}, celltype {celltype_name}, SOX2 proximity mean'] = mean_proximities[0]
-            features[f'niche {niche_name}, celltype {celltype_name}, SOX2 proximity stdev'] = stdev_proximities[0]
-            features[f'niche {niche_name}, celltype {celltype_name}, TBR1 proximity mean'] = mean_proximities[1]
-            features[f'niche {niche_name}, celltype {celltype_name}, TBR1 proximity stdev'] = stdev_proximities[1]
+            features[f'{niche_name} nbrhd, {celltype_name} proximity to SOX2 mean'] = mean_proximities[0]
+            features[f'{niche_name} nbrhd, {celltype_name} proximity to SOX2 stdev'] = stdev_proximities[0]
+            features[f'{niche_name} nbrhd, {celltype_name} proximity to TBR1 mean'] = mean_proximities[1]
+            features[f'{niche_name} nbrhd, {celltype_name} proximity to TBR1 stdev'] = stdev_proximities[1]
 
     # 84 Single-cell so far
     return features
@@ -134,7 +164,7 @@ def cytoarchitecture_features(args, features):
         cyto_count = len(cyto_idx)
         cyto_proportion = cyto_count / len(cyto_profiles)
         print(cyto_proportion)
-        features[f'cytoarchitecture {cyto_name} proportion'] = cyto_proportion
+        features[f'{cyto_name} cytoarchitecture fraction'] = cyto_proportion
 
     print('Average profile totals')
     # Get mean, stdev of cell counts in each profile for each cell type
@@ -149,7 +179,7 @@ def cytoarchitecture_features(args, features):
             ave_counts = ave_profiles.sum(axis=-1)
         print(ave_counts)
         for i, celltype_name in enumerate(celltypes):
-            features[f'cytoarchitecture {cyto_name} average profile, celltype {celltype_name}, count'] = ave_counts[i]
+            features[f'ave. {cyto_name} profile, {celltype_name} count'] = ave_counts[i]
 
     print('Average profile means')
     # Get mean, stdev of each profile mean position for each cell type
@@ -165,7 +195,7 @@ def cytoarchitecture_features(args, features):
             ave_means = (bin_positions * ave_profiles).sum(axis=-1) / ave_profiles.sum(-1)
         print(ave_means)
         for i, celltype_name in enumerate(celltypes):
-            features[f'cytoarchitecture {cyto_name} average profile, celltype {celltype_name}, profile mean'] = ave_means[i]
+            features[f'ave. {cyto_name} profile, {celltype_name} mean position'] = ave_means[i]
 
     print('Average profile stdev')
     # Get mean, stdev of each profile variance for each cell type
@@ -184,7 +214,7 @@ def cytoarchitecture_features(args, features):
             ave_stdev = np.sqrt(ave_variance)
         print(ave_stdev)
         for i, celltype_name in enumerate(celltypes):
-            features[f'cytoarchitecture {cyto_name} average profile, celltype {celltype_name}, profile stdev'] = ave_stdev[i]
+            features[f'ave. {cyto_name} profile, {celltype_name} profile stdev'] = ave_stdev[i]
 
     # 80 cytoarchitecture so far (if 8 clusters)
     return features
@@ -294,11 +324,11 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
     ave_axis_ratio = axis_ratios.mean()
     stdev_axis_ratio = axis_ratios.std()
 
-    print(f'Ave. ventricle volume (um3): {ave_volume_um3:.3f} ({stdev_volume_um3:.3f})')
-    print(f'Ave. ventricle equivalent diameter (um): {ave_eq_diam_um:.3f} ({stdev_eq_diam_um:.3f})')
-    print(f'Ave. ventricle major axis length (um): {ave_major_axis_um:.3f} ({stdev_major_axis_um:.3f})')
-    print(f'Ave. ventricle minor axis length (mm): {ave_minor_axis_um:.3f} ({stdev_minor_axis_um:.3f})')
-    print(f'Ave. ventricle axis ratio: {ave_axis_ratio:.3f} ({stdev_axis_ratio:.3f})')
+    print(f'ave. ventricle volume (um3): {ave_volume_um3:.3f} ({stdev_volume_um3:.3f})')
+    print(f'ave. ventricle equivalent diameter (um): {ave_eq_diam_um:.3f} ({stdev_eq_diam_um:.3f})')
+    print(f'ave. ventricle major axis length (um): {ave_major_axis_um:.3f} ({stdev_major_axis_um:.3f})')
+    print(f'ave. ventricle minor axis length (mm): {ave_minor_axis_um:.3f} ({stdev_minor_axis_um:.3f})')
+    print(f'ave. ventricle axis ratio: {ave_axis_ratio:.3f} ({stdev_axis_ratio:.3f})')
 
     features[f'ventricle count'] = nb_ventricles
     features[f'ventricle volume mean (um3)'] = ave_volume_um3
@@ -329,7 +359,7 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
     print('Surface distances')
     nbrs = NearestNeighbors(n_neighbors=1).fit(surface_points)
     for n, niche_name in enumerate(niches):
-        print('niche', n)
+        print('neighborhood', n)
         niche_idx = np.where(niche_labels == n)[0]  # This is an index into centoids_um
         niche_centroids_um = centroids_um[niche_idx]
         gate_labels_niche = gate_labels[niche_idx]
@@ -341,8 +371,8 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
             ave_surface_dist = surface_dist.mean()
             stdev_surface_dist = surface_dist.std()
             print(f'Ave. surface dist: {ave_surface_dist:.3f} ({stdev_surface_dist:.3f}, n = {len(celltype_idx)})')
-            features[f'niche {niche_name}, celltype {celltype_name}, surface distance mean (um)'] = ave_surface_dist
-            features[f'niche {niche_name}, celltype {celltype_name}, surface distance stdev (um)'] = stdev_surface_dist
+            features[f'{niche_name} nbrhd, {celltype_name} surface distance mean (um)'] = ave_surface_dist
+            features[f'{niche_name} nbrhd, {celltype_name} surface distance stdev (um)'] = stdev_surface_dist
 
     return features
 

@@ -400,7 +400,7 @@ def cluster_cli(subparsers):
 
 
 def classify_main(args):
-    verbose_print(args, f'Training logistic model based on {args.profiles_train} and {args.labels_train}')
+    verbose_print(args, f'Training KNN model based on {args.profiles_train} and {args.labels_train}')
 
     # Load training data
     profiles_train = np.load(args.profiles_train)

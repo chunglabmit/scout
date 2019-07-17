@@ -1,6 +1,7 @@
 name: scout
 channels:
   - pytorch
+  - conda-forge
   - defaults
 dependencies:
   - alabaster=0.7.12=py36_0
@@ -14,7 +15,7 @@ dependencies:
   - blas=1.0=mkl
   - bleach=3.1.0=py36_0
   - bzip2=1.0.6=h14c3975_5
-  - ca-certificates=2019.1.23=0
+  - ca-certificates=2019.5.15=0
   - certifi=2019.3.9=py36_0
   - cffi=1.12.2=py36h2e261b9_1
   - chardet=3.0.4=py36_1
@@ -86,12 +87,14 @@ dependencies:
   - libvorbis=1.3.6=h7b6447c_0
   - libxcb=1.13=h1bed415_1
   - libxml2=2.9.9=he19cac6_0
+  - llvmlite=0.28.0=py36hdbcaa40_0
   - lz4-c=1.8.1.2=h14c3975_0
   - lzo=2.10=h49e0be7_2
   - markupsafe=1.1.1=py36h7b6447c_0
   - matplotlib=3.0.3=py36h5429711_0
   - mistune=0.8.4=py36h7b6447c_0
-  - mkl=2019.3=199
+  - mkl=2019.4=243
+  - mkl-service=2.0.2=py36h7b6447c_0
   - mkl_fft=1.0.10=py36ha843d7b_0
   - mkl_random=1.0.2=py36hd81dba3_0
   - monotonic=1.5=py_0
@@ -103,11 +106,12 @@ dependencies:
   - networkx=2.2=py36_1
   - ninja=1.9.0=py36hfd86e86_0
   - notebook=5.7.8=py36_0
+  - numba=0.43.1=py36hf2d7682_0
   - numcodecs=0.5.4=py36he6710b0_0
   - numpy=1.16.2=py36h7e9f1db_0
   - numpy-base=1.16.2=py36hde5b4d6_0
   - olefile=0.46=py36_0
-  - openssl=1.1.1b=h7b6447c_1
+  - openssl=1.1.1c=h7b6447c_1
   - packaging=19.0=py36_0
   - pandas=0.24.2=py36he6710b0_0
   - pandoc=2.2.3.2=0
@@ -139,7 +143,7 @@ dependencies:
   - python=3.6.8=h0371630_0
   - python-dateutil=2.8.0=py36_0
   - python-libarchive-c=2.8=py36_6
-  - pytorch=1.0.1=py3.6_cuda10.0.130_cudnn7.4.2_2
+  - pytorch-nightly=1.1.0.dev20190424=py3.6_cuda10.0.130_cudnn7.4.2_0
   - pytz=2018.9=py36_0
   - pywavelets=1.0.2=py36hdd07704_0
   - pyyaml=5.1=py36h7b6447c_0
@@ -149,8 +153,8 @@ dependencies:
   - readline=7.0=h7b6447c_5
   - requests=2.21.0=py36_0
   - ruamel_yaml=0.15.46=py36h14c3975_0
-  - scikit-image=0.14.2=py36he6710b0_0
-  - scikit-learn=0.20.3=py36hd81dba3_0
+  - scikit-image=0.15.0=py36he6710b0_0
+  - scikit-learn=0.21.2=py36hd81dba3_0
   - scipy=1.2.1=py36h7c811a0_0
   - send2trash=1.5.0=py36_0
   - setuptools=40.8.0=py36_0
@@ -167,10 +171,10 @@ dependencies:
   - testpath=0.4.2=py36_0
   - tk=8.6.8=hbc83047_0
   - toolz=0.9.0=py36_0
-  - torchvision=0.2.2=py_3
   - tornado=6.0.2=py36h7b6447c_0
   - tqdm=4.31.1=py36_1
   - traitlets=4.3.2=py36_0
+  - umap-learn=0.3.9=py36_0
   - urllib3=1.24.1=py36_0
   - vtk=8.2.0=py36haa4764d_200
   - wcwidth=0.1.7=py36_0
@@ -179,7 +183,6 @@ dependencies:
   - widgetsnbextension=3.4.2=py36_0
   - xz=5.2.4=h14c3975_4
   - yaml=0.1.7=had09818_2
-  - zarr=2.2.0=py_0
   - zeromq=4.3.1=he6710b0_3
   - zlib=1.2.11=h7b6447c_3
   - zstd=1.3.7=h0b5b093_0
@@ -188,17 +191,24 @@ dependencies:
     - configobj==5.0.6
     - cython==0.29.7
     - envisage==4.7.1
+    - et-xmlfile==1.0.1
+    - jdcal==1.4.1
     - lapsolver==1.0.2
     - mayavi==4.6.2
     - multicoretsne==0.1
+    - openpyxl==2.6.2
     - pockets==0.7.2
+    - pybm3d==0.2.1
     - pyface==6.0.0
     - pyqt5==5.12.1
     - pyqt5-sip==4.19.15
+    - seaborn==0.9.0
     - sphinx-rtd-theme==0.4.3
     - sphinxcontrib-napoleon==0.7
     - tifffile==2019.3.18
     - traits==5.1.0
     - traitsui==6.0.0
+    - tsv==0.1.0
+    - xlrd==1.2.0
 prefix: /home/jswaney/anaconda3/envs/scout
 

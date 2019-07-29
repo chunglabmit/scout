@@ -104,7 +104,7 @@ def segment_ventricles_keras(model, data, t=0.5):
         img = img.astype(np.float32).reshape((1, *img.shape, 1))
         prob = model.predict(img)
         binary = (prob > t).astype(np.uint8)
-        output[i] = binary
+        output[i] = binary[..., 0]
     return output
 
 

@@ -22,6 +22,7 @@ from tqdm import tqdm
 from scipy.interpolate import griddata
 from skimage.transform import downscale_local_mean
 from skimage.segmentation import clear_border
+from skimage.util import pad
 from scipy.ndimage.morphology import binary_fill_holes
 import torch
 from scout import io
@@ -86,7 +87,18 @@ def segment_ventricles(model, data, t, device):
     return output
 
 
+def xy_padding(img, shape, cval=0):
+    original_shape = np.asarray(img.shape)
+    target_shape = np.asarray(shape)
+    assert np.all(original_shape <= target_shape)
+    padding = target_shape - original_shape
+    pad_width = ((0, 0), (0, padding[1]), (0, padding[2]))  # No padding in z
+    padded = pad(img, pad_width, 'constant', constant_values=cval)
+    return padded
+
+
 def segment_ventricles_keras(model, data, t=0.5):
+    data = xy_padding(data, (len(data), 1024, 1024), cval=0)
     output = np.empty(data.shape, dtype=np.float32)
     for i, img in tqdm(enumerate(data), total=len(data)):
         img = img.astype(np.float32).reshape((1, *img.shape, 1))

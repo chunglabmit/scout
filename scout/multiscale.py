@@ -90,7 +90,7 @@ def singlecell_features(args, features, gate_labels, niche_labels, nuclei_morpho
     ratio = niche_counts[i] / np.clip(niche_counts[j], 1, None)
     print(f'{niches[i]} / {niches[j]} ratio', ratio)
     features[f'{niches[i]} / {niches[j]} ratio'] = ratio
-    # MidInter / DN -> 6 / 0
+    # MidInter / DN -> 6 / 0 (
     i, j = 6, 0
     ratio = niche_counts[i] / np.clip(niche_counts[j], 1, None)
     print(f'{niches[i]} / {niches[j]} ratio', ratio)

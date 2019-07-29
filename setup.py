@@ -24,6 +24,7 @@ setup(
         "pandas",
         "tifffile",
         "lapsolver",
+        "tensorflow"
     ],
     author="Kwanghun Chung Lab",
     packages=["scout",

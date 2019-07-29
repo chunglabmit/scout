@@ -29,6 +29,7 @@ from scout.preprocess import gaussian_blur
 from scout import utils
 from scout.utils import verbose_print
 from scout.unet_model import UNet
+from scout.unet_keras import get_unet
 
 
 # Downsample Zarr
@@ -67,6 +68,10 @@ def load_model(path, device):
     return model
 
 
+def load_keras_model(path):
+    return get_unet(path)
+
+
 def segment_ventricles(model, data, t, device):
     output = np.empty(data.shape, dtype=np.float32)
     for i, img in tqdm(enumerate(data), total=len(data)):
@@ -76,6 +81,16 @@ def segment_ventricles(model, data, t, device):
             warnings.simplefilter('ignore')
             prob_tensor = model(img_tensor)
         prob = prob_tensor.detach().cpu().numpy()[0, 0]
+        binary = (prob > t).astype(np.uint8)
+        output[i] = binary
+    return output
+
+
+def segment_ventricles_keras(model, data, t=0.5):
+    output = np.empty(data.shape, dtype=np.float32)
+    for i, img in tqdm(enumerate(data), total=len(data)):
+        img = img.astype(np.float32).reshape((1, *img.shape, 1))
+        prob = model.predict(img)
         binary = (prob > t).astype(np.uint8)
         output[i] = binary
     return output
@@ -165,15 +180,21 @@ def ventricle_main(args):
     data = io.imread(args.input)
 
     # Load the model
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    # device = torch.device("cpu")
-    model = load_model(args.model, device)
-    model = model.eval()
-    verbose_print(args, f'Model successfully loaded from {args.model} to {device} device')
-
-    # Segment the input image
-    verbose_print(args, f'Segmentation progress:')
-    output = segment_ventricles(model, data, args.t, device)
+    if args.model.endswith('.pt'):
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        # device = torch.device("cpu")
+        model = load_model(args.model, device)
+        model = model.eval()
+        verbose_print(args, f'Pytorch model successfully loaded from {args.model} to {device} device')
+        # Segment the input image
+        verbose_print(args, f'Segmentation progress:')
+        output = segment_ventricles(model, data, args.t, device)
+    elif args.model.endswith('.h5'):
+        model = load_keras_model(args.model)
+        verbose_print(args, f'Kerass model successfully loaded from {args.model}')
+        # Segment the input image
+        verbose_print(args, f'Segmentation progress:')
+        output = segment_ventricles_keras(model, data, args.t)
 
     # Remove border regions
     if args.exclude_border:

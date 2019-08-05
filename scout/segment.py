@@ -97,15 +97,23 @@ def xy_padding(img, shape, cval=0):
     return padded
 
 
+def calculate_padded_shape(input_shape):
+    z_shape = input_shape[0]
+    y_shape = 2 ** np.ceil(np.log2(input_shape[1]))
+    x_shape = 2 ** np.ceil(np.log2(input_shape[2]))
+    return z_shape, y_shape, x_shape
+
+
 def segment_ventricles_keras(model, data, t=0.5):
-    data = xy_padding(data, (len(data), 1024, 1024), cval=0)
+    padded_shape = calculate_padded_shape(data.shape)
+    data = xy_padding(data, padded_shape, cval=0)
     output = np.empty(data.shape, dtype=np.float32)
     for i, img in tqdm(enumerate(data), total=len(data)):
         img = img.astype(np.float32).reshape((1, *img.shape, 1))
         prob = model.predict(img)
         binary = (prob > t).astype(np.uint8)
         output[i] = binary[..., 0]
-    return output
+    return utils.extract_box(output, np.zeros(output.ndim), np.asarray(data.shape))
 
 
 # Calculate local densities and threshold

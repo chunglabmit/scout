@@ -113,7 +113,7 @@ def segment_ventricles_keras(model, data, t=0.5):
         prob = model.predict(img)
         binary = (prob > t).astype(np.uint8)
         output[i] = binary[..., 0]
-    return utils.extract_box(output, np.zeros(output.ndim), np.asarray(data.shape))
+    return utils.extract_box(output, np.zeros(output.ndim, np.int), np.asarray(data.shape))
 
 
 # Calculate local densities and threshold

@@ -99,8 +99,8 @@ def xy_padding(img, shape, cval=0):
 
 def calculate_padded_shape(input_shape):
     z_shape = input_shape[0]
-    y_shape = 2 ** np.ceil(np.log2(input_shape[1]))
-    x_shape = 2 ** np.ceil(np.log2(input_shape[2]))
+    y_shape = int(2 ** np.ceil(np.log2(input_shape[1])))
+    x_shape = int(2 ** np.ceil(np.log2(input_shape[2])))
     return z_shape, y_shape, x_shape
 
 

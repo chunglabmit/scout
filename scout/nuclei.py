@@ -36,6 +36,8 @@ from scout import utils
 from scout.utils import verbose_print
 from scout.synthetic import points_to_binary
 from scout.niche import name_cli, name_main
+import matplotlib
+matplotlib.use('GTK')
 import matplotlib.pyplot as plt
 from matplotlib import colors
 

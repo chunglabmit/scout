@@ -24,10 +24,13 @@ from sklearn.mixture import GaussianMixture
 from sklearn.cluster import KMeans, DBSCAN
 from sklearn.linear_model import LogisticRegression
 import joblib
-import matplotlib.pyplot as plt
-import matplotlib.colors as cm
 from MulticoreTSNE import MulticoreTSNE as TSNE
 from scout.utils import verbose_print, write_csv
+try:
+    import matplotlib.pyplot as plt
+    import matplotlib.colors as cm
+except:
+    pass
 
 
 # Query neighbors

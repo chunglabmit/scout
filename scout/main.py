@@ -123,8 +123,9 @@ scout segment foreground syto_down6x.tif segment_foreground.tif -v -t 0.02 -g 8 
 scout cyto mesh segment_ventricles.tif voxel_size.csv mesh_ventricles.pkl -d 1 6 6 -g 2 -s 2 -p -v
 scout cyto profiles mesh_ventricles.pkl centroids_um.npy nuclei_gating.npy cyto_profiles.npy -v -p
 scout cyto sample 5000 cyto_sample_index.npy -i cyto_profiles.npy -o cyto_profiles_sample.npy -v
+
 scout cyto combine sample1/cyto_profiles_sample.npy sample2/cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
-scout cyto cluster cyto_profiles_combined.npy cyto_labels_combined.npy cyto_tsne_combined.npy -n 8 -v -p  # Skip, use notebook
+# OLD: scout cyto cluster cyto_profiles_combined.npy cyto_labels_combined.npy cyto_tsne_combined.npy -n 8 -v -p  # Skip, use notebook
 scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy -v --umap model.umap
 scout cyto name name1 name2 ... -o cyto_names.csv -v
 

@@ -29,8 +29,6 @@ from skimage import morphology
 from skimage.measure import regionprops
 from sklearn.neighbors import NearestNeighbors
 from tqdm import tqdm
-import matplotlib.pyplot as plt
-from matplotlib import colors
 from scout import io
 from scout.preprocess import gaussian_blur_parallel
 from scout import detection
@@ -38,6 +36,11 @@ from scout import utils
 from scout.utils import verbose_print
 from scout.synthetic import points_to_binary
 from scout.niche import name_cli, name_main
+try:
+    import matplotlib.pyplot as plt
+    from matplotlib import colors
+except:
+    pass
 
 
 # Nuclei segmentation

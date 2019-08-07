@@ -35,7 +35,6 @@ from scout.niche import sample_main
 from scout.niche import combine_cli, combine_main, name_cli, name_main
 from scout import io
 from scout.utils import verbose_print, read_voxel_size, filter_points_in_box
-print(os.environ['DISPLAY'])
 if os.environ['DISPLAY'] == 'localhost:10.0':
     mlab = None
 else:

@@ -26,11 +26,8 @@ from sklearn.linear_model import LogisticRegression
 import joblib
 from MulticoreTSNE import MulticoreTSNE as TSNE
 from scout.utils import verbose_print, write_csv
-try:
-    import matplotlib.pyplot as plt
-    import matplotlib.colors as cm
-except:
-    pass
+import matplotlib.pyplot as plt
+import matplotlib.colors as cm
 
 
 # Query neighbors

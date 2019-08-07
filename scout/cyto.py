@@ -29,7 +29,10 @@ from sklearn.linear_model import LogisticRegression
 import joblib
 from MulticoreTSNE import MulticoreTSNE as TSNE
 from umap import UMAP
-from mayavi import mlab
+try:
+    from mayavi import mlab
+except:
+    mlab = None
 import matplotlib.pyplot as plt
 from scout.preprocess import gaussian_blur
 from scout.niche import sample_main

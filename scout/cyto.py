@@ -62,6 +62,37 @@ def load_mesh(path):
         return pickle.load(f)
 
 
+# Writes an .obj file for the output of marching cube algorithm. One = True for faces indexing starting at 1 as opposed to 0. Necessary for Blender/SurfIce
+def write_obj(name, verts, faces, normals, values, one=False):
+    """Write a .obj file for the output of marching cube algorithm.
+
+    Parameters
+    ----------
+    name : str
+        Ouput file name.
+    verts : array
+        Spatial coordinates for vertices as returned by skimage.measure.marching_cubes_lewiner().
+    faces : array
+        List of faces, referencing indices of verts as returned by skimage.measure.marching_cubes_lewiner().
+    normals : array
+        Normal direction of each vertex as returned by skimage.measure.marching_cubes_lewiner().
+    one : bool
+        Specify if faces values should start at 1 or at 0. Different visualization programs use different conventions.
+
+    """
+    if one:
+        faces = faces + 1
+    with open(name, 'w') as thefile:
+        for item in verts:
+            thefile.write("v {0} {1} {2}\n".format(item[0], item[1], item[2]))
+        print("File written 30%")
+        for item in normals:
+            thefile.write("vn {0} {1} {2}\n".format(item[0], item[1], item[2]))
+        print("File written 60%")
+        for item in faces:
+            thefile.write("f {0}//{0} {1}//{1} {2}//{2}\n".format(item[0], item[1], item[2]))
+
+
 # Plotting
 
 def plot_mesh(verts, faces, color=(1, 0, 0), figure=None):

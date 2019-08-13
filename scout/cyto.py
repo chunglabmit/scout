@@ -96,6 +96,22 @@ def write_obj(name, verts, faces, normals, values, one=False):
             thefile.write("f {0}//{0} {1}//{1} {2}//{2}\n".format(item[0], item[1], item[2]))
 
 
+def write_point_cloud(name, verts):
+    """Write a .obj file for a point cloud.
+
+    Parameters
+    ----------
+    name : str
+        Ouput file name.
+    verts : array
+        Spatial coordinates for vertices as returned by skimage.measure.marching_cubes_lewiner().
+
+    """
+    with open(name, 'w') as thefile:
+        for item in verts:
+            thefile.write("v {0} {1} {2}\n".format(item[0], item[1], item[2]))
+
+
 # Plotting
 
 def plot_mesh(verts, faces, color=(1, 0, 0), figure=None):

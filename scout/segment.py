@@ -6,7 +6,8 @@ This module performs organoid segmentation
 
 These include the following subcommands:
 
-    - downsample : reduce image size for faster segmentaion
+    - downsample : reduce image size for segmentaion
+    - stack : stack a folder of images into a single image
     - ventricle : segment ventricles from downsampled nuclei image
     - foreground : segment organoid foreground
     - smooth : smooth a segmentation
@@ -194,6 +195,30 @@ def downsample_cli(subparsers):
     downsample_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
+def stack_main(args):
+    verbose_print(args, f'Stacking images in {args.input}')
+
+    paths, filenames = utils.tifs_in_dir(args.input)
+    verbose_print(args, f'Found {len(paths)} images')
+
+    img0 = io.imread(paths[0])
+    shape2d, dtype = img0.shape, img0.dtype
+    img = np.empty((len(paths), *shape2d), dtype)
+    for z, path in tqdm(enumerate(paths), total=len(paths)):
+        img[z] = io.imread(path)
+
+    io.imsave(args.output, img, compress=1)
+
+    verbose_print(args, f'Stacking done!')
+
+
+def stack_cli(subparsers):
+    stack_parser = subparsers.add_parser('stack', help="Stack images", description='Stacking tool for segmentation')
+    stack_parser.add_argument('input', help="Path to input images folder")
+    stack_parser.add_argument('output', help="Path to output TIFF image")
+    stack_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
 def ventricle_main(args):
     verbose_print(args, f'Segmenting ventricles in {args.input}')
 
@@ -302,6 +327,7 @@ def segment_cli(subparsers):
                                            description='Organoid region segmentation tool')
     segment_subparsers = segment_parser.add_subparsers(dest='segment_command', title='segment subcommands')
     downsample_cli(segment_subparsers)
+    stack_cli(segment_subparsers)
     ventricle_cli(segment_subparsers)
     foreground_cli(segment_subparsers)
     return segment_parser

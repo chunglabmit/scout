@@ -117,7 +117,7 @@ scout niche combine arr1.npy arr2.npy arr3.npy -o arr_combined.npy -s arr_sample
 scout niche tsne niche_proximities_combined.npy niche_labels_combined.npy niche_tsne_combined.npy -v -p
 
 scout segment downsample Ex0_rescaled/ syto_down6x 6 6 -v -t
-scout segment ventricle syto_down6x.tif /home/jswaney/scout/models/unet_d35_d60_200.pt segment_ventricles.tif -t 0.01 -v
+scout segment ventricle syto_down6x.tif /data/datasets/ventricle_segmentation/unet_weights3_zika.h5 segment_ventricles.tif -t 0.5 -v
 scout segment foreground syto_down6x.tif segment_foreground.tif -v -t 0.02 -g 8 4 4
 
 scout cyto mesh segment_ventricles.tif voxel_size.csv mesh_ventricles.pkl -d 1 6 6 -g 2 -s 2 -p -v

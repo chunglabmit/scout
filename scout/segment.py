@@ -311,6 +311,7 @@ def foreground_cli(subparsers):
 def segment_main(args):
     commands_dict = {
         'downsample': downsample_main,
+        'stack': stack_main,
         'ventricle': ventricle_main,
         'foreground': foreground_main,
     }

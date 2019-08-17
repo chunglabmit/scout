@@ -156,22 +156,47 @@ def segment_ventricles_keras(model, data, t=0.5):
 
 # Define command-line functionality
 
+
+def read_downsample_write(path, factor, output_dir, filename, compress=1):
+    arr = io.imread(path)
+    if isinstance(factor, int):
+        factors = tuple(factor for _ in range(arr.ndim))
+    else:
+        factors = tuple(factor)
+    data = downsample(arr, factors)
+    output = os.path.join(output_dir, filename)
+    io.imsave(output, data, compress=compress)
+
+
 def downsample_main(args):
+    if args.n is None:
+        nb_workers = multiprocessing.cpu_count()
+    else:
+        nb_workers = args.n
+
     verbose_print(args, f'Downsampling {args.input} with factors {args.factor}')
 
     if args.tiff:
         os.makedirs(args.output, exist_ok=True)
         paths, filenames = utils.tifs_in_dir(args.input)
-        for i, (path, filename) in enumerate(zip(paths, filenames)):
-            verbose_print(args, f'Downsampling {filename}')
-            arr = io.imread(path)
-            if isinstance(args.factor, int):
-                factors = tuple(args.factor for _ in range(arr.ndim))
-            else:
-                factors = tuple(args.factor)
-            data = downsample(arr, factors)
-            output = os.path.join(args.output, filename)
-            io.imsave(output, data, compress=3)
+
+        args_list = []
+        for path, filename in zip(paths, filenames):
+            args_list.append((path, args.factor, args.output, filename))
+        with multiprocessing.Pool(nb_workers) as pool:
+            pool.starmap(read_downsample_write, args_list)
+
+        # for i, (path, filename) in enumerate(zip(paths, filenames)):
+        #     verbose_print(args, f'Downsampling {filename}')
+        #     arr = io.imread(path)
+        #     if isinstance(args.factor, int):
+        #         factors = tuple(args.factor for _ in range(arr.ndim))
+        #     else:
+        #         factors = tuple(args.factor)
+        #     data = downsample(arr, factors)
+        #     output = os.path.join(args.output, filename)
+        #     io.imsave(output, data, compress=3)
+
     else:
         arr = io.open(args.input, mode='r')
         if isinstance(args.factor, int):
@@ -192,6 +217,7 @@ def downsample_cli(subparsers):
     downsample_parser.add_argument('output', help="Path to output downsampled TIFF image")
     downsample_parser.add_argument('factor', help="Downsample factor", type=int, nargs='+')
     downsample_parser.add_argument('-t', '--tiff', help="TIFF folder flag", action='store_true')
+    downsample_parser.add_argument('-n', help="Number of workers. Default, cpu_count", type=int, default=None)
     downsample_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 

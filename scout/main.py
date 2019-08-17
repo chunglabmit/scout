@@ -97,9 +97,14 @@ scout preprocess data/sox2.tif data/sox2.zarr -t 0.05 -s 0.05 -v -p 8
 
 # Preprocessing used for SPIM
 scout preprocess histogram Ex_0_Em_0_stitched/ Ex0_hist.csv -s 50 -v
-scout preprocess rescale Ex_0_Em_0_stitched/ Ex0_hist.csv Ex0_rescaled -t 120 -v (or 100) [-p 99.7]
-# scout preprocess denoise Ex0_rescaled/ Ex0_denoised -s 0.005 -v (or 0.001 for SOX2 TBR1)
+scout preprocess histogram Ex_1_Em_1_stitched/ Ex1_hist.csv -s 50 -v
+scout preprocess histogram Ex_2_Em_2_stitched/ Ex2_hist.csv -s 50 -v
+scout preprocess rescale Ex_0_Em_0_stitched/ Ex0_hist.csv Ex0_rescaled -t 120 -p 99.7 -v
+scout preprocess rescale Ex_1_Em_1_stitched/ Ex1_hist.csv Ex1_rescaled -t 100 -p 99.7 -v
+scout preprocess rescale Ex_2_Em_2_stitched/ Ex2_hist.csv Ex2_rescaled -t 100 -p 99.7 -v
 scout preprocess convert Ex0_rescaled/ syto.zarr -v -n 4
+scout preprocess convert Ex1_rescaled/ sox2.zarr -v -n 4
+scout preprocess convert Ex2_rescaled/ tbr1.zarr -v -n 4
 
 scout nuclei detect syto.zarr nuclei_probability.zarr centroids.npy --voxel-size voxel_size.csv --output-um centroids_um.npy -v
 scout nuclei segment nuclei_probability.zarr centroids.npy nuclei_foreground.zarr nuclei_binary.zarr -v
@@ -117,6 +122,7 @@ scout niche combine arr1.npy arr2.npy arr3.npy -o arr_combined.npy -s arr_sample
 scout niche tsne niche_proximities_combined.npy niche_labels_combined.npy niche_tsne_combined.npy -v -p
 
 scout segment downsample Ex0_rescaled/ syto_down6x 6 6 -v -t
+scout segment stack syto_down6x/ syto_down6x.tif -v
 scout segment ventricle syto_down6x.tif /data/datasets/ventricle_segmentation/unet_weights3_zika.h5 segment_ventricles.tif -t 0.5 -v
 scout segment foreground syto_down6x.tif segment_foreground.tif -v -t 0.02 -g 8 4 4
 

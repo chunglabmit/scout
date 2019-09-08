@@ -366,10 +366,14 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
         for c, celltype_name in enumerate(celltypes):
             print('cell type', c)
             celltype_idx = np.where(gate_labels_niche[:, c] == 1)[0]
-            niche_celltype_centroids_um = niche_centroids_um[celltype_idx]
-            surface_dist, _ = nbrs.kneighbors(niche_celltype_centroids_um)
-            ave_surface_dist = surface_dist.mean()
-            stdev_surface_dist = surface_dist.std()
+            if len(celltype_idx) > 0:
+                niche_celltype_centroids_um = niche_centroids_um[celltype_idx]
+                surface_dist, _ = nbrs.kneighbors(niche_celltype_centroids_um)
+                ave_surface_dist = surface_dist.mean()
+                stdev_surface_dist = surface_dist.std()
+            else:
+                ave_surface_dist = np.nan
+                stdev_surface_dist = np.nan
             print(f'Ave. surface dist: {ave_surface_dist:.3f} ({stdev_surface_dist:.3f}, n = {len(celltype_idx)})')
             features[f'{niche_name} nbrhd, {celltype_name} surface distance mean (um)'] = ave_surface_dist
             features[f'{niche_name} nbrhd, {celltype_name} surface distance stdev (um)'] = stdev_surface_dist

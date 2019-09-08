@@ -126,7 +126,7 @@ scout segment stack syto_down6x/ syto_down6x.tif -v
 scout segment ventricle syto_down6x.tif /data/datasets/ventricle_segmentation/unet_weights3_zika.h5 segment_ventricles.tif -t 0.5 -v
 scout segment foreground syto_down6x.tif segment_foreground.tif -v -t 0.02 -g 8 4 4
 
-scout cyto mesh segment_ventricles.tif voxel_size.csv mesh_ventricles.pkl -d 1 6 6 -g 2 -s 2 -p -v
+scout cyto mesh segment_ventricles.tif voxel_size.csv mesh_ventricles.pkl -d 1 6 6 -g 2 -s 2 -v -p
 scout cyto profiles mesh_ventricles.pkl centroids_um.npy nuclei_gating.npy cyto_profiles.npy -v -p
 scout cyto sample 5000 cyto_sample_index.npy -i cyto_profiles.npy -o cyto_profiles_sample.npy -v
 scout cyto combine sample1/cyto_profiles_sample.npy sample2/cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
@@ -135,6 +135,7 @@ scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_pro
 scout cyto name name1 name2 ... -o cyto_names.csv -v
 
 scout multiscale features . -d 1 6 6 -v
+scout combine ... --output combined_features.xlsx -v
 
 Input
 -----

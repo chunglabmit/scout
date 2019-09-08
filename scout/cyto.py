@@ -66,6 +66,7 @@ def load_mesh(path):
 
 
 # Writes an .obj file for the output of marching cube algorithm. One = True for faces indexing starting at 1 as opposed to 0. Necessary for Blender/SurfIce
+
 def write_obj(name, verts, faces, normals, values, one=False):
     """Write a .obj file for the output of marching cube algorithm.
 

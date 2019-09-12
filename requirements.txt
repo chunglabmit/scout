@@ -4,7 +4,7 @@ pandas
 scikit-image
 scikit-learn
 tensorflow
-torch
+--pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
 jupyter
 ipykernel
 joblib
@@ -16,4 +16,3 @@ umap-learn
 openpyxl
 seaborn
 tifffile
-MulticoreTSNE

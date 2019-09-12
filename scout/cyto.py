@@ -25,9 +25,7 @@ from skimage.measure import marching_cubes_lewiner
 from sklearn.preprocessing import scale
 from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.linear_model import LogisticRegression
 import joblib
-from MulticoreTSNE import MulticoreTSNE as TSNE
 from umap import UMAP
 import matplotlib.pyplot as plt
 from scout.preprocess import gaussian_blur

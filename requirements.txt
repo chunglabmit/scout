@@ -1,5 +1,6 @@
 numpy
 scipy
+pandas
 scikit-image
 scikit-learn
 tensorflow
@@ -12,8 +13,7 @@ matplotlib
 PyWavelets
 tqdm
 umap-learn
-lapsolver
 openpyxl
-mayavi
 seaborn
 tifffile
+MulticoreTSNE

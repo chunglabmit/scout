@@ -20,7 +20,6 @@ import multiprocessing
 import warnings
 import numpy as np
 from tqdm import tqdm
-from scipy.interpolate import griddata
 from skimage.transform import downscale_local_mean
 from skimage.segmentation import clear_border
 from skimage.util import pad

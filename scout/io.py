@@ -1,10 +1,10 @@
 """
 IO Module
 ===========
-IO module for reading and writing different volumetric image formats
+SCOUT's IO module is for reading and writing different volumetric image formats and preparing chunked arrays for
+processing. SCOUT makes use of TIFF and Zarr file formats throughout the analysis pipeline, and the this module
+is meant to consolidate these side-effecting IO operations.
 
-SCOUT makes use of tiff and Zarr file formats throughout the pipeline.
-This IO module is meant to consolidate these side-effecting IO operations into a single module.
 """
 import tifffile
 import multiprocessing
@@ -22,7 +22,7 @@ def imread(path):
     Parameters
     -----------
     path : str
-        Path to tif image to open
+        Path to TIFF image to open
 
     Returns
     --------
@@ -39,7 +39,7 @@ def imsave(path, data, compress=1):
     Parameters
     -----------
     path : str
-        Path to tif image to create / overwrite
+        Path to TIFF image to create / overwrite
     data : ndarray
         Image data array
     compress : int
@@ -74,7 +74,7 @@ def imread_folder(path, nb_workers):
     """
     Finds all TIFF images in a folder and loads them into a single array.
 
-    Note that all images must be the same size to be able to stack them.
+    **Note:** all images must be the same shape to be able to stack them.
 
     Parameters
     ----------
@@ -120,7 +120,10 @@ def open(path, nested=True, mode='a'):
 
 def new_zarr(path, shape, chunks, dtype, in_memory=False, **kwargs):
     """
-    Create new Zarr NestedDirectoryStore at `path`
+    Create new Zarr NestedDirectoryStore at `path`.
+
+    **NOTE:** Persistent Zarr arrays are stored on disk. To avoid data loss, be careful when calling `new_zarr`
+    on a path with an existing array.
 
     Parameters
     ----------

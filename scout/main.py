@@ -135,7 +135,7 @@ scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_pro
 scout cyto name name1 name2 ... -o cyto_names.csv -v
 
 scout multiscale features . -d 1 6 6 -v
-scout combine ... --output combined_features.xlsx -v
+scout multiscale combine ... --output combined_features.xlsx -v
 
 Input
 -----

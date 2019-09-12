@@ -297,7 +297,7 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
     else:
         voxel_isotropic = voxel_down
 
-    labels, nb_ventricles = label(ventricles)
+    labels, nb_ventricles = label(ventricles)  # Probably should do some smoothing before this
     verbose_print(args, f'Found {nb_ventricles} connected components in ventricle segmentation')
 
     regions = regionprops(labels)

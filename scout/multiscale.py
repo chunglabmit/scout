@@ -510,7 +510,7 @@ def multiscale_cli(subparsers):
     features_cli(multiscale_parser)
     combine_cli(multiscale_parser)
     setup_cli(multiscale_parser)
-    select_cli(multiscale_parser
+    select_cli(multiscale_parser)
     return multiscale_parser
 
 

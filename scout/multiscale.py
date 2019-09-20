@@ -476,8 +476,31 @@ def setup_cli(subparsers):
                                          description='Create folders with simlinks to datasets for comparison')
     setup_parser.add_argument('input', help="Path to input analysis CSV")
     setup_parser.add_argument('datasets', help="Path to folder containing datasets")
-    setup_parser.add_argument('--output', help="Path to target directory", default='.')
+    setup_parser.add_argument('--output', help="Path to target analysis directory", default='.')
     setup_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
+def select_main(args):
+    verbose_print(args, f'Selecting datasets for analysis')
+
+    # Load dataset CSV and select datasets by group
+    df = pd.read_csv(args.input, index_col=0)
+    groups = [df.where(df['type'] == g).dropna() for g in args.groups]
+
+    # Create output CSV
+    df2 = pd.concat(groups)
+    df2.to_csv(args.output)
+
+    verbose_print(args, f'Done selecting datasets!')
+
+
+def select_cli(subparsers):
+    select_parser = subparsers.add_parser('select', help="Select datasets for analysis",
+                                          description='Create analysis CSV by selecting groups from dataset summary')
+    select_parser.add_argument('input', help="Path to dataset summary CSV")
+    select_parser.add_argument('groups', help="Names of dataset types to select", nargs='+')
+    select_parser.add_argument('--output', help="Path to output CSV", default='analysis.csv')
+    select_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def multiscale_cli(subparsers):
@@ -487,11 +510,13 @@ def multiscale_cli(subparsers):
     features_cli(multiscale_parser)
     combine_cli(multiscale_parser)
     setup_cli(multiscale_parser)
+    select_cli(multiscale_parser
     return multiscale_parser
 
 
 def multiscale_main(args):
     commands_dict = {
+        'select': select_main,
         'setup': setup_main,
         'features': features_main,
         'combine': combine_main,

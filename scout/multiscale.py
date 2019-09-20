@@ -486,6 +486,8 @@ def select_main(args):
     # Load dataset CSV and select datasets by group
     df = pd.read_csv(args.input, index_col=0)
     groups = [df.where(df['type'] == g).dropna() for g in args.groups]
+    for g, name in zip(groups, args.groups):
+        verbose_print(args, f'Found {len(g)} datasets in group {name}')
 
     # Create output CSV
     df2 = pd.concat(groups)

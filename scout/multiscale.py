@@ -458,12 +458,14 @@ def setup_main(args):
     groups = list(set(df['type']))
     groups.sort()
     for group in groups:
+        verbose_print(args, f'Making directory for {group} group')
         os.makedirs(os.path.join(args.output, group), exist_ok=True)
 
     # Create folders for each dataset with symlinks to underlying data
     for path in df.index:
         group = df['type'].loc[path]
         new_dir = os.path.join(args.output, group, path)
+        verbose_print(args, f'Making directory and symlink for {path}')
         os.makedirs(new_dir, exist_ok=True)
         os.symlink(os.path.join(os.path.abspath(args.datasets), path),
                    os.path.join(os.path.abspath(new_dir), 'dataset'))

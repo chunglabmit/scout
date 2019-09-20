@@ -465,7 +465,8 @@ def setup_main(args):
         group = df['type'].loc[path]
         new_dir = os.path.join(args.output, group, path)
         os.makedirs(new_dir, exist_ok=True)
-        os.symlink(os.path.join(args.datasets, path), os.path.join(os.path.abspath(new_dir), 'dataset'))
+        os.symlink(os.path.join(os.path.abspath(args.datasets), path),
+                   os.path.join(os.path.abspath(new_dir), 'dataset'))
 
     verbose_print(args, f'Done setting up analysis folder!')
 

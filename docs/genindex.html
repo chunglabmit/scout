@@ -83,15 +83,31 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="single_cell.html">Single-cell analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proximity.html">Spatial sub-catergorization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Organoid segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cytoarchitecture.html">Cytoarchitectural analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Main Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Modules</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
 </ul>
 
@@ -215,6 +231,8 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="segment.html#scout.segment.downsample">downsample() (in module scout.segment)</a>
+</li>
       <li><a href="curvature.html#scout.curvature.dx">dx() (in module scout.curvature)</a>
 </li>
       <li><a href="curvature.html#scout.curvature.dy">dy() (in module scout.curvature)</a>
@@ -244,6 +262,10 @@
       <li><a href="score.html#scout.score.f_score">f_score() (in module scout.score)</a>
 </li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#scout.utils.files_in_dir">files_in_dir() (in module scout.utils)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="G">G</h2>
@@ -266,6 +288,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="io.html#scout.io.imread">imread() (in module scout.io)</a>
+</li>
+      <li><a href="io.html#scout.io.imread_folder">imread_folder() (in module scout.io)</a>
 </li>
       <li><a href="io.html#scout.io.imread_parallel">imread_parallel() (in module scout.io)</a>
 </li>
@@ -351,9 +375,13 @@
 </li>
       <li><a href="curvature.html#module-scout.curvature">scout.curvature (module)</a>
 </li>
+      <li><a href="cyto.html#module-scout.cyto">scout.cyto (module)</a>
+</li>
       <li><a href="detection.html#module-scout.detection">scout.detection (module)</a>
 </li>
       <li><a href="io.html#module-scout.io">scout.io (module)</a>
+</li>
+      <li><a href="multiscale.html#module-scout.multiscale">scout.multiscale (module)</a>
 </li>
       <li><a href="niche.html#module-scout.niche">scout.niche (module)</a>
 </li>
@@ -364,6 +392,8 @@
       <li><a href="preprocess.html#module-scout.preprocess">scout.preprocess (module)</a>
 </li>
       <li><a href="score.html#module-scout.score">scout.score (module)</a>
+</li>
+      <li><a href="segment.html#module-scout.segment">scout.segment (module)</a>
 </li>
       <li><a href="utils.html#module-scout.utils">scout.utils (module)</a>
 </li>
@@ -377,6 +407,10 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#scout.utils.tifs_in_dir">tifs_in_dir() (in module scout.utils)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="utils.html#scout.utils.SharedMemory.txn">txn() (scout.utils.SharedMemory method)</a>
 </li>
   </ul></td>
@@ -386,6 +420,12 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="curvature.html#scout.curvature.weingarten">weingarten() (in module scout.curvature)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="cyto.html#scout.cyto.write_obj">write_obj() (in module scout.cyto)</a>
+</li>
+      <li><a href="cyto.html#scout.cyto.write_point_cloud">write_point_cloud() (in module scout.cyto)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -402,7 +442,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Justin Swaney
+        &copy; Copyright 2019, Chung Lab @ MIT
 
     </p>
   </div>

@@ -448,17 +448,50 @@ def combine_cli(subparsers):
     combine_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
+def setup_main(args):
+    verbose_print(args, f'Setiing up analysis folder')
+
+    # Load the CSV as a dataframe
+    df = pd.read_csv(args.input, index_col=0)
+
+    # Create folders for each group
+    groups = list(set(df['type']))
+    groups.sort()
+    for group in groups:
+        os.makedirs(os.path.join(args.output, group), exist_ok=True)
+
+    # Create folders for each dataset with symlinks to underlying data
+    for path in df.index:
+        group = df['type'].loc[path]
+        new_dir = os.path.join(args.output, group, path)
+        os.makedirs(new_dir, exist_ok=True)
+        os.symlink(os.path.join(args.datasets, path), os.path.join(os.path.abspath(new_dir), 'dataset')
+
+    verbose_print(args, f'Done setting up analysis folder!')
+
+
+def setup_cli(subparsers):
+    setup_parser = subparsers.add_parser('setup', help="Setup analysis folder",
+                                         description='Create folders with simlinks to datasets for comparison')
+    setup_parser.add_argument('input', help="Path to input analysis CSV")
+    setup_parser.add_argument('datasets', help="Path to folder containing datasets")
+    setup_parser.add_argument('--output', help="Path to target directory", default='.')
+    setup_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
 def multiscale_cli(subparsers):
     multiscale_parser = subparsers.add_parser('multiscale', help="multiscale features",
                                               description="Build features for multiscale organoid analysis")
     multiscale_parser = multiscale_parser.add_subparsers(dest='multiscale_command', title='multiscale subcommands')
     features_cli(multiscale_parser)
     combine_cli(multiscale_parser)
+    setup_cli(multiscale_parser)
     return multiscale_parser
 
 
 def multiscale_main(args):
     commands_dict = {
+        'setup': setup_main,
         'features': features_main,
         'combine': combine_main,
     }

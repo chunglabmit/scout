@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Preprocess Module" href="preprocess.html" />
+    <link rel="next" title="Curvature Module" href="curvature.html" />
     <link rel="prev" title="IO Module" href="io.html" /> 
 </head>
 
@@ -84,15 +84,31 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="single_cell.html">Single-cell analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proximity.html">Spatial sub-catergorization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Organoid segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cytoarchitecture.html">Cytoarchitectural analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Main Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Modules</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Utils Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
 </ul>
 
@@ -302,6 +318,24 @@ consistent view of itself on a disk.</p>
 </dd></dl>
 
 <dl class="function">
+<dt id="scout.utils.files_in_dir">
+<code class="descclassname">scout.utils.</code><code class="descname">files_in_dir</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.files_in_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches a path for all files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – The directory path to check for files</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of all files and subdirectories in the input path (excluding . and ..)</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
 <dt id="scout.utils.insert_box">
 <code class="descclassname">scout.utils.</code><code class="descname">insert_box</code><span class="sig-paren">(</span><em>arr</em>, <em>start</em>, <em>stop</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.insert_box" title="Permalink to this definition">¶</a></dt>
 <dd><p>Indexes <cite>arr</cite> from <cite>start</cite> to <cite>stop</cite> and inserts <cite>data</cite></p>
@@ -329,7 +363,7 @@ consistent view of itself on a disk.</p>
 
 <dl class="function">
 <dt id="scout.utils.pmap_chunks">
-<code class="descclassname">scout.utils.</code><code class="descname">pmap_chunks</code><span class="sig-paren">(</span><em>f</em>, <em>arr</em>, <em>chunks=None</em>, <em>nb_workers=None</em>, <em>use_imap=False</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.pmap_chunks" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scout.utils.</code><code class="descname">pmap_chunks</code><span class="sig-paren">(</span><em>f</em>, <em>arr</em>, <em>chunks=None</em>, <em>nb_workers=None</em>, <em>use_imap=False</em>, <em>unordered=False</em>, <em>chunksize=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.pmap_chunks" title="Permalink to this definition">¶</a></dt>
 <dd><p>Maps a function over an array in parallel using chunks</p>
 <p>The function <cite>f</cite> should take a reference to the array, a starting index, and the chunk size.
 Since each subprocess is handling it’s own indexing, any overlapping should be baked into <cite>f</cite>.
@@ -376,6 +410,26 @@ Note that this requires input tuple unpacking manually inside of <cite>f</cite>.
 </table>
 </dd></dl>
 
+<dl class="function">
+<dt id="scout.utils.tifs_in_dir">
+<code class="descclassname">scout.utils.</code><code class="descname">tifs_in_dir</code><span class="sig-paren">(</span><em>path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.tifs_in_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches input path for tif files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>path</strong> (<em>str</em>) – path of the directory to check for tif images</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><ul class="simple">
+<li><strong>tif_paths</strong> (<em>list</em>) – list of paths to tiffs in path</li>
+<li><strong>tif_filenames</strong> (<em>list</em>) – list of tiff filenames (with the extension) in path</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -386,7 +440,7 @@ Note that this requires input tuple unpacking manually inside of <cite>f</cite>.
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="preprocess.html" class="btn btn-neutral float-right" title="Preprocess Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="curvature.html" class="btn btn-neutral float-right" title="Curvature Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="io.html" class="btn btn-neutral float-left" title="IO Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -398,7 +452,7 @@ Note that this requires input tuple unpacking manually inside of <cite>f</cite>.
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Justin Swaney
+        &copy; Copyright 2019, Chung Lab @ MIT
 
     </p>
   </div>

@@ -4,7 +4,6 @@ pandas
 scikit-image
 scikit-learn
 tensorflow
---pre torch torchvision -f https://download.pytorch.org/whl/nightly/cpu/torch_nightly.html
 jupyter
 ipykernel
 joblib

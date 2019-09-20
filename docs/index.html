@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="IO Module" href="io.html" /> 
+    <link rel="next" title="Installation" href="installation.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -83,15 +83,31 @@
               
             
             
-              <p class="caption"><span class="caption-text">Contents:</span></p>
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="single_cell.html">Single-cell analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proximity.html">Spatial sub-catergorization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Organoid segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cytoarchitecture.html">Cytoarchitectural analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Main Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Modules</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
 </ul>
 
@@ -159,22 +175,64 @@
             
   <div class="section" id="welcome-to-scout-s-documentation">
 <h1>Welcome to SCOUT’s documentation!<a class="headerlink" href="#welcome-to-scout-s-documentation" title="Permalink to this headline">¶</a></h1>
-<p>SCOUT is a Python library for performing high-dimensional phenotypic analysis of cerebral organoids.
-The library provides a command-line interface (CLI) for extracting multiscale features and performing
-permutation-based statistical tests.</p>
+<a class="reference internal image-reference" href="_images/combined_render.jpg"><img alt="organoid_render" class="align-center" src="_images/combined_render.jpg" style="width: 400px;" /></a>
+<p>SCOUT is an open-source Python package for performing volumetric image analysis of intact cerebral organoids. <a class="footnote-reference" href="#id2" id="id1">[1]</a>
+The details behind the development of this package can be found in the following publication:</p>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[1]</a></td><td>Alex Albanese*, Justin Swaney*, Dae Hee Yun, Nicholas Evans, Jenna Antonucci-Johnson, Vincent Pham,
+Chloe Delepine, Mriganka Sur, Lee Gehrke, Kwanghun Chung. 3D Imaging and High Content Morphological
+Analysis of Intact Human Cerebral Organoids. <strong>bioArxiv</strong>, 2019.</td></tr>
+</tbody>
+</table>
+<p>If you use SCOUT, please be sure to cite this publication in your work.</p>
+<p>The SCOUT package provides a command-line interface (CLI) for extracting multiscale features as well as a library of
+tools that can be mixed-and-matched to build custom single-cell organoid analyses pipelines. SCOUT also includes
+example Jupyter notebooks for users that prefer the more interactive, web-based development environment.</p>
 <div class="toctree-wrapper compound">
-<p class="caption"><span class="caption-text">Contents:</span></p>
+<p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="single_cell.html">Single-cell analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proximity.html">Spatial sub-catergorization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Organoid segmentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cytoarchitecture.html">Cytoarchitectural analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Main Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Additional Modules</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
 <li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
 </ul>
 </div>
+</div>
+<div class="section" id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline">¶</a></h1>
+<p>For those who want to add additional functionality to the existing SCOUT pipeline, a pull request can be submitted
+to the SCOUT repo. Feature requests can be submitted as issues on the SCOUT repo as well.</p>
+</div>
+<div class="section" id="contact">
+<h1>Contact<a class="headerlink" href="#contact" title="Permalink to this headline">¶</a></h1>
+<p>If you have questions about SCOUT or how to use it, please submit an issue to the SCOUT Github repo. We welcome
+feedback from the organoid scientific community.</p>
 </div>
 <div class="section" id="indices-and-tables">
 <h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
@@ -183,6 +241,7 @@ permutation-based statistical tests.</p>
 <li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
 <li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
 </ul>
+<p>This site is maintained by members of the <a class="reference external" href="http://www.chunglab.org/">Chung Lab</a> at MIT.</p>
 </div>
 
 
@@ -193,7 +252,7 @@ permutation-based statistical tests.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="io.html" class="btn btn-neutral float-right" title="IO Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>
@@ -203,7 +262,7 @@ permutation-based statistical tests.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Justin Swaney
+        &copy; Copyright 2019, Chung Lab @ MIT
 
     </p>
   </div>

@@ -308,7 +308,7 @@ def detect_cli(subparsers):
     detect_parser.add_argument('-d', help="Minimum distance between centroids", type=float, default=3)
     detect_parser.add_argument('-p', help="Minimum probability of a centroid", type=float, default=0.2)
     detect_parser.add_argument('-c', help="Chunk shape to process at a time", type=int, nargs='+', default=3 * (64,))
-    detect_parser.add_argument('-m', help="Minimum intensity to skip chunk", type=float, default=0.07)
+    detect_parser.add_argument('-m', help="Minimum intensity to skip chunk", type=float, default=0.1)
     detect_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=8)
     detect_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 

@@ -9,9 +9,10 @@
 #scout preprocess convert Ex2_rescaled/ tbr1.zarr -v -n 8
 
 scout nuclei detect syto.zarr nuclei_probability.zarr centroids.npy --voxel-size voxel_size.csv --output-um centroids_um.npy -v
-scout nuclei segment nuclei_probability.zarr centroids.npy nuclei_foreground.zarr nuclei_binary.zarr -v
+scout nuclei segment nuclei_probability.zarr centroids.npy nuclei_foreground.zarr nuclei_binary.zarr -n 4 -v
 scout nuclei morphology nuclei_binary.zarr centroids.npy nuclei_morphologies.csv -v
 scout nuclei fluorescence centroids.npy nuclei_fluorescence sox2.zarr/ tbr1.zarr/ -v
+
 scout nuclei gate nuclei_fluorescence/nuclei_mfis.npy nuclei_gating.npy 0.1 0.1 -p -v -r 1.5 1.5
 scout nuclei name sox2 tbr1 dn -o celltype_names.csv -v
 

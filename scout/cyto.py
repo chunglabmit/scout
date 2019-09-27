@@ -20,6 +20,7 @@ import multiprocessing
 import pickle
 import subprocess
 import numpy as np
+import pandas as pd
 from tqdm import tqdm
 from skimage.measure import marching_cubes_lewiner
 from sklearn.preprocessing import scale
@@ -30,7 +31,7 @@ from umap import UMAP
 import matplotlib.pyplot as plt
 from scout.preprocess import gaussian_blur
 from scout.niche import sample_main
-from scout.niche import combine_cli, combine_main, name_cli, name_main
+from scout.niche import name_cli, name_main
 from scout import io
 from scout.utils import verbose_print, read_voxel_size, filter_points_in_box
 try:
@@ -42,6 +43,7 @@ except:
     pass
 
 # Meshing and normals
+
 
 def smooth_segmentation(seg, sigma=1, scale_factor=1):
     binary = (seg > 0)
@@ -63,7 +65,8 @@ def load_mesh(path):
         return pickle.load(f)
 
 
-# Writes an .obj file for the output of marching cube algorithm. One = True for faces indexing starting at 1 as opposed to 0. Necessary for Blender/SurfIce
+# Writes an .obj file for the output of marching cube algorithm.
+# One = True for faces indexing starting at 1 as opposed to 0. Necessary for Blender/SurfIce
 
 def write_obj(name, verts, faces, normals, values, one=False):
     """Write a .obj file for the output of marching cube algorithm.
@@ -402,6 +405,39 @@ def sample_cli(subparsers):
     sample_parser.add_argument('-o', '--outputs', help="Path to sampled output numpy arrays", nargs='+', required=True)
     sample_parser.add_argument('-s', '--seed', help="Random seed", type=int, default=1)
     sample_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
+
+
+def combine_main(args):
+    verbose_print(args, f'Combining profiles based on {args.input}')
+
+    # Get full paths for sampled profiles from analysis CSV
+    parent_dir = os.path.abspath(os.path.join(args.input, os.pardir))
+    df = pd.read_csv(args.input, index_col=0)
+    paths = [os.path.join(parent_dir, df.loc[folder]['type'], folder, args.name) for folder in df.index]
+
+    # Adapted from niche.combine_main
+    input_arrays = [np.load(path) for path in paths]
+    combined = np.concatenate(input_arrays, axis=args.a)
+
+    verbose_print(args, f'Saving combined features to {args.output} with shape {combined.shape}')
+    np.save(args.output, combined)
+
+    verbose_print(args, f'Saving organoid labels to {args.sample}')
+    names = np.concatenate([i*np.ones(len(arr)) for i, arr in enumerate(input_arrays)])
+    np.save(args.sample, names)
+
+    verbose_print(args, f'Combining profiles done!')
+
+
+def combine_cli(subparsers):
+    combine_parser = subparsers.add_parser('combine', help="Combine sampled cytoarchitectures",
+                                           description='Combine profiles from multiple organoids by concatenation')
+    combine_parser.add_argument('input', help="Path to input analysis CSV")
+    combine_parser.add_argument('-o', '--output', help="Path to output combined numpy array", required=True)
+    combine_parser.add_argument('-s', '--sample', help="Path to output with sample name", required=True)
+    combine_parser.add_argument('-n', '--name', help="Filename of sampled profiles", default='cyto_profiles_sample.npy')
+    combine_parser.add_argument('-a', help="Axis to concatenate", type=int, default=0)
+    combine_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def cluster_main(args):

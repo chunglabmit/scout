@@ -40,6 +40,58 @@ each normal.
 **Note:** This command defaults to using all CPU cores available. If the calculation is still too slow, try increasing
 the mesh spacing *-s* to reduce the number of profiles to compute.
 
+Setting up clustering analyses
+-------------------------------
+
+Due to the stochastic nature of organoid culture, it is difficult to assign distinct semantic labels to each
+radial cell profile corresponding to canonical cytoarchitectures. Instead, SCOUT aims to quantify cytoarchitectural
+composition of each organoid relative to what is observed in a group of organoids. To accomplish this, SCOUT uses
+hierarchical clustering of radial cell profiles to assign cytoarchitectural labels to all organoids in a particular
+study.
+
+Since the results of the clustering analysis depend on which organoids are included, it is useful to aggregate
+organoid datasets into a separate folder to make this dependency on a group of organoids explicit. We first select
+which datasets we would like to include in our analysis using the following command:
+
+.. code-block:: bash
+
+    scout multiscale select summary.csv Lancaster_d30 Lancaster_d60 -v
+
+This command reads the summary CSV, pulls out the paths to the Lancaster d35 and d60 organoid datasets, and saves the
+selected organoids to an analysis CSV file in the current folder. Note that this analysis CSV can be modified to
+include more datasets or exclude some datasets from the analysis. The analysis folder can be setup with links to
+underlying dataset folders using the following command:
+
+.. code-block:: bash
+
+    scout multiscale setup analysis.csv /path/to/datasets/ -v
+
+This command creates new folders for each dataset in the analysis containing a symbolic link to the original dataset
+folder in `/path/to/datasets`. This allows convenient access to the single-cell analysis results and, more importantly,
+shares the previous results across multiple analyses for consistency.
+
+Using the example in the **Preprocessing** section, running this command in an `analysis` folder next to the `datasets`
+folder would result in the following structure:
+
+.. code-block:: bash
+
+    datasets/
+    |   20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+    |   20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+    |   20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+    |   20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+    |   ... possibly more datasets
+    |   summary.csv
+    analysis/
+    |   20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+    |   |   dataset -> ../../datasets/20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+    |   20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+    |   |   dataset -> ../../datasets/20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+    |   20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+    |   |   dataset -> ../../datasets/20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+    |   20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+    |   |   dataset -> ../../datasets/20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+
 Clustering sampled profiles
 ----------------------------
 

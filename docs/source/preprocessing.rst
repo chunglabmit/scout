@@ -1,13 +1,16 @@
 Preprocessing
 =============
 
+Volumetric image inputs
+-------------------------
+
 The SCOUT pipeline assume that a series of 2D TIFF images are given to form 3D volumes.
 Each image should correspond to an optical z-section in ascending alphanumeric order.
 Multiple channels are stored in separate folders containing the same number of 2D TIFF images.
 
 For example, for a 3-channel volumetric image containing 1000 z-planes, the starting data may be organized as follows:
 
-| data_folder/
+| dataset_folder/
 |   **color_0/**
 |       *000.tif*
 |       *...*
@@ -23,6 +26,36 @@ For example, for a 3-channel volumetric image containing 1000 z-planes, the star
 
 **Note:** The exact names of the files and folders do not matter--SCOUT automatically finds all TIFFs and sorts them
 by name. However, each channel must contain the same number of images.
+
+Organoid dataset organization
+------------------------------
+
+It is customary to place all dataset folders under a single `datasets` directory with an accompanying `summary.csv`
+file that describes what each dataset contains. `summary.csv` should contain a dataframe indexed by the
+dataset `path`, which is the name of the dataset_folder, and a field called `type`, which contains a string describing
+the organoid type or experimental group.
+
+As an example, this is a `summary.csv` containing 2 Lancaster_d35 organoids and 2 Lancaster_d60 organoids.
+
+.. code-block:: bash
+
+    path,type
+    20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60,Lancaster_d35
+    20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60,Lancaster_d35
+    20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50,Lancaster_d60
+    20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60,Lancaster_d60
+
+The accompanying `datasets` folder would look like this:
+
+.. code-block:: bash
+
+    datasets/
+    |   20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+    |   20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+    |   20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+    |   20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+    |   summary.csv
+
 
 Image normalization
 --------------------

@@ -413,7 +413,7 @@ def combine_main(args):
     # Get full paths for sampled profiles from analysis CSV
     parent_dir = os.path.abspath(os.path.join(args.input, os.pardir))
     df = pd.read_csv(args.input, index_col=0)
-    paths = [os.path.join(parent_dir, df.loc[folder]['type'], folder, args.name) for folder in df.index]
+    paths = [os.path.join(parent_dir, df.loc[folder]['type'], folder, 'dataset', args.name) for folder in df.index]
 
     # Adapted from niche.combine_main
     input_arrays = [np.load(path) for path in paths]

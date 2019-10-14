@@ -22,6 +22,7 @@ from skimage.morphology import binary_erosion
 from scipy.ndimage import label
 from sklearn.neighbors import NearestNeighbors
 from scout import io
+from scout.cyto import smooth_segmentation
 from scout.utils import verbose_print, read_voxel_size, read_csv
 import matplotlib.pyplot as plt
 
@@ -52,8 +53,8 @@ organoid_features.xlsx
 
 def singlecell_features(args, features, gate_labels, niche_labels, nuclei_morphologies, niche_proximities):
     # Get cell-type and niche names
-    celltypes = read_csv(os.path.join(args.input, 'celltype_names.csv'))
-    niches = read_csv(os.path.join(args.input, 'niche_names.csv'))
+    celltypes = read_csv(os.path.join(args.input, 'dataset/celltype_names.csv'))
+    niches = read_csv(os.path.join(args.input, 'dataset/niche_names.csv'))
 
     # Niche cell counts
     print('cell counts')
@@ -151,9 +152,9 @@ def singlecell_features(args, features, gate_labels, niche_labels, nuclei_morpho
 
 def cytoarchitecture_features(args, features):
     # Load the cytoarchitecture info needed
-    celltypes = read_csv(os.path.join(args.input, 'celltype_names.csv'))
+    celltypes = read_csv(os.path.join(args.input, 'dataset/celltype_names.csv'))
     cytoarchitectures = read_csv(os.path.join(args.input, 'cyto_names.csv'))
-    cyto_profiles = np.load(os.path.join(args.input, 'cyto_profiles.npy'))
+    cyto_profiles = np.load(os.path.join(args.input, 'dataset/cyto_profiles.npy'))
     cyto_labels = np.load(os.path.join(args.input, 'cyto_labels.npy'))
     print(cyto_profiles.shape, cyto_labels.shape)
 
@@ -221,22 +222,28 @@ def cytoarchitecture_features(args, features):
 
 
 def wholeorg_features(args, features, gate_labels, niche_labels):
-    celltypes = read_csv(os.path.join(args.input, 'celltype_names.csv'))
-    niches = read_csv(os.path.join(args.input, 'niche_names.csv'))
+    celltypes = read_csv(os.path.join(args.input, 'dataset/celltype_names.csv'))
+    niches = read_csv(os.path.join(args.input, 'dataset/niche_names.csv'))
+
+    if args.g is not None:
+        if len(args.g) == 1:
+            sigma = args.g[0]
+        else:
+            sigma = tuple(args.g)
 
     if args.d is None:
         downsample_factor = 1
     else:
         downsample_factor = np.asarray(args.d)
 
-    voxel_orig = read_voxel_size(os.path.join(args.input, 'voxel_size.csv'))
+    voxel_orig = read_voxel_size(os.path.join(args.input, 'dataset/voxel_size.csv'))
     verbose_print(args, f'Original voxel size: {voxel_orig}')
 
     voxel_down = tuple(voxel_orig * downsample_factor)
     verbose_print(args, f'Downsampled voxel size: {voxel_down}')
 
     # Overall organoid
-    foreground = io.imread(os.path.join(args.input, 'segment_foreground.tif'))
+    foreground = io.imread(os.path.join(args.input, 'dataset/segment_foreground.tif'))
     verbose_print(args, f'Loaded foreground segmentation: {foreground.shape}')
 
     if not np.allclose(voxel_down, max(voxel_down)):
@@ -283,8 +290,13 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
     features[f'organoid axis ratio'] = axis_ratio
 
     # Ventricles
-    ventricles = io.imread(os.path.join(args.input, 'segment_ventricles.tif'))
+    ventricles = io.imread(os.path.join(args.input, 'dataset/segment_ventricles.tif'))
     verbose_print(args, f'Loaded ventricle segmentation: {ventricles.shape}')
+
+    # Smooth segmentation
+    if args.g is not None:
+        ventricles = smooth_segmentation(ventricles, sigma)
+        verbose_print(args, f'Smoothed segmentation with sigma {sigma}')
 
     if not np.allclose(voxel_down, max(voxel_down)):
         voxel_isotropic = tuple(max(voxel_down) * np.ones(len(voxel_down)))
@@ -353,7 +365,7 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
     surface_points = coords * np.asarray(voxel_down)
 
     # Load cell centers
-    centroids_um = np.load(os.path.join(args.input, 'centroids_um.npy'))
+    centroids_um = np.load(os.path.join(args.input, 'dataset/centroids_um.npy'))
 
     # Query nearest surface point for each cell center
     print('Surface distances')
@@ -389,10 +401,10 @@ def features_main(args):
 
     # Load all single-cell data
     verbose_print(args, f'Loading input single cell measurements')
-    gate_labels = np.load(os.path.join(args.input, 'nuclei_gating.npy'))
-    nuclei_morphologies = pd.read_csv(os.path.join(args.input, 'nuclei_morphologies.csv'))
-    niche_proximities = np.load(os.path.join(args.input, 'niche_proximities.npy'))
-    niche_labels = np.load(os.path.join(args.input, 'niche_labels.npy'))
+    gate_labels = np.load(os.path.join(args.input, 'dataset/nuclei_gating.npy'))
+    nuclei_morphologies = pd.read_csv(os.path.join(args.input, 'dataset/nuclei_morphologies.csv'))
+    niche_proximities = np.load(os.path.join(args.input, 'dataset/niche_proximities.npy'))
+    niche_labels = np.load(os.path.join(args.input, 'dataset/niche_labels.npy'))
 
     # Add in double negatives
     # TODO: Move this to nuclei module
@@ -416,6 +428,7 @@ def features_cli(subparsers):
                                             description='Compute multiscale features for an organoid')
     features_parser.add_argument('input', help="Path to input organoid folder")
     features_parser.add_argument('-d', help="Downsampling factors from voxel size file", type=int, nargs='+', default=None)
+    features_parser.add_argument('-g', help="Amount of gaussian smoothing", type=float, nargs='+', default=None)
     features_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 

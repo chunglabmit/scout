@@ -295,7 +295,7 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
 
     # Smooth segmentation
     if args.g is not None:
-        ventricles = smooth_segmentation(ventricles, sigma)
+        ventricles = smooth_segmentation(ventricles, sigma) > 0.5
         verbose_print(args, f'Smoothed segmentation with sigma {sigma}')
 
     if not np.allclose(voxel_down, max(voxel_down)):
@@ -309,7 +309,7 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
     else:
         voxel_isotropic = voxel_down
 
-    labels, nb_ventricles = label(ventricles)  # Probably should do some smoothing before this
+    labels, nb_ventricles = label(ventricles)
     verbose_print(args, f'Found {nb_ventricles} connected components in ventricle segmentation')
 
     regions = regionprops(labels)
@@ -396,6 +396,17 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
 def features_main(args):
     verbose_print(args, f'Calculating multiscale features')
 
+    if os.path.isdir(args.input):
+        input_folders = [os.path.basename(os.path.abspath(args.input))]
+    elif os.path.splitext(os.path.abspath(args.input))[1] == '.csv':
+        analysis = pd.read_csv(os.path.abspath(args.input), index_col=0)
+
+        print(analysis)
+    else:
+        raise ValueError('Input must be a folder with a symlinked dataset or an analysis CSV file')
+
+    return None
+
     # Create a dictionary for holding all features
     features = {'input': args.input}
 
@@ -426,7 +437,7 @@ def features_main(args):
 def features_cli(subparsers):
     features_parser = subparsers.add_parser('features', help="Compute multiscale features",
                                             description='Compute multiscale features for an organoid')
-    features_parser.add_argument('input', help="Path to input organoid folder")
+    features_parser.add_argument('input', help="Path to input organoid folder or analysis CSV file")
     features_parser.add_argument('-d', help="Downsampling factors from voxel size file", type=int, nargs='+', default=None)
     features_parser.add_argument('-g', help="Amount of gaussian smoothing", type=float, nargs='+', default=None)
     features_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')

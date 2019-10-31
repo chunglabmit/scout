@@ -461,8 +461,7 @@ def combine_main(args):
     dfs = []
     for organoid in args.inputs:
         path = os.path.join(organoid, 'organoid_features.xlsx')
-        dfs.append(pd.read_excel(path, index_col=0))
-    print(dfs[0].head())
+        dfs.append(pd.read_excel(path, index_col=0, skiprows=1))
     df = pd.concat(dfs, axis=1, sort=False)
     df.to_excel(args.output)
 

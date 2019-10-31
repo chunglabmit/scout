@@ -401,7 +401,7 @@ def features_main(args):
         input_folders = [os.path.basename(os.path.abspath(args.input))]
     elif os.path.splitext(os.path.abspath(args.input))[1] == '.csv':
         analysis = pd.read_csv(os.path.abspath(args.input), index_col=0)
-        parent_dir = os.path.splitext(os.path.abspath(args.input))[0]
+        parent_dir = os.path.abspath(os.path.join(os.path.abspath(args.input), os.pardir))
         input_folders = [os.path.join(parent_dir, t, f) for t, f in zip(analysis['type'], analysis.index)]
     else:
         raise ValueError('Input must be a folder with a symlinked dataset or an analysis CSV file')

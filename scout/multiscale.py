@@ -453,9 +453,9 @@ def combine_main(args):
     verbose_print(args, f'Combining multiscale features')
 
     # Identfy all datasets to be analyzed if passed analysis CSV
-    if os.path.splitext(args.input[0])[1] == '.csv':
-        analysis = pd.read_csv(args.input[0], index_col=0)
-        parent_dir = os.path.abspath(os.path.join(os.path.abspath(args.input[0]), os.pardir))
+    if os.path.splitext(args.inputs[0])[1] == '.csv':
+        analysis = pd.read_csv(args.inputs[0], index_col=0)
+        parent_dir = os.path.abspath(os.path.join(os.path.abspath(args.inputs[0]), os.pardir))
         args.inputs = [os.path.join(parent_dir, t, f) for t, f in zip(analysis['type'], analysis.index)]
 
     dfs = []

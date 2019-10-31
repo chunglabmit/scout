@@ -463,9 +463,7 @@ def combine_main(args):
         path = os.path.join(organoid, 'organoid_features.xlsx')
         dfs.append(pd.read_excel(path, index_col=0))
 
-    print(dfs[0])
-
-    data = {'feature': dfs[0]['Unnamed: 0'].values}
+    data = {'feature': dfs[0].index}
     for i, df in enumerate(dfs):
         data[str(i)] = df[0].values
 

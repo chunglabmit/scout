@@ -396,40 +396,46 @@ def wholeorg_features(args, features, gate_labels, niche_labels):
 def features_main(args):
     verbose_print(args, f'Calculating multiscale features')
 
+    # Identfy all datasets to be analyzed
     if os.path.isdir(args.input):
         input_folders = [os.path.basename(os.path.abspath(args.input))]
     elif os.path.splitext(os.path.abspath(args.input))[1] == '.csv':
         analysis = pd.read_csv(os.path.abspath(args.input), index_col=0)
-
-        print(analysis)
+        parent_dir = os.path.splitext(os.path.abspath(args.input))[0]
+        input_folders = [os.path.join(parent_dir, t, f) for t, f in zip(analysis['type'], analysis.index)]
     else:
         raise ValueError('Input must be a folder with a symlinked dataset or an analysis CSV file')
 
-    return None
+    # Analyze each dataset
+    for input_folder in input_folders:
+        verbose_print(args, f'Calculating multiscale features for {os.path.basename(input_folder)}')
 
-    # Create a dictionary for holding all features
-    features = {'input': args.input}
+        # inject current folder path into command line arguments
+        args.input = os.path.abspath(input_folder)
 
-    # Load all single-cell data
-    verbose_print(args, f'Loading input single cell measurements')
-    gate_labels = np.load(os.path.join(args.input, 'dataset/nuclei_gating.npy'))
-    nuclei_morphologies = pd.read_csv(os.path.join(args.input, 'dataset/nuclei_morphologies.csv'))
-    niche_proximities = np.load(os.path.join(args.input, 'dataset/niche_proximities.npy'))
-    niche_labels = np.load(os.path.join(args.input, 'dataset/niche_labels.npy'))
+        # Create a dictionary for holding all features
+        features = {'dataset': os.path.basename(args.input)}
 
-    # Add in double negatives
-    # TODO: Move this to nuclei module
-    negatives = np.logical_and(gate_labels[:, 0] == 0, gate_labels[:, 1] == 0)
-    gate_labels = np.hstack([gate_labels, negatives[:, np.newaxis]])
+        # Load all single-cell data
+        verbose_print(args, f'Loading input single cell measurements')
+        gate_labels = np.load(os.path.join(args.input, 'dataset/nuclei_gating.npy'))
+        nuclei_morphologies = pd.read_csv(os.path.join(args.input, 'dataset/nuclei_morphologies.csv'))
+        niche_proximities = np.load(os.path.join(args.input, 'dataset/niche_proximities.npy'))
+        niche_labels = np.load(os.path.join(args.input, 'dataset/niche_labels.npy'))
 
-    # Calculate multiscale features
-    features = singlecell_features(args, features, gate_labels, niche_labels, nuclei_morphologies, niche_proximities)
-    features = cytoarchitecture_features(args, features)
-    features = wholeorg_features(args, features, gate_labels, niche_labels)
+        # Add in double negatives
+        # TODO: Move this to nuclei module
+        negatives = np.logical_and(gate_labels[:, 0] == 0, gate_labels[:, 1] == 0)
+        gate_labels = np.hstack([gate_labels, negatives[:, np.newaxis]])
 
-    # Save results
-    df = pd.Series(features)
-    df.to_excel(os.path.join(args.input, 'organoid_features.xlsx'))
+        # Calculate multiscale features
+        features = singlecell_features(args, features, gate_labels, niche_labels, nuclei_morphologies, niche_proximities)
+        features = cytoarchitecture_features(args, features)
+        features = wholeorg_features(args, features, gate_labels, niche_labels)
+
+        # Save results
+        df = pd.Series(features)
+        df.to_excel(os.path.join(args.input, 'organoid_features.xlsx'))
 
     verbose_print(args, f'Multiscale features done!')
 

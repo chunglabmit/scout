@@ -463,6 +463,7 @@ def combine_main(args):
         path = os.path.join(organoid, 'organoid_features.xlsx')
         dfs.append(pd.read_excel(path, index_col=0, skiprows=1))
     df = pd.concat(dfs, axis=1, sort=False)
+    df = df.set_index('dataset')
     df.to_excel(args.output)
 
     verbose_print(args, f'Combining multiscale features done!')

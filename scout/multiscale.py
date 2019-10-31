@@ -452,6 +452,12 @@ def features_cli(subparsers):
 def combine_main(args):
     verbose_print(args, f'Combining multiscale features')
 
+    # Identfy all datasets to be analyzed if passed analysis CSV
+    if os.path.splitext(args.input[0])[1] == '.csv':
+        analysis = pd.read_csv(args.input[0], index_col=0)
+        parent_dir = os.path.abspath(os.path.join(os.path.abspath(args.input[0]), os.pardir))
+        args.inputs = [os.path.join(parent_dir, t, f) for t, f in zip(analysis['type'], analysis.index)]
+
     dfs = []
     for organoid in args.inputs:
         path = os.path.join(organoid, 'organoid_features.xlsx')
@@ -473,13 +479,13 @@ def combine_main(args):
 def combine_cli(subparsers):
     combine_parser = subparsers.add_parser('combine', help="Combine organoid features",
                                            description='Combine organoid features for a study')
-    combine_parser.add_argument('inputs', help="Path to input organoid folders", nargs='+')
+    combine_parser.add_argument('inputs', help="Path to input organoid folders or analysis CSV file", nargs='+')
     combine_parser.add_argument('--output', '-o', help="Path to output Excel table", default='combined_features.xlsx')
     combine_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 
 def setup_main(args):
-    verbose_print(args, f'Setiing up analysis folder')
+    verbose_print(args, f'Setting up analysis folder')
 
     # Load the CSV as a dataframe
     df = pd.read_csv(args.input, index_col=0)

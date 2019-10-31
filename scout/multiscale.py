@@ -461,7 +461,9 @@ def combine_main(args):
     dfs = []
     for organoid in args.inputs:
         path = os.path.join(organoid, 'organoid_features.xlsx')
-        dfs.append(pd.read_excel(path))
+        dfs.append(pd.read_excel(path, index_col=0))
+
+    print(dfs[0])
 
     data = {'feature': dfs[0]['Unnamed: 0'].values}
     for i, df in enumerate(dfs):
@@ -470,7 +472,7 @@ def combine_main(args):
     df = pd.DataFrame(data)
     df = df.set_index('feature')
     df.columns = df.loc['input']
-    df = df.drop('input', axis=0)
+    df = df.drop('dataset', axis=0)
     df.to_excel(args.output)
 
     verbose_print(args, f'Combining multiscale features done!')

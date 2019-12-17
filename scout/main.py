@@ -96,12 +96,12 @@ scout preprocess data/tbr1.tif data/tbr1.zarr -t 0.05 -s 0.05 -v -p 8
 scout preprocess data/sox2.tif data/sox2.zarr -t 0.05 -s 0.05 -v -p 8
 
 # Preprocessing used for SPIM
-scout preprocess histogram Ex_0_Em_0_stitched/ Ex0_hist.csv -s 50 -v
-scout preprocess histogram Ex_1_Em_1_stitched/ Ex1_hist.csv -s 50 -v
-scout preprocess histogram Ex_2_Em_2_stitched/ Ex2_hist.csv -s 50 -v
-scout preprocess rescale Ex_0_Em_0_stitched/ Ex0_hist.csv Ex0_rescaled -t 120 -p 99.7 -v
-scout preprocess rescale Ex_1_Em_1_stitched/ Ex1_hist.csv Ex1_rescaled -t 100 -p 99.7 -v
-scout preprocess rescale Ex_2_Em_2_stitched/ Ex2_hist.csv Ex2_rescaled -t 100 -p 99.7 -v
+scout preprocess histogram Ex_488_Em_0_stitched/ Ex0_hist.csv -s 50 -v
+scout preprocess histogram Ex_561_Em_1_stitched/ Ex1_hist.csv -s 50 -v
+scout preprocess histogram Ex_642_Em_2_stitched/ Ex2_hist.csv -s 50 -v
+scout preprocess rescale Ex_488_Em_0_stitched/ Ex0_hist.csv Ex0_rescaled -t 120 -p 99.7 -v -n 16
+scout preprocess rescale Ex_561_Em_1_stitched/ Ex1_hist.csv Ex1_rescaled -t 100 -p 99.7 -v -n 16
+scout preprocess rescale Ex_642_Em_2_stitched/ Ex2_hist.csv Ex2_rescaled -t 100 -p 99.7 -v -n 16
 scout preprocess convert Ex0_rescaled/ syto.zarr -v -n 8
 scout preprocess convert Ex1_rescaled/ sox2.zarr -v -n 8
 scout preprocess convert Ex2_rescaled/ tbr1.zarr -v -n 8
@@ -114,7 +114,7 @@ scout nuclei gate nuclei_fluorescence/nuclei_mfis.npy nuclei_gating.npy 0.1 0.1 
 scout nuclei name sox2 tbr1 dn -o celltype_names.csv -v
 
 scout niche proximity centroids_um.npy nuclei_gating.npy niche_proximities.npy -r 25 25 -v -p -k 2
-scout niche gate niche_proximities.npy niche_labels.npy --low 0.35 0.30 --high 0.66 0.63 -p -v --alpha 0.01
+scout niche gate niche_proximities.npy niche_labels.npy --low 0.2 0.2 --high 0.66 0.63 -p -v --alpha 0.01
 scout niche name DN SOX2 TBR1 DP MidTBR1 MidSOX2 MidInter -o niche_names.csv -v
 # Can skip the tSNE-related stuff for niches
 # scout niche sample 5000 niche_sample_index.npy -i niche_proximities.npy niche_labels.npy -o niche_proximities_sample.npy niche_labels_sample.npy -v

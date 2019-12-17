@@ -10,10 +10,14 @@ scout/multiscale.py
 scout/niche.py
 scout/nuclei.py
 scout/permute.py
+scout/plot.py
 scout/preprocess.py
 scout/score.py
 scout/segment.py
+scout/stats.py
 scout/synthetic.py
+scout/unet_model.py
+scout/unet_parts.py
 scout/utils.py
 scout.egg-info/PKG-INFO
 scout.egg-info/SOURCES.txt

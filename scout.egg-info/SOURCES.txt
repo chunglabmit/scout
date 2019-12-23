@@ -16,6 +16,7 @@ scout/score.py
 scout/segment.py
 scout/stats.py
 scout/synthetic.py
+scout/unet_keras.py
 scout/unet_model.py
 scout/unet_parts.py
 scout/utils.py

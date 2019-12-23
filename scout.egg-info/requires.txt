@@ -10,3 +10,4 @@ scikit-learn
 pandas
 tifffile
 lapsolver
+tensorflow

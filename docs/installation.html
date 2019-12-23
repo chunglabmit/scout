@@ -186,29 +186,30 @@
 <div class="section" id="prerequisites">
 <h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Install <a class="reference external" href="https://www.anaconda.com/">Anaconda</a></li>
-<li>Install <a class="reference external" href="https://git-scm.com/downloads">git</a></li>
+<li><p>Install <a class="reference external" href="https://www.anaconda.com/">Anaconda</a></p></li>
+<li><p>Install <a class="reference external" href="https://git-scm.com/downloads">git</a></p></li>
 </ul>
 </div>
 <div class="section" id="linux">
 <h2>Linux<a class="headerlink" href="#linux" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li>Download the <a class="reference external" href="https://github.com/chunglabmit/scout">SCOUT repository</a> directly from Github or using git:</li>
+<li><p>Download the <a class="reference external" href="https://github.com/chunglabmit/scout">SCOUT repository</a> directly from Github or using git:</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/chunglabmit/scout.git
 </pre></div>
 </div>
 <ul class="simple">
-<li>Install the <em>scout</em> conda environment:</li>
+<li><p>Install the <em>scout</em> conda environment:</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> scout/
 conda env create -f environment.yml
 </pre></div>
 </div>
 <ul class="simple">
-<li>Activate the <em>scout</em> environment and install SCOUT in editable mode:</li>
+<li><p>Activate the <em>scout</em> environment and install SCOUT in editable mode:</p></li>
 </ul>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> activate scout
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate scout
+pip install -r requirements.txt
 pip install . -e
 </pre></div>
 </div>
@@ -217,19 +218,19 @@ pip install . -e
 <h2>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h2>
 <p><strong>Note</strong>: Windows users need to use the “Anaconda Prompt” terminal if <em>conda</em> is not available from your PATH variable.</p>
 <ul class="simple">
-<li>Download the <a class="reference external" href="https://github.com/chunglabmit/scout">SCOUT repository</a> directly from Github or using git:</li>
+<li><p>Download the <a class="reference external" href="https://github.com/chunglabmit/scout">SCOUT repository</a> directly from Github or using git:</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone https://github.com/chunglabmit/scout.git
 </pre></div>
 </div>
 <ul class="simple">
-<li>Create a <em>scout</em> conda environment:</li>
+<li><p>Create a <em>scout</em> conda environment:</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda create -n scout <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.6
 </pre></div>
 </div>
 <ul class="simple">
-<li>Install required dependencies:</li>
+<li><p>Install required dependencies:</p></li>
 </ul>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> scout/
 conda activate scout

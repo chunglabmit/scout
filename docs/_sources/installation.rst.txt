@@ -28,7 +28,8 @@ Linux
 
 .. code-block:: bash
 
-    source activate scout
+    conda activate scout
+    pip install -r requirements.txt
     pip install . -e
 
 Windows

@@ -4,3 +4,4 @@
 
 Multiscale hyperdimensional phenotypic analysis of organoids
 
+Please check doc/index.html for documentation on how to get started with SCOUT. Thank you. 

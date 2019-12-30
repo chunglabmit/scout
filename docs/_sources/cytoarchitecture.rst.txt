@@ -80,13 +80,17 @@ folder would result in the following structure:
     |   20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
     |   20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
     |   20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
-    |   ... possibly more datasets
+    |   .,, possibly more datasets
     |   summary.csv
+    
     analysis/
+    | analysis.csv
+    | Group1/   
     |   20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
     |   |   dataset -> ../../datasets/20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
     |   20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
     |   |   dataset -> ../../datasets/20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+    | Group2/
     |   20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
     |   |   dataset -> ../../datasets/20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
     |   20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
@@ -115,12 +119,28 @@ profiles. This command should be run for each organoid, and then the sampled pro
 
 .. code-block:: bash
 
-    scout cyto combine sample1/cyto_profiles_sample.npy sample2/cyto_profiles_sample.npy ... \
-        -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
+    scout cyto combine analysis.py cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
 
-The profiles will be concatenated in order and save to *cyto_profiles_combined.npy*, along with a new array
+When this command is run, it is meant to find individual cyto_profiles_sample.npy from each subfolder within each group and combine them all. The profiles will be concatenated in order and saved to *cyto_profiles_combined.npy*, along with a new array
 *cyto_profiles_combined_samples.npy* which contains integer labels for each profile corresponding to the which
-organoid the profile is from.
+organoid the profile is from. If this process is run correctly, the analysis folder should resemble the construct below. 
+
+.. code-block:: bash
+    
+    analysis/
+    | analysis.csv
+    | cyto_profiles_combined.npy
+    | cyto_profiles_combined_sample.npy 
+    | Group1/   
+    |   20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+    |   |   dataset -> ../../datasets/20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+    |   20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+    |   |   dataset -> ../../datasets/20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+    | Group2/
+    |   20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+    |   |   dataset -> ../../datasets/20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+    |   20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+    |   |   dataset -> ../../datasets/20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
 
 To perform the cytoarchitecture clustering anb visualization, use the Jupyter notebook
 "*determine cyto clusters.ipynb*".

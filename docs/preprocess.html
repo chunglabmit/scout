@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Preprocess Module &mdash; SCOUT 0.1.0a documentation</title>
+  <title>&lt;no title&gt; &mdash; SCOUT 0.1.0a documentation</title>
   
 
   
@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Nuclei Module" href="nuclei.html" />
+    <link rel="next" title="&lt;no title&gt;" href="nuclei.html" />
     <link rel="prev" title="Multiscale statistical analysis" href="statistics.html" /> 
 </head>
 
@@ -94,23 +94,6 @@
 <li class="toctree-l1"><a class="reference internal" href="cytoarchitecture.html">Cytoarchitectural analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Main Modules</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Preprocess Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Additional Modules</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
-</ul>
 
             
           
@@ -155,7 +138,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Preprocess Module</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -174,148 +157,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <span class="target" id="module-scout.preprocess"></span><div class="section" id="preprocess-module">
-<h1>Preprocess Module<a class="headerlink" href="#preprocess-module" title="Permalink to this headline">¶</a></h1>
-<p>This module contains functions for image preprocessing before the main analysis.
-These functions include gaussian smoothing, histogram equalization, and background elimination.</p>
-<p>The <cite>scout preprocess</cite> command can be used to apply these functions as well as convert to a Zarr array.</p>
-<blockquote>
-<div><ul class="simple">
-<li><p>histogram : estimate image histogram</p></li>
-<li><p>rescale : remove background below a threshold</p></li>
-<li><p>denoise : remove noise using wavelet filtering</p></li>
-<li><p>contrast : apply adaptive histrogram equalization (optional)</p></li>
-<li><p>convert : convert image(s) to Zarr</p></li>
-</ul>
-</div></blockquote>
-<dl class="function">
-<dt id="scout.preprocess.clahe">
-<code class="sig-prename descclassname">scout.preprocess.</code><code class="sig-name descname">clahe</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">kernel_size</em>, <em class="sig-param">clip_limit=0.01</em>, <em class="sig-param">nbins=256</em>, <em class="sig-param">nb_workers=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.clahe" title="Permalink to this definition">¶</a></dt>
-<dd><p>Apply CLAHE to each z-slice in <cite>image</cite></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em>) – input image</p></li>
-<li><p><strong>kernel_size</strong> (<em>int</em><em> or </em><em>list-like</em>) – shape of the contextual regions</p></li>
-<li><p><strong>clip_limit</strong> (<em>float</em><em>, </em><em>optional</em>) – limit for number of clipping pixels</p></li>
-<li><p><strong>nbins</strong> (<em>int</em><em>, </em><em>optional</em>) – number of gray bins for histograms</p></li>
-<li><p><strong>nb_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – number of workers to use. Default, cpu_count</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>equalized</strong> – output image</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.preprocess.denoise">
-<code class="sig-prename descclassname">scout.preprocess.</code><code class="sig-name descname">denoise</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">sigma</em>, <em class="sig-param">wavelet='db1'</em>, <em class="sig-param">nb_workers=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.denoise" title="Permalink to this definition">¶</a></dt>
-<dd><p>Denoise input <cite>image</cite> slice-by-slice with wavelet filtering</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em>) – Input 3D image</p></li>
-<li><p><strong>sigma</strong> (<em>float</em>) – Noise standard deviation</p></li>
-<li><p><strong>wavelet</strong> (<em>str</em>) – Wavelet to use in DWT. Default, ‘db1’.</p></li>
-<li><p><strong>nb_workers</strong> (<em>int</em>) – Number of parallel processes to use. Default, cpu_count()</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>output</strong> – Denoised 3D image</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.preprocess.denoise2d">
-<code class="sig-prename descclassname">scout.preprocess.</code><code class="sig-name descname">denoise2d</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">sigma</em>, <em class="sig-param">wavelet='db1'</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.denoise2d" title="Permalink to this definition">¶</a></dt>
-<dd><p>Denoise input <cite>image</cite> using wavelet filtering filtering</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em>) – Input 2D image</p></li>
-<li><p><strong>sigma</strong> (<em>float</em>) – Noise standard deviation</p></li>
-<li><p><strong>wavelet</strong> (<em>str</em>) – Wavelet to use in DWT. Default, ‘db1’.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>output</strong> – Denoised 2D image</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.preprocess.gaussian_blur">
-<code class="sig-prename descclassname">scout.preprocess.</code><code class="sig-name descname">gaussian_blur</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">sigma</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.gaussian_blur" title="Permalink to this definition">¶</a></dt>
-<dd><p>Smooth input <cite>image</cite> by gaussian blurring with <cite>sigma</cite> kernel.</p>
-<p>This function does not normalize the image before applying the gaussian blurring.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em>) – Input image</p></li>
-<li><p><strong>sigma</strong> (<em>int</em><em>, </em><em>tuple</em>) – Blurring amount for each axis</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>blurred</strong> – Smoothed image</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.preprocess.gaussian_blur_parallel">
-<code class="sig-prename descclassname">scout.preprocess.</code><code class="sig-name descname">gaussian_blur_parallel</code><span class="sig-paren">(</span><em class="sig-param">arr</em>, <em class="sig-param">sigma</em>, <em class="sig-param">output</em>, <em class="sig-param">chunks</em>, <em class="sig-param">overlap</em>, <em class="sig-param">nb_workers=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.gaussian_blur_parallel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Smooths a chunked Zarr array with parallel processing.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arr</strong> (<em>Zarr Array</em>) – </p></li>
-<li><p><strong>sigma</strong> (<em>int</em><em>, </em><em>tuple</em>) – </p></li>
-<li><p><strong>output</strong> (<em>Zarr Array</em>) – </p></li>
-<li><p><strong>chunks</strong> (<em>tuple</em>) – </p></li>
-<li><p><strong>overlap</strong> (<em>int</em>) – </p></li>
-<li><p><strong>nb_workers</strong> (<em>int</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.preprocess.remove_background">
-<code class="sig-prename descclassname">scout.preprocess.</code><code class="sig-name descname">remove_background</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">threshold</em>, <em class="sig-param">offset=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.preprocess.remove_background" title="Permalink to this definition">¶</a></dt>
-<dd><p>Threshold an image and use as a mask to remove the background. May improve compression</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em>) – input image</p></li>
-<li><p><strong>threshold</strong> (<em>float</em>) – intensity to threshold the input image</p></li>
-<li><p><strong>offset</strong> (<em>float</em>) – intensity to substract from the result</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>output</strong> – output image with background set to 0</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
-
+  
 
            </div>
            
@@ -324,7 +166,7 @@ These functions include gaussian smoothing, histogram equalization, and backgrou
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="nuclei.html" class="btn btn-neutral float-right" title="Nuclei Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="nuclei.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="statistics.html" class="btn btn-neutral float-left" title="Multiscale statistical analysis" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

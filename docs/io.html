@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>IO Module &mdash; SCOUT 0.1.0a documentation</title>
+  <title>&lt;no title&gt; &mdash; SCOUT 0.1.0a documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Utils Module" href="utils.html" />
-    <link rel="prev" title="Multiscale Module" href="multiscale.html" /> 
+    <link rel="next" title="&lt;no title&gt;" href="utils.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="multiscale.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,23 +94,6 @@
 <li class="toctree-l1"><a class="reference internal" href="cytoarchitecture.html">Cytoarchitectural analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
 </ul>
-<p class="caption"><span class="caption-text">Main Modules</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
-</ul>
-<p class="caption"><span class="caption-text">Additional Modules</span></p>
-<ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">IO Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
-</ul>
 
             
           
@@ -155,7 +138,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>IO Module</li>
+      <li>&lt;no title&gt;</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -174,153 +157,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <span class="target" id="module-scout.io"></span><div class="section" id="io-module">
-<h1>IO Module<a class="headerlink" href="#io-module" title="Permalink to this headline">¶</a></h1>
-<p>SCOUT’s IO module is for reading and writing different volumetric image formats and preparing chunked arrays for
-processing. SCOUT makes use of TIFF and Zarr file formats throughout the analysis pipeline, and the this module
-is meant to consolidate these side-effecting IO operations.</p>
-<dl class="function">
-<dt id="scout.io.imread">
-<code class="sig-prename descclassname">scout.io.</code><code class="sig-name descname">imread</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.imread" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads TIFF file into a numpy array in memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to TIFF image to open</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>image</strong> – Image array</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.io.imread_folder">
-<code class="sig-prename descclassname">scout.io.</code><code class="sig-name descname">imread_folder</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">nb_workers</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.imread_folder" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds all TIFF images in a folder and loads them into a single array.</p>
-<p><strong>Note:</strong> all images must be the same shape to be able to stack them.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em>) – Path to directory with TIFF images in alphabetical order</p></li>
-<li><p><strong>nb_workers</strong> (<em>int</em>) – Number of parallel processes to use in reading images</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>data</strong> – Image array</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.io.imread_parallel">
-<code class="sig-prename descclassname">scout.io.</code><code class="sig-name descname">imread_parallel</code><span class="sig-paren">(</span><em class="sig-param">paths</em>, <em class="sig-param">nb_workers</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.imread_parallel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reads TIFF files into a numpy array in memory.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>paths</strong> (<em>list</em>) – A list of TIFF paths to read (order is preserved)</p></li>
-<li><p><strong>nb_workers</strong> (<em>int</em>) – Number of parallel processes to use in reading images</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>data</strong> – Image data</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.io.imsave">
-<code class="sig-prename descclassname">scout.io.</code><code class="sig-name descname">imsave</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">data</em>, <em class="sig-param">compress=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.imsave" title="Permalink to this definition">¶</a></dt>
-<dd><p>Saves numpy array as a TIFF image.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em>) – Path to TIFF image to create / overwrite</p></li>
-<li><p><strong>data</strong> (<em>ndarray</em>) – Image data array</p></li>
-<li><p><strong>compress</strong> (<em>int</em>) – Level of lossless TIFF compression (0-9)</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.io.new_zarr">
-<code class="sig-prename descclassname">scout.io.</code><code class="sig-name descname">new_zarr</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">shape</em>, <em class="sig-param">chunks</em>, <em class="sig-param">dtype</em>, <em class="sig-param">in_memory=False</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.new_zarr" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create new Zarr NestedDirectoryStore at <cite>path</cite>.</p>
-<p><strong>NOTE:</strong> Persistent Zarr arrays are stored on disk. To avoid data loss, be careful when calling <cite>new_zarr</cite>
-on a path with an existing array.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em>) – Path to new zarr array</p></li>
-<li><p><strong>shape</strong> (<em>tuple</em>) – Overall shape of the zarr array</p></li>
-<li><p><strong>chunks</strong> (<em>tuple</em>) – Shape of each chunk for the zarr array</p></li>
-<li><p><strong>dtype</strong> (<em>str</em>) – Data type of for the zarr array</p></li>
-<li><p><strong>kwargs</strong> (<em>dict</em>) – Keyword args to passs to zarr.open()</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>arr</strong> – Reference to open zarr array</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>zarr Array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.io.new_zarr_like">
-<code class="sig-prename descclassname">scout.io.</code><code class="sig-name descname">new_zarr_like</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">arr</em>, <em class="sig-param">**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.new_zarr_like" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a new zarr array like <cite>arr</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em>) – Path to new zarr array</p></li>
-<li><p><strong>arr</strong> (<em>zarr Array</em>) – Reference to template zarr array</p></li>
-<li><p><strong>kwargs</strong> (<em>dict</em>) – Keyword args to passs to zarr.open()</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>new_arr</strong> – Reference to new zarr array</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>zarr Array</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="function">
-<dt id="scout.io.open">
-<code class="sig-prename descclassname">scout.io.</code><code class="sig-name descname">open</code><span class="sig-paren">(</span><em class="sig-param">path</em>, <em class="sig-param">nested=True</em>, <em class="sig-param">mode='a'</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.io.open" title="Permalink to this definition">¶</a></dt>
-<dd><p>Opens a persistent Zarr array or NestedDirectoryStore located at <cite>path</cite>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>path</strong> (<em>str</em>) – Path to Zarr array or NestedDirectoryStore</p></li>
-<li><p><strong>nested</strong> (<em>bool</em>) – Flag to indicate if path is for flat Zarr array or NestedDirectoryStore</p></li>
-<li><p><strong>mode</strong> (<em>str</em>) – Read / write permissions mode</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>arr</strong> – Reference to open Zarr array</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>zarr Array</p>
-</dd>
-</dl>
-</dd></dl>
-
-</div>
-
+  
 
            </div>
            
@@ -329,10 +166,10 @@ on a path with an existing array.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="utils.html" class="btn btn-neutral float-right" title="Utils Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="utils.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="multiscale.html" class="btn btn-neutral float-left" title="Multiscale Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="multiscale.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

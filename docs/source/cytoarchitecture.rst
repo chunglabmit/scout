@@ -119,7 +119,7 @@ profiles. This command should be run for each organoid, and then the sampled pro
 
 .. code-block:: bash
 
-    scout cyto combine analysis.py cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
+    scout cyto combine analysis.csv cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
 
 When this command is run, it is meant to find individual cyto_profiles_sample.npy from each subfolder within each group and combine them all. The profiles will be concatenated in order and saved to *cyto_profiles_combined.npy*, along with a new array
 *cyto_profiles_combined_samples.npy* which contains integer labels for each profile corresponding to the which
@@ -149,7 +149,7 @@ Once the cytoarchitecture clusters have been determined, they can be named using
 
 .. code-block:: bash
 
-   scout cyto name name1 name2 ... -o cyto_names.csv -v
+   scout cyto name name1 name2 . -o cyto_names.csv -v
 
 Classifying cytoarchitectures
 ------------------------------
@@ -159,8 +159,7 @@ cytoarchitecture assignments using the following command:
 
 .. code-block:: bash
 
-    scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy \
-        -v --umap model.umap
+    scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy -v --umap model.umap
 
 This command uses the combined profiles and cluster labels as a training set to classify all profiles in
 *cyto_profiles.npy* using a nearest neighbor classifier. The resulting cytoarchitecture labels are saved to

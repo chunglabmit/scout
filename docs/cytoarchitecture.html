@@ -106,6 +106,23 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Main Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
+</ul>
 
             
           
@@ -263,7 +280,7 @@ subset. The profiles can be sampled using the following command:</p>
 <p>This command will randomly sample 5000 profiles from <em>cyto_profiles.npy</em> and store them in <em>cyto_profiles_sample.npy</em>.
 Another output is <em>cyto_samply_index.npy</em>, which contains the index into <em>cyto_profiles.npy</em> for each of the sampled
 profiles. This command should be run for each organoid, and then the sampled profiles can be combined:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto combine analysis.py cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto combine analysis.csv cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
 </pre></div>
 </div>
 <p>When this command is run, it is meant to find individual cyto_profiles_sample.npy from each subfolder within each group and combine them all. The profiles will be concatenated in order and saved to <em>cyto_profiles_combined.npy</em>, along with a new array
@@ -288,7 +305,7 @@ organoid the profile is from. If this process is run correctly, the analysis fol
 <p>To perform the cytoarchitecture clustering anb visualization, use the Jupyter notebook
 “<em>determine cyto clusters.ipynb</em>”.</p>
 <p>Once the cytoarchitecture clusters have been determined, they can be named using the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto name name1 name2 ... -o cyto_names.csv -v
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto name name1 name2 . -o cyto_names.csv -v
 </pre></div>
 </div>
 </div>
@@ -296,8 +313,7 @@ organoid the profile is from. If this process is run correctly, the analysis fol
 <h2>Classifying cytoarchitectures<a class="headerlink" href="#classifying-cytoarchitectures" title="Permalink to this headline">¶</a></h2>
 <p>Once the clusters labels have been identified, then all radial profiles can be classified based on those
 cytoarchitecture assignments using the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy <span class="se">\</span>
-    -v --umap model.umap
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy -v --umap model.umap
 </pre></div>
 </div>
 <p>This command uses the combined profiles and cluster labels as a training set to classify all profiles in
@@ -338,7 +354,7 @@ in the ventricle mesh to the corresponding material.</p>
 <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
 <span class="n">classes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
-<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Read {len(labels)} face labels belonging to {n_classes} classes&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Read {len(labels)} face labels belonging to </span><span class="si">{n_classes}</span><span class="s1"> classes&#39;</span><span class="p">)</span>
 
 <span class="c1"># Make materials for each class</span>
 <span class="n">context</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span>
@@ -349,7 +365,7 @@ in the ventricle mesh to the corresponding material.</p>
 <span class="n">class_material_names</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">class_material_index</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
-    <span class="n">material_name</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;class {i} material&#39;</span>
+    <span class="n">material_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;class </span><span class="si">{i}</span><span class="s1"> material&#39;</span>
     <span class="n">class_material_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">material_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">material_name</span> <span class="ow">in</span> <span class="n">existing_material_names</span><span class="p">:</span>
         <span class="n">class_material_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">existing_material_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">material_name</span><span class="p">))</span>
@@ -360,16 +376,16 @@ in the ventricle mesh to the corresponding material.</p>
 
 <span class="c1"># Assign faces to materials based on labels</span>
 <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">polygons</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>  <span class="c1"># iterate over faces</span>
-    <span class="k">print</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
     <span class="n">f</span><span class="o">.</span><span class="n">material_index</span> <span class="o">=</span> <span class="n">label_to_index</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">lbl</span><span class="p">)]</span>
-    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;material_index&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;material_index&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
     <span class="n">slot</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">material_slots</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">]</span>
     <span class="n">mat</span> <span class="o">=</span> <span class="n">slot</span><span class="o">.</span><span class="n">material</span>
-    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="k">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">diffuse_color</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">diffuse_color</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No mat in slot&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No mat in slot&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

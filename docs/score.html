@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; SCOUT 0.1.0a documentation</title>
+  <title>Score Module &mdash; SCOUT 0.1.0a documentation</title>
   
 
   
@@ -35,7 +35,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="detection.html" /> 
+    <link rel="prev" title="Detection Module" href="detection.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -93,6 +93,23 @@
 <li class="toctree-l1"><a class="reference internal" href="cytoarchitecture.html">Cytoarchitectural analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Main Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Modules</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Score Module</a></li>
+</ul>
 
             
           
@@ -137,7 +154,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>&lt;no title&gt;</li>
+      <li>Score Module</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -156,7 +173,174 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  
+  <span class="target" id="module-scout.score"></span><div class="section" id="score-module">
+<h1>Score Module<a class="headerlink" href="#score-module" title="Permalink to this headline">¶</a></h1>
+<p>This module contains code for assessing the accuracy of automatic nuclei detection.</p>
+<p>The strategy is to match automatically detected nuclei centroids with human-annotated centroids using
+by solving a linear-sum assignment problem to match corresponding centroids. After matching, unmatched
+detections and human annotations are considered false positives (FP) and false negatives (FN), respectively.</p>
+<dl class="function">
+<dt id="scout.score.f_score">
+<code class="sig-prename descclassname">scout.score.</code><code class="sig-name descname">f_score</code><span class="sig-paren">(</span><em class="sig-param">n_true_positive</em>, <em class="sig-param">n_false_positive</em>, <em class="sig-param">n_false_negative</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.f_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute f-score (f-measure) from true/false positive/negative</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_true_positive</strong> (<em>int</em>) – # of true positives in sample</p></li>
+<li><p><strong>n_false_positive</strong> (<em>int</em>) – # of false positives in sample</p></li>
+<li><p><strong>n_false_negative</strong> (<em>int</em>) – # of false negatives in sample</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>f-score</strong> – the harmonic mean of precision and recall</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.main">
+<code class="sig-prename descclassname">scout.score.</code><code class="sig-name descname">main</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute f-score, precision and recall from the command-line</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.match_centroids">
+<code class="sig-prename descclassname">scout.score.</code><code class="sig-name descname">match_centroids</code><span class="sig-paren">(</span><em class="sig-param">c1</em>, <em class="sig-param">c2</em>, <em class="sig-param">max_distance</em>, <em class="sig-param">inf=100000.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.match_centroids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Find the best matching of centroids in c1 to centroids in c2</p>
+<p>Match centroids in <cite>c1</cite> to those in <cite>c2</cite>, minimizing total distance between
+pairs with the constraint that no match is further away than <cite>max_distance</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c1</strong> (<em>array</em>) – an N1xM array of centroid coordinates (M is the dimension of the volume).</p></li>
+<li><p><strong>c2</strong> (<em>array</em>) – another N2xM array of centroid coordinates</p></li>
+<li><p><strong>max_distance</strong> (<em>float</em>) – the maximum allowed distance between pairs</p></li>
+<li><p><strong>inf</strong> (<em>float</em>) – a ridiculously large distance to use in place of true infinity</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>c1_idxs</strong> (<em>array</em>) – the index of the matching centroid in <cite>c2</cite> for each <cite>c1</cite>. Index -1 means no match.</p></li>
+<li><p><strong>c2_idxs</strong> (<em>array</em>) – the index of the matching centroid in <cite>c1</cite> for each <cite>c2</cite>. Index of -1 means no match.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.parse_into_array">
+<code class="sig-prename descclassname">scout.score.</code><code class="sig-name descname">parse_into_array</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.parse_into_array" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parse either a numpy or json-format array</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – path to array saved using either numpy.save or json.dump</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.precision">
+<code class="sig-prename descclassname">scout.score.</code><code class="sig-name descname">precision</code><span class="sig-paren">(</span><em class="sig-param">n_true_positive</em>, <em class="sig-param">n_false_positive</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.precision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute precision from true/false positive/negative</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_true_positive</strong> (<em>int</em>) – # of true positives in sample</p></li>
+<li><p><strong>n_false_positive</strong> (<em>int</em>) – # of false positives in sample</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>precision</strong> – true positives / (true positives + false positives)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>“precision is the fraction of relevant instances among the retrieved
+instances <a class="footnote-reference brackets" href="#id2" id="id1">1</a>”</p>
+<dl class="footnote brackets">
+<dt class="label" id="id2"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
+<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Precision_and_recall">https://en.wikipedia.org/wiki/Precision_and_recall</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.recall">
+<code class="sig-prename descclassname">scout.score.</code><code class="sig-name descname">recall</code><span class="sig-paren">(</span><em class="sig-param">n_true_positive</em>, <em class="sig-param">n_false_negative</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.recall" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute recall from true/false positive/negative</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_true_positive</strong> (<em>int</em>) – # of true positives in sample</p></li>
+<li><p><strong>n_false_negative</strong> (<em>int</em>) – # of false negatives in sample</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>recall</strong> – positives / (true positives + false negatives)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<p>“recall  is the fraction of relevant instances that have been retrieved
+over the total amount of relevant instances <a class="footnote-reference brackets" href="#id4" id="id3">2</a>”</p>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd><p><a class="reference external" href="https://en.wikipedia.org/wiki/Precision_and_recall">https://en.wikipedia.org/wiki/Precision_and_recall</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.score.score_centroids">
+<code class="sig-prename descclassname">scout.score.</code><code class="sig-name descname">score_centroids</code><span class="sig-paren">(</span><em class="sig-param">c_detected</em>, <em class="sig-param">c_gt</em>, <em class="sig-param">max_distance</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.score.score_centroids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute precision/recall stats on centroids</p>
+<p>Find the best match of detected to ground-truth and then compute
+precision, recall and f_score from those.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>c_detected</strong> (<em>array</em>) – an N1xM array of the detected centroids</p></li>
+<li><p><strong>c_gt</strong> (<em>array</em>) – an N2xM array of the ground-truth centroids</p></li>
+<li><p><strong>max_distance</strong> (<em>float</em>) – maximum allowed distance of a match</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<dl class="simple">
+<dt>a CentroidsScore contains the following attributes:</dt><dd><dl class="simple">
+<dt>gt_per_detected</dt><dd><p>an array of the indices of the ground-truth match for each detected centroid. An index of -1 indicates that there was no match (false positive)</p>
+</dd>
+<dt>detected_per_gt</dt><dd><p>an array of the indices of the detected match for each ground-truth centroid. An index of -1 indicates that there was no match (false negative)</p>
+</dd>
+<dt>precision</dt><dd><p>the precision of matching - # truly detected / # detected</p>
+</dd>
+<dt>recall</dt><dd><p>the recall of matching # truly detected / # in ground truth</p>
+</dd>
+<dt>f_score</dt><dd><p>the f-score</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>CentroidScore</strong> – a CentroidsScore object with the final metrics</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>object</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
 
            </div>
            
@@ -166,7 +350,7 @@
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="detection.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="detection.html" class="btn btn-neutral float-left" title="Detection Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

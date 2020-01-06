@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; SCOUT 0.1.0a documentation</title>
+  <title>Cyto Module &mdash; SCOUT 0.1.0a documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="multiscale.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="segment.html" /> 
+    <link rel="next" title="Multiscale Module" href="multiscale.html" />
+    <link rel="prev" title="Segment Module" href="segment.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,6 +94,23 @@
 <li class="toctree-l1"><a class="reference internal" href="cytoarchitecture.html">Cytoarchitectural analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Main Modules</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cyto Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
+</ul>
 
             
           
@@ -138,7 +155,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>&lt;no title&gt;</li>
+      <li>Cyto Module</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -157,7 +174,54 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  
+  <span class="target" id="module-scout.cyto"></span><div class="section" id="cyto-module">
+<h1>Cyto Module<a class="headerlink" href="#cyto-module" title="Permalink to this headline">¶</a></h1>
+<p>This module performs organoid cytoarchitecture analysis</p>
+<p>These include the following subcommands:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>mesh : compute surface mesh from segmentation</p></li>
+<li><p>profiles : compute profiles along surface normals</p></li>
+<li><p>sample : randomly sample profiles</p></li>
+<li><p>combine : combine cytoarchitecture features from multiple organoids</p></li>
+<li><p>cluster : cluster profiles into cytoarchitecture classes</p></li>
+<li><p>classify : classify profiles into distinct cytoarchitectures</p></li>
+<li><p>name : assign names to cytoarchitectures</p></li>
+</ul>
+</div></blockquote>
+<dl class="function">
+<dt id="scout.cyto.write_obj">
+<code class="sig-prename descclassname">scout.cyto.</code><code class="sig-name descname">write_obj</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">verts</em>, <em class="sig-param">faces</em>, <em class="sig-param">normals</em>, <em class="sig-param">values</em>, <em class="sig-param">one=False</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.cyto.write_obj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a .obj file for the output of marching cube algorithm.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Ouput file name.</p></li>
+<li><p><strong>verts</strong> (<em>array</em>) – Spatial coordinates for vertices as returned by skimage.measure.marching_cubes_lewiner().</p></li>
+<li><p><strong>faces</strong> (<em>array</em>) – List of faces, referencing indices of verts as returned by skimage.measure.marching_cubes_lewiner().</p></li>
+<li><p><strong>normals</strong> (<em>array</em>) – Normal direction of each vertex as returned by skimage.measure.marching_cubes_lewiner().</p></li>
+<li><p><strong>one</strong> (<em>bool</em>) – Specify if faces values should start at 1 or at 0. Different visualization programs use different conventions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.cyto.write_point_cloud">
+<code class="sig-prename descclassname">scout.cyto.</code><code class="sig-name descname">write_point_cloud</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">verts</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.cyto.write_point_cloud" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write a .obj file for a point cloud.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Ouput file name.</p></li>
+<li><p><strong>verts</strong> (<em>array</em>) – Spatial coordinates for vertices as returned by skimage.measure.marching_cubes_lewiner().</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
 
            </div>
            
@@ -166,10 +230,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="multiscale.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="multiscale.html" class="btn btn-neutral float-right" title="Multiscale Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="segment.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="segment.html" class="btn btn-neutral float-left" title="Segment Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

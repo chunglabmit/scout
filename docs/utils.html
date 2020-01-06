@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>&lt;no title&gt; &mdash; SCOUT 0.1.0a documentation</title>
+  <title>Utils Module &mdash; SCOUT 0.1.0a documentation</title>
   
 
   
@@ -35,8 +35,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="&lt;no title&gt;" href="curvature.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="io.html" /> 
+    <link rel="next" title="Curvature Module" href="curvature.html" />
+    <link rel="prev" title="IO Module" href="io.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,6 +94,23 @@
 <li class="toctree-l1"><a class="reference internal" href="cytoarchitecture.html">Cytoarchitectural analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Main Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Modules</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
+</ul>
 
             
           
@@ -138,7 +155,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>&lt;no title&gt;</li>
+      <li>Utils Module</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -157,7 +174,234 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  
+  <span class="target" id="module-scout.utils"></span><div class="section" id="utils-module">
+<h1>Utils Module<a class="headerlink" href="#utils-module" title="Permalink to this headline">¶</a></h1>
+<p>This module contains utility functions that are commonly used throughout SCOUT.</p>
+<p>In particular, this module contains map-reduce style utility functions for processing
+large chunk-compressed arrays in parallel.</p>
+<dl class="class">
+<dt id="scout.utils.SharedMemory">
+<em class="property">class </em><code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">SharedMemory</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">dtype</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.SharedMemory" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class to share memory between processes</p>
+<p>Instantiate this class in the parent process and use in all processes.</p>
+<p>For all but Linux, we use the mmap module to get a buffer for Numpy
+to access through numpy.frombuffer. But in Linux, we use /dev/shm which
+has no file backing it and does not need to deal with maintaining a
+consistent view of itself on a disk.</p>
+<p>Typical use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">shm</span> <span class="o">=</span> <span class="n">SharedMemory</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">do_something</span><span class="p">():</span>
+
+    <span class="k">with</span> <span class="n">shm</span><span class="o">.</span><span class="n">txn</span><span class="p">()</span> <span class="k">as</span> <span class="n">a</span><span class="p">:</span>
+
+        <span class="n">a</span><span class="p">[</span><span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>
+
+<span class="k">with</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Pool</span><span class="p">()</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+
+    <span class="n">pool</span><span class="o">.</span><span class="n">apply_async</span><span class="p">(</span><span class="n">do_something</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="scout.utils.SharedMemory.txn">
+<code class="sig-name descname">txn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.SharedMemory.txn" title="Permalink to this definition">¶</a></dt>
+<dd><p>A contextual wrapper of the shared memory</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A view of the shared memory which has the shape and dtype given at construction</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>memory - array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.utils.box_slice_idx">
+<code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">box_slice_idx</code><span class="sig-paren">(</span><em class="sig-param">start</em>, <em class="sig-param">stop</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.box_slice_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates an index tuple for a bounding box from <cite>start</cite> to <cite>stop</cite> using slices</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>start</strong> (<em>array-like</em>) – index of box start</p></li>
+<li><p><strong>stop</strong> (<em>array-like</em>) – index of box stop (index not included in result)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>idx</strong> – index tuple for bounding box</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.utils.chunk_coordinates">
+<code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">chunk_coordinates</code><span class="sig-paren">(</span><em class="sig-param">shape</em>, <em class="sig-param">chunks</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.chunk_coordinates" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the global coordaintes for each chunk’s starting position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>shape</strong> (<em>tuple</em>) – shape of the image to chunk</p></li>
+<li><p><strong>chunks</strong> (<em>tuple</em>) – shape of each chunk</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>start_coords</strong> – the starting indices of each chunk</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.utils.chunk_dims">
+<code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">chunk_dims</code><span class="sig-paren">(</span><em class="sig-param">img_shape</em>, <em class="sig-param">chunk_shape</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.chunk_dims" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the number of chunks needed for a given image shape</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>img_shape</strong> (<em>tuple</em>) – whole image shape</p></li>
+<li><p><strong>chunk_shape</strong> (<em>tuple</em>) – individual chunk shape</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>nb_chunks</strong> – a tuple containing the number of chunks in each dimension</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.utils.extract_box">
+<code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">extract_box</code><span class="sig-paren">(</span><em class="sig-param">arr</em>, <em class="sig-param">start</em>, <em class="sig-param">stop</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.extract_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indexes <cite>arr</cite> from <cite>start</cite> to <cite>stop</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arr</strong> (<em>array-like</em><em> or </em><a class="reference internal" href="#scout.utils.SharedMemory" title="scout.utils.SharedMemory"><em>SharedMemory</em></a>) – input array to index</p></li>
+<li><p><strong>start</strong> (<em>array-like</em>) – starting index of the slice</p></li>
+<li><p><strong>stop</strong> (<em>array-like</em>) – ending index of the slice. The element at this index is not included.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>box</strong> – resulting box from <cite>arr</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.utils.files_in_dir">
+<code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">files_in_dir</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.files_in_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches a path for all files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – The directory path to check for files</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>list of all files and subdirectories in the input path (excluding . and ..)</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.utils.insert_box">
+<code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">insert_box</code><span class="sig-paren">(</span><em class="sig-param">arr</em>, <em class="sig-param">start</em>, <em class="sig-param">stop</em>, <em class="sig-param">data</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.insert_box" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indexes <cite>arr</cite> from <cite>start</cite> to <cite>stop</cite> and inserts <cite>data</cite></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arr</strong> (<em>array-like</em>) – input array to index</p></li>
+<li><p><strong>start</strong> (<em>array-like</em>) – starting index of the slice</p></li>
+<li><p><strong>stop</strong> (<em>array-like</em>) – ending index of the slice. The element at this index is not included.</p></li>
+<li><p><strong>data</strong> (<em>array-like</em>) – sub-array to insert into <cite>arr</cite></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>box</strong> – resulting box from <cite>arr</cite></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.utils.pmap_chunks">
+<code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">pmap_chunks</code><span class="sig-paren">(</span><em class="sig-param">f</em>, <em class="sig-param">arr</em>, <em class="sig-param">chunks=None</em>, <em class="sig-param">nb_workers=None</em>, <em class="sig-param">use_imap=False</em>, <em class="sig-param">unordered=False</em>, <em class="sig-param">chunksize=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.pmap_chunks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maps a function over an array in parallel using chunks</p>
+<p>The function <cite>f</cite> should take a reference to the array, a starting index, and the chunk size.
+Since each subprocess is handling it’s own indexing, any overlapping should be baked into <cite>f</cite>.
+Caution: <cite>arr</cite> may get copied if not using memmap. Use with SharedMemory or Zarr array to avoid copies.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>f</strong> (<em>callable</em>) – function with signature f(arr, start_coord, chunks). May need to use partial to define other args.</p></li>
+<li><p><strong>arr</strong> (<em>array-like</em>) – an N-dimensional input array</p></li>
+<li><p><strong>chunks</strong> (<em>tuple</em><em>, </em><em>optional</em>) – the shape of chunks to use. Default tries to access arr.chunks and falls back to arr.shape</p></li>
+<li><p><strong>nb_workers</strong> (<em>int</em><em>, </em><em>optional</em>) – number of parallel processes to apply f with. Default, cpu_count</p></li>
+<li><p><strong>use_imap</strong> (<em>bool</em><em>, </em><em>optional</em>) – whether or not to use imap instead os starmap in order to get an iterator for tqdm.
+Note that this requires input tuple unpacking manually inside of <cite>f</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>result</strong> – list of results for each chunk</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.utils.read_voxel_size">
+<code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">read_voxel_size</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.read_voxel_size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads in the voxel size stored in <cite>path</cite> CSV file with voxel dimensions in nanometers</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – Path to CSV file containing integer values of voxel dimensions in nanometers</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>size</strong> – Physical voxel size in same order as in CSV</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="function">
+<dt id="scout.utils.tifs_in_dir">
+<code class="sig-prename descclassname">scout.utils.</code><code class="sig-name descname">tifs_in_dir</code><span class="sig-paren">(</span><em class="sig-param">path</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.utils.tifs_in_dir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches input path for tif files</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>path</strong> (<em>str</em>) – path of the directory to check for tif images</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>tif_paths</strong> (<em>list</em>) – list of paths to tiffs in path</p></li>
+<li><p><strong>tif_filenames</strong> (<em>list</em>) – list of tiff filenames (with the extension) in path</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
 
            </div>
            
@@ -166,10 +410,10 @@
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="curvature.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="curvature.html" class="btn btn-neutral float-right" title="Curvature Module" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="io.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="io.html" class="btn btn-neutral float-left" title="IO Module" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

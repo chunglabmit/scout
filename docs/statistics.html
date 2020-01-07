@@ -188,10 +188,11 @@ researchers can always go back to the image data to ask new questions inspired b
 <div class="section" id="aggregating-features">
 <h2>Aggregating features<a class="headerlink" href="#aggregating-features" title="Permalink to this headline">¶</a></h2>
 <p>First, the predetermined set of multiscale features can be calculated using the following command inside an
-organoid dataset folder:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout multiscale features . -d <span class="m">1</span> <span class="m">6</span> <span class="m">6</span> -v
-</pre></div>
-</div>
+organoid group dataset folder. Please “cd” into groupN (for example, Lancaster_d35) and execute the following:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>scout multiscale features organoid_folder_name(usually 2019…)/. -d 1 6 6 -v</p>
+</div></blockquote>
 <p>This command takes the current folder (specified by “.”) and looks for intermediate results, including
 <em>centroids_um.npy</em> and <em>cyto_labels.npy</em>. The argument <em>-d 1 6 6</em> specifies the z, y, and x downsampling factors
 used for the ventricle segmentation. This command should be repeated for each organoid in the study (the same

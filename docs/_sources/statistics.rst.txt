@@ -12,11 +12,10 @@ Aggregating features
 ---------------------
 
 First, the predetermined set of multiscale features can be calculated using the following command inside an
-organoid dataset folder:
-
+organoid group dataset folder. Please "cd" into groupN (for example, Lancaster_d35) and execute the following:
 .. code-block:: bash
 
-   scout multiscale features . -d 1 6 6 -v
+   scout multiscale features organoid_folder_name(usually 2019...)/. -d 1 6 6 -v
 
 This command takes the current folder (specified by ".") and looks for intermediate results, including
 *centroids_um.npy* and *cyto_labels.npy*. The argument *-d 1 6 6* specifies the z, y, and x downsampling factors

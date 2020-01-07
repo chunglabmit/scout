@@ -149,17 +149,29 @@ Once the cytoarchitecture clusters have been determined, they can be named using
 
 .. code-block:: bash
 
-   scout cyto name name1 name2 . -o cyto_names.csv -v
+   scout cyto name name1 name2 . -o cyto_names.csv -v 
+
+Next Step: 
+
+.. code-block:: bash
+   
+   scp -r cyto_names.csv /Group1/each_organoid_folder 
 
 Classifying cytoarchitectures
 ------------------------------
 
 Once the clusters labels have been identified, then all radial profiles can be classified based on those
-cytoarchitecture assignments using the following command:
+cytoarchitecture assignments using the command with structure that resembles:
 
 .. code-block:: bash
 
     scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy -v --umap model.umap
+
+In order to execute this command, please go into the individual organoid subfolder and run the command given below. Actual command based on the folder organization is as follows:
+
+.. code-block:: bash
+
+    scout cyto classify ../../cyto_profiles_combined.npy ../../cyto_labels_combined.npy dataset/cyto_profiles.npy cyto_labels.npy -v --umap ../../model_d34_and_d56.umap 
 
 This command uses the combined profiles and cluster labels as a training set to classify all profiles in
 *cyto_profiles.npy* using a nearest neighbor classifier. The resulting cytoarchitecture labels are saved to

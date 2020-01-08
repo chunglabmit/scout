@@ -13,6 +13,7 @@ Aggregating features
 
 First, the predetermined set of multiscale features can be calculated using the following command inside an
 organoid group dataset folder. Please "cd" into groupN (for example, Lancaster_d35) and execute the following:
+
 .. code-block:: bash
 
    scout multiscale features organoid_folder_name(usually 2019...)/. -d 1 6 6 -v
@@ -27,7 +28,14 @@ The multiscale features for each organoid can be combined into a single Excel ta
 
 .. code-block:: bash
 
-   scout multiscale combine path/to/org1 path/to/org2 ... --output combined_features.xlsx -v
+   scout multiscale combine path/to/org1 path/to/org2 (...) --output combined_features.xlsx -v 
+
+An easier way to get this done without inputing specific paths is by using analysis.csv file as shown in the command below:
+
+.. code-block:: bash
+
+   scout multiscale combine analysis.csv --output combined_features.xlsx -v 
+
 
 This command expects the *organoid_features.xlsx* to be present in each organoid folder. The combined table is written
 to *combined_features.xlsx*.

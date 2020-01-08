@@ -188,18 +188,21 @@ researchers can always go back to the image data to ask new questions inspired b
 <div class="section" id="aggregating-features">
 <h2>Aggregating features<a class="headerlink" href="#aggregating-features" title="Permalink to this headline">¶</a></h2>
 <p>First, the predetermined set of multiscale features can be calculated using the following command inside an
-organoid group dataset folder. Please “cd” into groupN (for example, Lancaster_d35) and execute the following:
-.. code-block:: bash</p>
-<blockquote>
-<div><p>scout multiscale features organoid_folder_name(usually 2019…)/. -d 1 6 6 -v</p>
-</div></blockquote>
+organoid group dataset folder. Please “cd” into groupN (for example, Lancaster_d35) and execute the following:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout multiscale features organoid_folder_name<span class="o">(</span>usually <span class="m">2019</span>...<span class="o">)</span>/. -d <span class="m">1</span> <span class="m">6</span> <span class="m">6</span> -v
+</pre></div>
+</div>
 <p>This command takes the current folder (specified by “.”) and looks for intermediate results, including
 <em>centroids_um.npy</em> and <em>cyto_labels.npy</em>. The argument <em>-d 1 6 6</em> specifies the z, y, and x downsampling factors
 used for the ventricle segmentation. This command should be repeated for each organoid in the study (the same
 organoids sampled from to generate the cytoarchitecture clusters). This command will create an Excel spreadsheet
 in the current folder called <em>organoid_features.xlsx</em>.</p>
 <p>The multiscale features for each organoid can be combined into a single Excel table using the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout multiscale combine path/to/org1 path/to/org2 ... --output combined_features.xlsx -v
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout multiscale combine path/to/org1 path/to/org2 <span class="o">(</span>...<span class="o">)</span> --output combined_features.xlsx -v
+</pre></div>
+</div>
+<p>An easier way to get this done without inputing specific paths is by using analysis.csv file as shown in the command below:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout multiscale combine analysis.csv --output combined_features.xlsx -v
 </pre></div>
 </div>
 <p>This command expects the <em>organoid_features.xlsx</em> to be present in each organoid folder. The combined table is written

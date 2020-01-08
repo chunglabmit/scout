@@ -149,7 +149,7 @@ Once the cytoarchitecture clusters have been determined, they can be named using
 
 .. code-block:: bash
 
-   scout cyto name name1 name2 . -o cyto_names.csv -v 
+   scout cyto name name1 name2 (...) -o cyto_names.csv -v 
 
 Next Step: 
 

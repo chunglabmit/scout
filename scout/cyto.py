@@ -362,8 +362,8 @@ def profiles_main(args):
     centroids_um = np.load(args.centroids)
     labels = np.load(args.labels)
 
-    tbr1_labels = labels[:, 0]
-    sox2_labels = labels[:, 1]
+    sox2_labels = labels[:, 0]
+    tbr1_labels = labels[:, 1]
 
     # Plot mesh
     if args.plot:

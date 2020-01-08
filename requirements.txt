@@ -15,3 +15,5 @@ umap-learn
 openpyxl
 seaborn
 tifffile
+sphinxcontrib-napoleon
+sphinx-rtd-theme

@@ -1,0 +1,452 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Cytoarchitectural analysis &mdash; SCOUT 0.1.0a documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Multiscale statistical analysis" href="statistics.html" />
+    <link rel="prev" title="Organoid segmentation" href="segmentation.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SCOUT
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Tutorial</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="single_cell.html">Single-cell analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="proximity.html">Spatial sub-catergorization</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segmentation.html">Organoid segmentation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Cytoarchitectural analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#generate-ventricle-normals">Generate ventricle normals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#compute-radial-cell-profiles">Compute radial cell profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setting-up-clustering-analyses">Setting up clustering analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#clustering-sampled-profiles">Clustering sampled profiles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#classifying-cytoarchitectures">Classifying cytoarchitectures</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#d-rendering-with-blender">3D rendering with Blender</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#export-as-obj-and-csv">Export as OBJ and CSV</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#blender-script">Blender script</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="statistics.html">Multiscale statistical analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Main Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="preprocess.html">Preprocess Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="nuclei.html">Nuclei Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="niche.html">Niche Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="segment.html">Segment Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cyto.html">Cyto Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="multiscale.html">Multiscale Module</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Additional Modules</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="io.html">IO Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="utils.html">Utils Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="curvature.html">Curvature Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="detection.html">Detection Module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="score.html">Score Module</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SCOUT</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Cytoarchitectural analysis</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/cytoarchitecture.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="cytoarchitectural-analysis">
+<h1>Cytoarchitectural analysis<a class="headerlink" href="#cytoarchitectural-analysis" title="Permalink to this headline">¶</a></h1>
+<p>Given the ventricle segmentation, nuclei phyical coordinates, and cell-type labels, SCOUT’s cytoarchitectural analysis
+computes radial cell profiles to identify the distribution of cellular organizations in each organoid.</p>
+<div class="section" id="generate-ventricle-normals">
+<h2>Generate ventricle normals<a class="headerlink" href="#generate-ventricle-normals" title="Permalink to this headline">¶</a></h2>
+<p>The binary ventricle segmentation must be converted into a vectorized mesh in order to obtain surface normals that
+determine the direction for each radial profile. This can be done using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto mesh segment_ventricles.tif voxel_size.csv mesh_ventricles.pkl -d <span class="m">1</span> <span class="m">6</span> <span class="m">6</span> -g <span class="m">2</span> -s <span class="m">2</span> -v -p
+</pre></div>
+</div>
+<p>This command creates a new file <em>mesh_ventricles.pkl</em>, which is a pickled Python dictionary containing the verticies,
+normals, and faces of the ventricle mesh.</p>
+<p>The argument <em>-d 1 6 6</em> specifies the downsampling factor used to generate
+<em>segment_ventricles.tif</em>. The arguments <em>-g 2</em> and <em>-s 2</em> specify how much gaussian smoothing should be applied to the
+binary image before meshing and what the mesh spacing should be (minimum is 1, which gives the finest mesh).</p>
+<p>A 3D render of the ventricle mesh will be shown.
+<strong>Note:</strong> The plotting flag <em>-p</em> here will not work if mayavi has not been properly installed.</p>
+</div>
+<div class="section" id="compute-radial-cell-profiles">
+<h2>Compute radial cell profiles<a class="headerlink" href="#compute-radial-cell-profiles" title="Permalink to this headline">¶</a></h2>
+<p>Given the ventricle mesh, the nuclei point cloud can be binned into radially oriented cylinders along each
+normal vector. To compute these radial profiles, the following command can be used:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto profiles mesh_ventricles.pkl centroids_um.npy nuclei_gating.npy cyto_profiles.npy -v -p
+</pre></div>
+</div>
+<p>This command creates a new numpy array <em>cyto_profiles.npy</em> containing the radial profiles for each cell-type along
+each normal.</p>
+<p><strong>Note:</strong> This command defaults to using all CPU cores available. If the calculation is still too slow, try increasing
+the mesh spacing <em>-s</em> to reduce the number of profiles to compute.</p>
+</div>
+<div class="section" id="setting-up-clustering-analyses">
+<h2>Setting up clustering analyses<a class="headerlink" href="#setting-up-clustering-analyses" title="Permalink to this headline">¶</a></h2>
+<p>Due to the stochastic nature of organoid culture, it is difficult to assign distinct semantic labels to each
+radial cell profile corresponding to canonical cytoarchitectures. Instead, SCOUT aims to quantify cytoarchitectural
+composition of each organoid relative to what is observed in a group of organoids. To accomplish this, SCOUT uses
+hierarchical clustering of radial cell profiles to assign cytoarchitectural labels to all organoids in a particular
+study.</p>
+<p>Since the results of the clustering analysis depend on which organoids are included, it is useful to aggregate
+organoid datasets into a separate folder to make this dependency on a group of organoids explicit. We first select
+which datasets we would like to include in our analysis using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout multiscale <span class="k">select</span> summary.csv Lancaster_d30 Lancaster_d60 -v
+</pre></div>
+</div>
+<p>This command reads the summary CSV, pulls out the paths to the Lancaster d35 and d60 organoid datasets, and saves the
+selected organoids to an analysis CSV file in the current folder. Note that this analysis CSV can be modified to
+include more datasets or exclude some datasets from the analysis. The analysis folder can be setup with links to
+underlying dataset folders using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout multiscale setup analysis.csv /path/to/datasets/ -v
+</pre></div>
+</div>
+<p>This command creates new folders for each dataset in the analysis containing a symbolic link to the original dataset
+folder in <cite>/path/to/datasets</cite>. This allows convenient access to the single-cell analysis results and, more importantly,
+shares the previous results across multiple analyses for consistency.</p>
+<p>Using the example in the <strong>Preprocessing</strong> section, running this command in an <cite>analysis</cite> folder next to the <cite>datasets</cite>
+folder would result in the following structure:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>datasets/
+<span class="p">|</span>   20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+<span class="p">|</span>   20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+<span class="p">|</span>   20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+<span class="p">|</span>   20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+<span class="p">|</span>   .,, possibly more datasets
+<span class="p">|</span>   summary.csv
+
+analysis/
+<span class="p">|</span> analysis.csv
+<span class="p">|</span> Group1/
+<span class="p">|</span>   20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+<span class="p">|</span>   <span class="p">|</span>   dataset -&gt; ../../datasets/20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+<span class="p">|</span>   20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+<span class="p">|</span>   <span class="p">|</span>   dataset -&gt; ../../datasets/20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+<span class="p">|</span> Group2/
+<span class="p">|</span>   20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+<span class="p">|</span>   <span class="p">|</span>   dataset -&gt; ../../datasets/20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+<span class="p">|</span>   20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+<span class="p">|</span>   <span class="p">|</span>   dataset -&gt; ../../datasets/20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+</pre></div>
+</div>
+</div>
+<div class="section" id="clustering-sampled-profiles">
+<h2>Clustering sampled profiles<a class="headerlink" href="#clustering-sampled-profiles" title="Permalink to this headline">¶</a></h2>
+<p>In order to identify different types of cytoarchitectures in an unbiased manner, the radial cell profiles can be
+clustered into groups using hierarchical clustering.</p>
+<p>In comparative studies, some organoids may contain completely different cytoarchitectures depending on the model.
+For this reason, the clustering analysis must contain representative radial profiles from each organoid.</p>
+<p>Given that it is too computationally expensive to concatenate all profiles together and cluster them directly,
+we instead randomly sample an equal number of profiles from each organoid in the analysis and cluster based on that
+subset. The profiles can be sampled using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto sample <span class="m">5000</span> cyto_sample_index.npy -i cyto_profiles.npy -o cyto_profiles_sample.npy -v
+</pre></div>
+</div>
+<p>This command will randomly sample 5000 profiles from <em>cyto_profiles.npy</em> and store them in <em>cyto_profiles_sample.npy</em>.
+Another output is <em>cyto_samply_index.npy</em>, which contains the index into <em>cyto_profiles.npy</em> for each of the sampled
+profiles. This command should be run for each organoid, and then the sampled profiles can be combined:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto combine analysis.csv cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
+</pre></div>
+</div>
+<p>When this command is run, it is meant to find individual cyto_profiles_sample.npy from each subfolder within each group and combine them all. The profiles will be concatenated in order and saved to <em>cyto_profiles_combined.npy</em>, along with a new array
+<em>cyto_profiles_combined_samples.npy</em> which contains integer labels for each profile corresponding to the which
+organoid the profile is from. If this process is run correctly, the analysis folder should resemble the construct below.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>analysis/
+<span class="p">|</span> analysis.csv
+<span class="p">|</span> cyto_profiles_combined.npy
+<span class="p">|</span> cyto_profiles_combined_sample.npy
+<span class="p">|</span> Group1/
+<span class="p">|</span>   20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+<span class="p">|</span>   <span class="p">|</span>   dataset -&gt; ../../datasets/20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
+<span class="p">|</span>   20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+<span class="p">|</span>   <span class="p">|</span>   dataset -&gt; ../../datasets/20190419_15_50_16_AA_org2_488LP13_561LP120_642LP60/
+<span class="p">|</span> Group2/
+<span class="p">|</span>   20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+<span class="p">|</span>   <span class="p">|</span>   dataset -&gt; ../../datasets/20190509_16_55_31_AA-orgs5.8.19_org1_488LP15_561LP140_642LP50/
+<span class="p">|</span>   20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+<span class="p">|</span>   <span class="p">|</span>   dataset -&gt; ../../datasets/20190531_14_31_36_AA_org2_488LP13_561LP140_642LP60/
+</pre></div>
+</div>
+<p>To perform the cytoarchitecture clustering anb visualization, use the Jupyter notebook
+“<em>determine cyto clusters.ipynb</em>”.</p>
+<p>Once the cytoarchitecture clusters have been determined, they can be named using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto name name1 name2 . -o cyto_names.csv -v
+</pre></div>
+</div>
+<p>Next Step:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scp -r cyto_names.csv /Group1/each_organoid_folder
+</pre></div>
+</div>
+</div>
+<div class="section" id="classifying-cytoarchitectures">
+<h2>Classifying cytoarchitectures<a class="headerlink" href="#classifying-cytoarchitectures" title="Permalink to this headline">¶</a></h2>
+<p>Once the clusters labels have been identified, then all radial profiles can be classified based on those
+cytoarchitecture assignments using the command with structure that resembles:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy -v --umap model.umap
+</pre></div>
+</div>
+<p>In order to execute this command, please go into the individual organoid subfolder and run the command given below. Actual command based on the folder organization is as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto classify ../../cyto_profiles_combined.npy ../../cyto_labels_combined.npy dataset/cyto_profiles.npy cyto_labels.npy -v --umap ../../model_d34_and_d56.umap
+</pre></div>
+</div>
+<p>This command uses the combined profiles and cluster labels as a training set to classify all profiles in
+<em>cyto_profiles.npy</em> using a nearest neighbor classifier. The resulting cytoarchitecture labels are saved to
+<em>cyto_labels.npy</em>, and the argument <em>–umap model.umap</em> specifies which pre-trained UMAP model to embed the
+profiles before classification.</p>
+</div>
+<div class="section" id="d-rendering-with-blender">
+<h2>3D rendering with Blender<a class="headerlink" href="#d-rendering-with-blender" title="Permalink to this headline">¶</a></h2>
+<p>Using Blender 2.8, the following scripts can be used to render the ventricles colored by cytoarchitectural labels
+each mesh face as well as the nuclei point clouds.</p>
+<div class="section" id="export-as-obj-and-csv">
+<h3>Export as OBJ and CSV<a class="headerlink" href="#export-as-obj-and-csv" title="Permalink to this headline">¶</a></h3>
+<p>See the Jupyter notebook “<em>Export mesh and points as OBJ</em>”. OBJ files can be imported directly into Blender.
+The notebook converts the nuclei physical coordinates from a numpy array into a CSV array that can be read
+into Blender using pure Python.</p>
+<p>The cytoarchitecture labels correspond to each vertex, but meshes are easier to color by faces in Blender, so the
+notebook also uses the vertex-based labels to label each face. The resulting face labels are written to CSV
+so that they can also be loaded into Blender using pure Python.</p>
+</div>
+<div class="section" id="blender-script">
+<h3>Blender script<a class="headerlink" href="#blender-script" title="Permalink to this headline">¶</a></h3>
+<p>In Blender, the following script creates a new material for each unique cytoarchitecture and assigns each face
+in the ventricle mesh to the corresponding material.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">bpy</span>
+<span class="kn">import</span> <span class="nn">csv</span>
+
+<span class="c1"># Path to face labels</span>
+<span class="n">labels_csv</span> <span class="o">=</span> <span class="s1">&#39;face_labels.csv&#39;</span>
+
+<span class="k">def</span> <span class="nf">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">readline</span><span class="p">()</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">line</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+
+<span class="c1"># Load face labels</span>
+<span class="n">labels</span> <span class="o">=</span> <span class="n">read_csv</span><span class="p">(</span><span class="n">labels_csv</span><span class="p">)</span>
+<span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
+<span class="n">classes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
+<span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Read {len(labels)} face labels belonging to </span><span class="si">{n_classes}</span><span class="s1"> classes&#39;</span><span class="p">)</span>
+
+<span class="c1"># Make materials for each class</span>
+<span class="n">context</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span>
+<span class="n">obj</span> <span class="o">=</span> <span class="n">context</span><span class="o">.</span><span class="n">object</span>
+<span class="n">mesh</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">data</span>
+
+<span class="n">existing_material_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mesh</span><span class="o">.</span><span class="n">materials</span><span class="p">]</span>
+<span class="n">class_material_names</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">class_material_index</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
+    <span class="n">material_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;class </span><span class="si">{i}</span><span class="s1"> material&#39;</span>
+    <span class="n">class_material_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">material_name</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">material_name</span> <span class="ow">in</span> <span class="n">existing_material_names</span><span class="p">:</span>
+        <span class="n">class_material_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">existing_material_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">material_name</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">class_material_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">materials</span><span class="p">))</span>
+        <span class="n">mesh</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">bpy</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">materials</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">material_name</span><span class="p">))</span>
+<span class="n">label_to_index</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">),</span> <span class="n">class_material_index</span><span class="p">))</span>
+
+<span class="c1"># Assign faces to materials based on labels</span>
+<span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">polygons</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>  <span class="c1"># iterate over faces</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">material_index</span> <span class="o">=</span> <span class="n">label_to_index</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">lbl</span><span class="p">)]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;material_index&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
+    <span class="n">slot</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">material_slots</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">]</span>
+    <span class="n">mat</span> <span class="o">=</span> <span class="n">slot</span><span class="o">.</span><span class="n">material</span>
+    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">diffuse_color</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No mat in slot&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="statistics.html" class="btn btn-neutral float-right" title="Multiscale statistical analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="segmentation.html" class="btn btn-neutral float-left" title="Organoid segmentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Chung Lab @ MIT
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

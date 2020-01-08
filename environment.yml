@@ -4,6 +4,7 @@ channels:
   - conda-forge
   - defaults
 dependencies:
+<<<<<<< HEAD
   - alabaster=0.7.12=py36_0
   - asciitree=0.3.3=py_2
   - asn1crypto=0.24.0=py36_0
@@ -211,4 +212,36 @@ dependencies:
     - tsv==0.1.0
     - xlrd==1.2.0
 
+=======
+  - cython
+  - h5py
+  - ipykernel
+  - ipython
+  - ipywidgets
+  - jupyter
+  - matplotlib
+  - numcodecs
+  - numpy
+  - pandas
+  - pip
+  - pyqt
+  - python>=3.7
+  - pytorch-nightly
+  - pywavelets
+  - pyyaml
+  - pyzmq
+  - scikit-image
+  - scikit-learn
+  - scipy
+  - sphinx
+  - tifffile
+  - tornado=4.5.3
+  - tqdm
+  - pip:
+    - lapsolver
+    - mayavi
+    - multicoretsne
+    - pyqt5
+    - seaborn
+>>>>>>> 851a2fa7a2fe75d74a5e9d71a4f3cd30c2f8c227
 

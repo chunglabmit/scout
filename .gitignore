@@ -39,7 +39,7 @@ Thumbs.db
 #################################
 build/
 dist/ 
-phathom.egg-info/
+scout.egg-info/
 
 # IDE related #
 ###############
@@ -48,3 +48,4 @@ phathom.egg-info/
 # Local build of Documentation #
 ################################
 _build/
+

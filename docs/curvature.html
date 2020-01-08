@@ -181,183 +181,158 @@
 <a class="reference external" href="https://www.mdpi.com/2313-433X/2/4/31">https://www.mdpi.com/2313-433X/2/4/31</a></p>
 <dl class="function">
 <dt id="scout.curvature.dx">
-<code class="descclassname">scout.curvature.</code><code class="descname">dx</code><span class="sig-paren">(</span><em>x</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dx" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scout.curvature.</code><code class="sig-name descname">dx</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dx" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the gradient in the X direction</p>
 <p>Note that this function does not pad the image so the output is reduced
 in size.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>ndarray</em>) – Input array</li>
-<li><strong>xum</strong> (<em>float</em>) – microns per voxel in the X direction</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – Input array</p></li>
+<li><p><strong>xum</strong> (<em>float</em>) – microns per voxel in the X direction</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dx</strong> – The gradient in the X direction, reduced in size by one at each edge</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dx</strong> – The gradient in the X direction, reduced in size by one at each edge</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.curvature.dy">
-<code class="descclassname">scout.curvature.</code><code class="descname">dy</code><span class="sig-paren">(</span><em>x</em>, <em>yum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scout.curvature.</code><code class="sig-name descname">dy</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">yum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the gradient in the Y direction</p>
 <p>Note that this function does not pad the image so the output is reduced
 in size.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>y</strong> (<em>ndarray</em>) – Input array</li>
-<li><strong>yum</strong> (<em>float</em>) – The number of microns per voxel in the Y direction</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>y</strong> (<em>ndarray</em>) – Input array</p></li>
+<li><p><strong>yum</strong> (<em>float</em>) – The number of microns per voxel in the Y direction</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dy</strong> – The gradient in the Y direction, reduced in size by one at each edge</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dy</strong> – The gradient in the Y direction, reduced in size by one at each edge</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.curvature.dz">
-<code class="descclassname">scout.curvature.</code><code class="descname">dz</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dz" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scout.curvature.</code><code class="sig-name descname">dz</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">zum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.dz" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the gradient in the Z direction</p>
 <p>Note that this function does not pad the image so the output is reduced
 in size.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>ndarray</em>) – Input array</li>
-<li><strong>zum</strong> (<em>float</em>) – microns per voxel in the z direction</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – Input array</p></li>
+<li><p><strong>zum</strong> (<em>float</em>) – microns per voxel in the z direction</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>dz</strong> – The gradient in the Z direction, reduced in size by one at each edge</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dz</strong> – The gradient in the Z direction, reduced in size by one at each edge</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.curvature.eigen3">
-<code class="descclassname">scout.curvature.</code><code class="descname">eigen3</code><span class="sig-paren">(</span><em>A</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.eigen3" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scout.curvature.</code><code class="sig-name descname">eigen3</code><span class="sig-paren">(</span><em class="sig-param">A</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.eigen3" title="Permalink to this definition">¶</a></dt>
 <dd><p>The eigenvalues of a 3x3 matrix of arrays</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>A</strong> (<em>ndarray</em>) – a 3x3 matrix of arrays, e.g. a list of lists</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><strong>eigenvals</strong> – a 3 tuple of arrays - the eigenvalues of each 3x3 of the matrix in ascending order.</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple</td>
-</tr>
-</tbody>
-</table>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>A</strong> (<em>ndarray</em>) – a 3x3 matrix of arrays, e.g. a list of lists</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>eigenvals</strong> – a 3 tuple of arrays - the eigenvalues of each 3x3 of the matrix in ascending order.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.curvature.eigvals_of_weingarten">
-<code class="descclassname">scout.curvature.</code><code class="descname">eigvals_of_weingarten</code><span class="sig-paren">(</span><em>x</em>, <em>ew_block_size=64</em>, <em>zum=1</em>, <em>yum=1</em>, <em>xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.eigvals_of_weingarten" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scout.curvature.</code><code class="sig-name descname">eigvals_of_weingarten</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">ew_block_size=64</em>, <em class="sig-param">zum=1</em>, <em class="sig-param">yum=1</em>, <em class="sig-param">xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.eigvals_of_weingarten" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find the eigenvalues of the weingarten operator</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>ndarray</em>) – an NxMxP 3D array</li>
-<li><strong>ew_block_size</strong> (<em>int</em>) – the block size for the blocks to be processed. The algorithm needs approximately 128 bytes per voxel processed.</li>
-<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
-<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
-<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – an NxMxP 3D array</p></li>
+<li><p><strong>ew_block_size</strong> (<em>int</em>) – the block size for the blocks to be processed. The algorithm needs approximately 128 bytes per voxel processed.</p></li>
+<li><p><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</p></li>
+<li><p><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</p></li>
+<li><p><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>eigvals</strong> – an NxMxPx3 array of the 3 eigenvalues of the weingarten operator for the space.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>eigvals</strong> – an NxMxPx3 array of the 3 eigenvalues of the weingarten operator for the space.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.curvature.gradient">
-<code class="descclassname">scout.curvature.</code><code class="descname">gradient</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1.0</em>, <em>yum=1.0</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.gradient" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scout.curvature.</code><code class="sig-name descname">gradient</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">zum=1.0</em>, <em class="sig-param">yum=1.0</em>, <em class="sig-param">xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.gradient" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the gradient in all three directions</p>
 <p>Note that the images returned are reduced in size by 1 - there is no padding</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>ndarray</em>) – Input array</li>
-<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
-<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
-<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – Input array</p></li>
+<li><p><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</p></li>
+<li><p><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</p></li>
+<li><p><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>grad</strong> – A tuple of the z, y, and x gradients.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>grad</strong> – A tuple of the z, y, and x gradients.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.curvature.gradient_numpy">
-<code class="descclassname">scout.curvature.</code><code class="descname">gradient_numpy</code><span class="sig-paren">(</span><em>data</em>, <em>zum=1.0</em>, <em>yum=1.0</em>, <em>xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.gradient_numpy" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scout.curvature.</code><code class="sig-name descname">gradient_numpy</code><span class="sig-paren">(</span><em class="sig-param">data</em>, <em class="sig-param">zum=1.0</em>, <em class="sig-param">yum=1.0</em>, <em class="sig-param">xum=1.0</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.gradient_numpy" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the gradient in units of intensity / micron</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>data</strong> (<em>ndarray</em>) – 3d numpy array</li>
-<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
-<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
-<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> (<em>ndarray</em>) – 3d numpy array</p></li>
+<li><p><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</p></li>
+<li><p><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</p></li>
+<li><p><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>grad</strong> – A 4-dimensional matrix with the last dimension being the z==0, y==1, x==2 selector of the gradient direction</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>grad</strong> – A 4-dimensional matrix with the last dimension being the z==0, y==1, x==2 selector of the gradient direction</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.curvature.structure_tensor">
-<code class="descclassname">scout.curvature.</code><code class="descname">structure_tensor</code><span class="sig-paren">(</span><em>dz</em>, <em>dy</em>, <em>dx</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.structure_tensor" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scout.curvature.</code><code class="sig-name descname">structure_tensor</code><span class="sig-paren">(</span><em class="sig-param">dz</em>, <em class="sig-param">dy</em>, <em class="sig-param">dx</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.structure_tensor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct the structure tensor from the gradient</p>
 <p>The structure tensor is the cross product of the gradient with itself:
 dz * dz   dy * dz   dx * dz
@@ -365,55 +340,47 @@ dz * dy   dy * dy   dx * dy
 dz * dx   dy * dx   dx * dx</p>
 <p>Note - the arrays of the structure tensor are reduced in size by 1 on
 each side to match the dimensions of the Hessian</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>dz</strong> (<em>ndarray</em>) – The gradient in the Z direction</li>
-<li><strong>dy</strong> (<em>ndarray</em>) – The gradient in the Y direction</li>
-<li><strong>dx</strong> (<em>ndarray</em>) – The gradient in the X direction</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dz</strong> (<em>ndarray</em>) – The gradient in the Z direction</p></li>
+<li><p><strong>dy</strong> (<em>ndarray</em>) – The gradient in the Y direction</p></li>
+<li><p><strong>dx</strong> (<em>ndarray</em>) – The gradient in the X direction</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>result</strong> – A 3 tuple of 3 tuples representing the structure tensor of the gradient</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>result</strong> – A 3 tuple of 3 tuples representing the structure tensor of the gradient</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>ndarray</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.curvature.weingarten">
-<code class="descclassname">scout.curvature.</code><code class="descname">weingarten</code><span class="sig-paren">(</span><em>x</em>, <em>zum=1</em>, <em>yum=1</em>, <em>xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.weingarten" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">scout.curvature.</code><code class="sig-name descname">weingarten</code><span class="sig-paren">(</span><em class="sig-param">x</em>, <em class="sig-param">zum=1</em>, <em class="sig-param">yum=1</em>, <em class="sig-param">xum=1</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.curvature.weingarten" title="Permalink to this definition">¶</a></dt>
 <dd><p>The Weingarten shape operator on a 3D image</p>
 <p>See <a class="reference external" href="http://mathworld.wolfram.com/ShapeOperator.html">http://mathworld.wolfram.com/ShapeOperator.html</a> for instance.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>x</strong> (<em>ndarray</em>) – The 3-D image to be processed</li>
-<li><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</li>
-<li><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</li>
-<li><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</li>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>ndarray</em>) – The 3-D image to be processed</p></li>
+<li><p><strong>zum</strong> (<em>float</em>) – size of a voxel in the z direction - defaults to 1.0 micron</p></li>
+<li><p><strong>yum</strong> (<em>float</em>) – size of a voxel in the y direction - defaults to 1.0 micron</p></li>
+<li><p><strong>xum</strong> (<em>float</em>) – size of a voxel in the x direction - defaults to 1.0 micron</p></li>
 </ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>weingarten</strong> – A 3 tuple of 3 tuples representing the 3 x 3 matrix of the
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>weingarten</strong> – A 3 tuple of 3 tuples representing the 3 x 3 matrix of the
 shape operator per voxel. The 3D elements of the matrix are reduced in
 size by 2 at each edge (a total of 4 voxels smaller in each dimension)
 because of the double differentiation of the Hessian.</p>
-</td>
-</tr>
-<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">tuple</p>
-</td>
-</tr>
-</tbody>
-</table>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 </div>

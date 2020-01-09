@@ -51,14 +51,14 @@ study.
 
 Since the results of the clustering analysis depend on which organoids are included, it is useful to aggregate
 organoid datasets into a separate folder to make this dependency on a group of organoids explicit. We first select
-which datasets we would like to include in our analysis using the following command:
+which datasets we would like to include in our analysis folder using the following command:
 
 .. code-block:: bash
 
-    scout multiscale select summary.csv Lancaster_d30 Lancaster_d60 -v
+    scout multiscale select path/to/datasets/summary.csv analysis.csv Arlotta_d34 Lancaster_d35 -v
 
-This command reads the summary CSV, pulls out the paths to the Lancaster d35 and d60 organoid datasets, and saves the
-selected organoids to an analysis CSV file in the current folder. Note that this analysis CSV can be modified to
+This command reads the summary.csv file, pulls out the paths to the Arlotta_d34 and Lancaster_d35 organoid datasets, and saves the
+selected organoids to an new analysis.csv file in the current folder (which is assumed to be analysis folder for Arlotta_d34_vs_Lancaster_d35 comparison based on the command above). Note that this analysis.csv file can be modified to
 include more datasets or exclude some datasets from the analysis. The analysis folder can be setup with links to
 underlying dataset folders using the following command:
 

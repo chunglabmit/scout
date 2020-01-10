@@ -55,7 +55,8 @@ which datasets we would like to include in our analysis folder using the followi
 
 .. code-block:: bash
 
-    scout multiscale select path/to/datasets/summary.csv analysis.csv Arlotta_d34 Lancaster_d35 -v
+    scout multiscale select /path/to/datasets/summary.csv analysis.csv Arlotta_d34 Lancaster_d35 -v
+
 
 This command reads the summary.csv file, pulls out the paths to the Arlotta_d34 and Lancaster_d35 organoid datasets, and saves the
 selected organoids to an new analysis.csv file in the current folder (which is assumed to be analysis folder for Arlotta_d34_vs_Lancaster_d35 comparison based on the command above). Note that this analysis.csv file can be modified to
@@ -83,7 +84,7 @@ folder would result in the following structure:
     |   .,, possibly more datasets
     |   summary.csv
     
-    analysis/
+    analysis_name/
     | analysis.csv
     | Group1/   
     |   20190419_14_35_07_AA_org1_488LP13_561LP120_642LP60/
@@ -119,7 +120,13 @@ profiles. This command should be run for each organoid, and then the sampled pro
 
 .. code-block:: bash
 
-    scout cyto combine analysis.csv cyto_profiles_sample.npy -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
+    scout cyto sample 5000 cyto_sample_index.npy -i cyto_profiles.npy -o cyto_profiles_sample.npy -v
+
+For the ease of use in our case, we will be using all organoids in analysis.csv and combine them at once using: 
+
+.. code-block:: bash
+
+    scout cyto combine analysis.csv -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
 
 When this command is run, it is meant to find individual cyto_profiles_sample.npy from each subfolder within each group and combine them all. The profiles will be concatenated in order and saved to *cyto_profiles_combined.npy*, along with a new array
 *cyto_profiles_combined_samples.npy* which contains integer labels for each profile corresponding to the which

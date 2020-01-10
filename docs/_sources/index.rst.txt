@@ -52,6 +52,12 @@ example Jupyter notebooks for users that prefer the more interactive, web-based 
    detection
    score
 
+.. toctree::
+   :maxdepth: 1
+   :caption: Cheatsheet Modules
+  
+   analysis_cheatsheet
+   
 
 Contributing
 =============

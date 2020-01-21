@@ -5,6 +5,24 @@ The single-cell analysis requires a volumetric nuclear stain image in Zarr forma
 These nuclei centroids are used as seed points in a 3D watershed segmentation, providing morphological features.
 The nuclei centroids are also coordinates where to sample other channels for single-cell expression levels.
 
+Convert to Zarr format
+-----------------------
+
+To facilitate parallel processing of volumetric datasets, the normalized TIFF stacks need to be
+broken into more manageable chunks. Fortunately, Zarr is a Python package that provides a chunk-compressed array
+data structure that we can use. To convert the TIFFs into a Zarr array, use the following command:
+
+.. code-block:: bash
+
+    scout preprocess convert color0_rescaled/ syto.zarr -v -n 4
+
+This will convert the TIFF stack in *color0_rescaled* into a Zarr NestedDirectoryStore called *syto.zarr*.
+The *-n 4* argument specifies how many parallel workers to use in this conversion process.
+This command should be repeated for each channel.
+
+**Note:** Using too many workers to convert TIFFs to Zarr may result in error messages about folder creation.
+A pull request has been submitted with Zarr regarding this issue.
+
 Name each channel
 -----------------
 

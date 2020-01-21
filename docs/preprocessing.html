@@ -91,7 +91,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#volumetric-image-inputs">Volumetric image inputs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#organoid-dataset-organization">Organoid dataset organization</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#image-normalization">Image normalization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#convert-to-zarr-format">Convert to Zarr format</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="single_cell.html">Single-cell analysis</a></li>
@@ -264,20 +263,6 @@ noise, it is sometimes more robust to instead normalize based on a slightly lowe
 in a new folder called <em>color0_rescaled</em>. The <em>-t 120</em> argument specifies the grayscale intensity of the
 background, which gets subtracted from each image before normalization.
 This command should be repeated for each channel.</p>
-</div>
-<div class="section" id="convert-to-zarr-format">
-<h2>Convert to Zarr format<a class="headerlink" href="#convert-to-zarr-format" title="Permalink to this headline">¶</a></h2>
-<p>To facilitate parallel processing of volumetric datasets, the normalized TIFF stacks need to be
-broken into more manageable chunks. Fortunately, Zarr is a Python package that provides a chunk-compressed array
-data structure that we can use. To convert the TIFFs into a Zarr array, use the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout preprocess convert color0_rescaled/ syto.zarr -v -n <span class="m">4</span>
-</pre></div>
-</div>
-<p>This will convert the TIFF stack in <em>color0_rescaled</em> into a Zarr NestedDirectoryStore called <em>syto.zarr</em>.
-The <em>-n 4</em> argument specifies how many parallel workers to use in this conversion process.
-This command should be repeated for each channel.</p>
-<p><strong>Note:</strong> Using too many workers to convert TIFFs to Zarr may result in error messages about folder creation.
-A pull request has been submitted with Zarr regarding this issue.</p>
 </div>
 </div>
 

@@ -18,6 +18,7 @@ These include the following subcommands:
 
 import subprocess
 import numpy as np
+import os.path
 from tqdm import tqdm
 from sklearn.neighbors import NearestNeighbors
 from sklearn.mixture import GaussianMixture
@@ -197,7 +198,11 @@ def proximity_main(args):
         np.random.shuffle(idx)
         idx = idx[:100000]
         plt.plot(proximities[idx, 0], proximities[idx, 1], '.', alpha=0.01)
-        plt.show()
+        
+        fig_output = os.path.join(os.path.dirname(args.output), "proximities.png")
+        plt.savefig(fig_output, dpi=600)
+
+        #plt.show()
 
     # Save the proximities
     np.save(args.output, proximities)
@@ -257,7 +262,11 @@ def gate_main(args):
                 continue
             plt.plot(proximities_sample[idx, 0], proximities_sample[idx, 1], '.', alpha=args.alpha, label=names[i])
         # plt.legend()
-        plt.show()
+
+        fig_output = os.path.join(os.path.dirname(args.labels), "gating_proximities.png")
+        plt.savefig(fig_output, dpi=600)
+
+        #plt.show()
 
     # Save the niche labels
     np.save(args.labels, labels)

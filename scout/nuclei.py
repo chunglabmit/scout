@@ -471,7 +471,10 @@ def gate_main(args):
         plt.ylim([0, y_max])
         plt.xlabel(f'MFI column {args.x}')
         plt.ylabel(f'MFI column {args.y}')
-        plt.show()
+
+        fig_output = os.path.join(os.path.dirname(args.output),"gating_channels.png")
+        plt.savefig(fig_output, dpi=600)
+        #plt.show()
 
     # Gate each channel
     labels = np.asarray([threshold_mfi(mfi, t) for mfi, t in zip(mfis.T, args.thresholds)], dtype=np.uint8).T

@@ -483,15 +483,15 @@ def setup_main(args):
     df = pd.read_csv(args.input, index_col=0)
 
     # Create folders for each group
-    groups = list(set(df['type']))
+    groups = list(set(df['group']))
     groups.sort()
     for group in groups:
         verbose_print(args, f'Making directory for {group} group')
         os.makedirs(os.path.join(args.output, group), exist_ok=True)
 
     # Create folders for each dataset with symlinks to underlying data
-    for path in df.index:
-        group = df['type'].loc[path]
+    #for path in df.index:
+    for path, group in df[["path", "group"]]:
         new_dir = os.path.join(args.output, group, path)
         verbose_print(args, f'Making directory and symlink for {path}')
         os.makedirs(new_dir, exist_ok=True)
@@ -514,8 +514,8 @@ def select_main(args):
     verbose_print(args, f'Selecting datasets for analysis')
 
     # Load dataset CSV and select datasets by group
-    df = pd.read_csv(args.input, index_col=0)
-    groups = [df.where(df['type'] == g).dropna() for g in args.groups]
+    df = pd.read_csv(args.input, index_col=0, comment="#")
+    groups = [df.where(df['group'] == g).dropna() for g in args.groups]
     for g, name in zip(groups, args.groups):
         verbose_print(args, f'Found {len(g)} datasets in group {name}')
 

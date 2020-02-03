@@ -411,9 +411,12 @@ def combine_main(args):
     verbose_print(args, f'Combining profiles based on {args.input}')
 
     # Get full paths for sampled profiles from analysis CSV
-    parent_dir = os.path.abspath(os.path.join(args.input, os.pardir))
-    df = pd.read_csv(args.input, index_col=0)
-    paths = [os.path.join(parent_dir, df.loc[folder]['type'], folder, 'dataset', args.name) for folder in df.index]
+    #parent_dir = os.path.abspath(os.path.join(args.input, os.pardir))
+    #df = pd.read_csv(args.input, index_col=0)
+    #paths = [os.path.join(parent_dir, df.loc[folder]['type'], folder, 'dataset', args.name) for folder in df.index]
+    parent_dir = os.path.abspath(os.path.join(args.input, os.pardir, os.pardir))
+    df = pd.read_csv(args.input)
+    paths = [os.path.join(parent_dir, "datasets", smp, "cytoarchitecture", args.name) for smp in df["sample"]]
 
     # Adapted from niche.combine_main
     input_arrays = [np.load(path) for path in paths]

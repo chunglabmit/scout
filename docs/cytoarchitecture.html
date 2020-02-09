@@ -284,10 +284,6 @@ subset. The profiles can be sampled using the following command:</p>
 <p>This command will randomly sample 5000 profiles from <em>cyto_profiles.npy</em> and store them in <em>cyto_profiles_sample.npy</em>.
 Another output is <em>cyto_samply_index.npy</em>, which contains the index into <em>cyto_profiles.npy</em> for each of the sampled
 profiles. This command should be run for each organoid, and then the sampled profiles can be combined:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto sample <span class="m">5000</span> cyto_sample_index.npy -i cyto_profiles.npy -o cyto_profiles_sample.npy -v
-</pre></div>
-</div>
-<p>For the ease of use in our case, we will be using all organoids in analysis.csv and combine them at once using:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto combine analysis.csv -o cyto_profiles_combined.npy -s cyto_profiles_combined_samples.npy -v
 </pre></div>
 </div>
@@ -324,12 +320,8 @@ organoid the profile is from. If this process is run correctly, the analysis fol
 <div class="section" id="classifying-cytoarchitectures">
 <h2>Classifying cytoarchitectures<a class="headerlink" href="#classifying-cytoarchitectures" title="Permalink to this headline">¶</a></h2>
 <p>Once the clusters labels have been identified, then all radial profiles can be classified based on those
-cytoarchitecture assignments using the command with structure that resembles:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto classify cyto_profiles_combined.npy cyto_labels_combined.npy cyto_profiles.npy cyto_labels.npy -v --umap model.umap
-</pre></div>
-</div>
-<p>In order to execute this command, please go into the individual organoid subfolder and run the command given below. Actual command based on the folder organization is as follows:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto classify ../../cyto_profiles_combined.npy ../../cyto_labels_combined.npy dataset/cyto_profiles.npy cyto_labels.npy -v --umap ../../model_d34_and_d56.umap
+cytoarchitecture assignments. Please go into the individual organoid subfolder and run the command given below:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout cyto classify ../../cyto_profiles_combined.npy ../../cyto_labels_combined.npy dataset/cyto_profiles.npy cyto_labels.npy -v --umap ../../model_name.umap
 </pre></div>
 </div>
 <p>This command uses the combined profiles and cluster labels as a training set to classify all profiles in

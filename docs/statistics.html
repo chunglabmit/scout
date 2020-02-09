@@ -202,10 +202,6 @@ used for the ventricle segmentation. This command should be repeated for each or
 organoids sampled from to generate the cytoarchitecture clusters). This command will create an Excel spreadsheet
 in the current folder called <em>organoid_features.xlsx</em>.</p>
 <p>The multiscale features for each organoid can be combined into a single Excel table using the following command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout multiscale combine path/to/org1 path/to/org2 <span class="o">(</span>...<span class="o">)</span> --output combined_features.xlsx -v
-</pre></div>
-</div>
-<p>An easier way to get this done without inputing specific paths is by using analysis.csv file as shown in the command below:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>scout multiscale combine analysis.csv --output combined_features.xlsx -v
 </pre></div>
 </div>

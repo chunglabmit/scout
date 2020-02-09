@@ -28,12 +28,6 @@ The multiscale features for each organoid can be combined into a single Excel ta
 
 .. code-block:: bash
 
-   scout multiscale combine path/to/org1 path/to/org2 (...) --output combined_features.xlsx -v 
-
-An easier way to get this done without inputing specific paths is by using analysis.csv file as shown in the command below:
-
-.. code-block:: bash
-
    scout multiscale combine analysis.csv --output combined_features.xlsx -v 
 
 

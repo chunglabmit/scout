@@ -1,0 +1,8 @@
+include: 
+
+project:        "autism"
+data_dir:       "/home/johapark/cephfs/organoid/datasets/organoid_phenotyping/datasets"
+summary:        "summary.csv"
+channels:       "syto sox2 tbr1"
+ex_wavelens:     "488 561 642"
+comparing_groups:        "WT_d29 ASD_d29"

@@ -1,0 +1,212 @@
+#!/usr/bin/env python
+import pandas as pd
+import yaml
+import os
+
+### Configurations
+yaml_path = "config/organoid-spim.yaml"
+conf = yaml.full_load(open(yaml_path, "rt"))
+project = conf["project"]
+base_dir = os.getcwd()
+data_dir = conf.get("data_dir", "datasets")
+summary_fname = "summary.csv"
+summary = pd.read_csv(os.path.join("config", summary_fname), comment="#")
+channels = conf.get("channels", "0 1 2").split()
+ex_wavelens = conf.get("ex_wavelens", None).split()
+n_threads = 44
+
+Targets = list()
+
+wildcard_constraints:
+    sample="[^/^.]+",
+    channel="[^/^.]+"
+
+workdir: "works/{}".format(project)
+
+### Rules
+rule all:
+    input: lambda wc: Targets #lambda function allows to extend the `Targets` right above each rule.
+    #run: #print( {input} )
+
+
+## Preprocess
+Targets.extend(expand("datasets/{sample}/{channel}.zarr", sample=summary["sample"], channel=channels))
+rule convert_tiff_to_zarr:
+    output:
+        directory("datasets/{sample}/{channel}.zarr")
+    threads: n_threads
+    run:
+        for si, smp in enumerate(summary["sample"]):
+            for ci, channel in enumerate(channels):
+                inp = "{data_dir}/{path}/Ex_{ex_wl}_Em_{ch}_rescaled".format(data_dir=data_dir, path=summary["path"][si], ex_wl=ex_wavelens[ci], ch=ci)
+                outp = "datasets/{smp}/{channel}.zarr".format(smp=smp, channel=channels[ci])
+                shell( "scout preprocess convert {inp} {outp} -v -n {threads}" )
+
+#rule name_each_channel:
+
+
+## Single-cell analysis
+#to-do: need to soft-code `syto.zarr`
+Targets.extend(expand("datasets/{sample}/segmentation/nuclei_probability.zarr", sample=summary["sample"]))
+rule nuclei_detection:
+    input: "datasets/{sample}/syto.zarr"
+    output: 
+        nuc_prob = directory("datasets/{sample}/segmentation/nuclei_probability.zarr"),
+        centroids = "datasets/{sample}/segmentation/centroids.npy",
+        centroids_um = "datasets/{sample}/segmentation/centroids_um.npy",
+    params:
+        vs = "{}/config/voxel_size.csv".format(base_dir)
+    shell: "scout nuclei detect {input} {output.nuc_prob} {output.centroids} --voxel-size {params.vs} --output-um {output.centroids_um} -v" 
+
+Targets.extend(expand("datasets/{sample}/segmentation/nuclei_foreground.zarr", sample=summary["sample"]))
+rule nuclei_segmentation:
+    input:
+        nuc_prob = "datasets/{sample}/segmentation/nuclei_probability.zarr",
+        centroids = "datasets/{sample}/segmentation/centroids.npy",
+    output:
+        nuc_fg = directory("datasets/{sample}/segmentation/nuclei_foreground.zarr"),
+        nuc_bin = directory("datasets/{sample}/segmentation/nuclei_binary.zarr"),
+    shell: "scout nuclei segment {input.nuc_prob} {input.centroids} {output.nuc_fg} {output.nuc_bin} -v"
+
+Targets.extend(expand("datasets/{sample}/segmentation/nuclei_morphologies.csv", sample=summary["sample"]))
+rule nuclei_morphology:
+    input:
+        nuc_bin="datasets/{sample}/segmentation/nuclei_binary.zarr",
+        centroids = "datasets/{sample}/segmentation/centroids.npy",
+    output: "datasets/{sample}/segmentation/nuclei_morphologies.csv"
+    shell: "scout nuclei morphology {input.nuc_bin} {input.centroids} {output} -v"
+    
+Targets.extend(expand("datasets/{sample}/nuclei_fluorescence/nuclei_mfis.npy", sample=summary["sample"]))
+rule nuclei_fluorescence:
+    input:
+        zarr = expand("datasets/{{sample}}/{channel}.zarr", channel=channels[1:]),
+        centroids = "datasets/{sample}/segmentation/centroids.npy",
+    #output: directory("datasets/{sample}/nuclei_fluorescence")
+    output: "datasets/{sample}/nuclei_fluorescence/nuclei_mfis.npy"
+    run: 
+        outdir = os.path.dirname(output[0])
+        shell("scout nuclei fluorescence {input.centroids} {outdir} {input.zarr} -v")
+
+Targets.extend(expand("datasets/{sample}/nuclei_gating.npy", sample=summary["sample"]))
+rule nuclei_gating:
+    input: "datasets/{sample}/nuclei_fluorescence/nuclei_mfis.npy"
+    output: "datasets/{sample}/nuclei_gating.npy"
+    params:
+        gating_limits="0.2 0.1",
+        plot_max="1.5 1.5",
+    shell: "scout nuclei gate {input} {output} {params.gating_limits} -p -v -r {params.plot_max}"
+
+Targets.extend(expand("datasets/{sample}/niche_proximities.npy", sample=summary["sample"]))
+rule calculate_proximities:
+    input:
+        centroids_um = "datasets/{sample}/segmentation/centroids_um.npy",
+        nuc_gating = "datasets/{sample}/nuclei_gating.npy",
+    output: "datasets/{sample}/niche_proximities.npy"
+    params:
+        dist = "25 25",
+        n_nearest = 2
+    shell: "scout niche proximity {input.centroids_um} {input.nuc_gating} {output} -r {params.dist} -v -p -k {params.n_nearest}"
+
+Targets.extend(expand("datasets/{sample}/niche_names.csv", sample=summary["sample"]))
+rule niche_names:
+    output: "datasets/{sample}/niche_names.csv",
+    params:
+        names = "DN SOX2 TBR1 DP TBR1Adj SOX2Adj CoAdj",
+    shell: "scout niche name {params.names} -o {output}"
+
+Targets.extend(expand("datasets/{sample}/niche_labels.npy", sample=summary["sample"]))
+rule gate_proximities:
+    input: "datasets/{sample}/niche_proximities.npy"
+    output: "datasets/{sample}/niche_labels.npy"
+    params:
+        low = "0.35 0.30",
+        high = "0.66 0.63",
+    shell: "scout niche gate {input} {output} --low {params.low} --high {params.high} -p -v --alpha 0.01"
+
+## Organoid segmentation
+Targets.extend(expand("datasets/{sample}/syto_down6x", sample=summary["sample"]))
+rule downsample_images:
+    output: directory("datasets/{sample}/syto_down6x")
+    params:
+        factor = "6 6"
+    run: 
+        smp = wildcards.sample
+        path = summary[summary["sample"]==smp]["path"].values[0]
+        inp = "{data_dir}/{path}/Ex_{ex_wl}_Em_0_rescaled".format(data_dir=data_dir, path=path, ex_wl=ex_wavelens[0])
+        shell("scout segment downsample {inp} {output} {params.factor} -v -t")
+
+Targets.extend(expand("datasets/{sample}/syto_down6x.tiff", sample=summary["sample"]))
+rule stack_downsampled_tiffs:
+    input: "datasets/{sample}/syto_down6x"
+    output: "datasets/{sample}/syto_down6x.tiff"
+    shell: "scout segment stack {input} {output} -v"
+
+Targets.extend(expand("datasets/{sample}/segmentation/segment_ventricles.tiff", sample=summary["sample"]))
+rule ventricle_segmentation:
+    input: "datasets/{sample}/syto_down6x.tiff"
+    output: "datasets/{sample}/segmentation/segment_ventricles.tiff"
+    params:
+        unet_model = "/home/johapark/scripts/scout/models/unet_weights3_zika.h5",
+        prob_threshold = 0.5
+    shell: "scout segment ventricle {input} {params.unet_model} {output} -t {params.prob_threshold}  -v"
+
+Targets.extend(expand("datasets/{sample}/segmentation/segment_foreground.tiff", sample=summary["sample"]))
+rule foreground_segmentation:
+    input: "datasets/{sample}/syto_down6x.tiff"
+    output: "datasets/{sample}/segmentation/segment_foreground.tiff"
+    params:
+        smoothing_factors = "8 4 4",
+        smoothing_thres = 0.02
+    shell: "scout segment foreground {input} {output} -v -t {params.smoothing_thres} -g {params.smoothing_factors}"
+
+## Cytoarchitectural analysis
+
+# suppressed plotting as it requires additional python package called `mayavi`. Add -p argument to enable it.
+# It currently throws an error when I tested this with <200 z-stack tifs that have no ventricles in it.
+Targets.extend(expand("datasets/{sample}/cytoarchitecture/mesh_ventricles.pkl", sample=summary["sample"]))
+rule ventricle_vectorized_mesh:
+    input: "datasets/{sample}/segmentation/segment_ventricles.tiff"
+    output: "datasets/{sample}/cytoarchitecture/mesh_ventricles.pkl"
+    params:
+        vs = "{}/config/voxel_size.csv".format(base_dir),
+        ds_factor = "1 6 6",
+        smoothing_factors = "-g 2 -s 2",
+    shell: "scout cyto mesh {input} {params.vs} {output} -d {params.ds_factor} {params.smoothing_factors} -v" #-p"
+
+Targets.extend(expand("datasets/{sample}/cytoarchitecture/cyto_profiles.npy", sample=summary["sample"]))
+rule compute_radial_cell_profiles:
+    input:
+        centroids_um = "datasets/{sample}/segmentation/centroids_um.npy",
+        mesh = "datasets/{sample}/cytoarchitecture/mesh_ventricles.pkl",
+        nuc_gating = "datasets/{sample}/nuclei_gating.npy",
+    output: "datasets/{sample}/cytoarchitecture/cyto_profiles.npy"
+    shell: "scout cyto profiles {input.mesh} {input.centroids_um} {input.nuc_gating} {output} -v"
+
+Targets.append("analyses/analysis.csv")
+rule setting_up_clustering_analysis:
+    input: f"{base_dir}/config/{summary_fname}"
+    output: "analyses/analysis.csv"
+    params:
+        groups = conf["comparing_groups"]
+    shell: "scout multiscale select {input} --output {output} {params.groups} -v"
+
+Targets.extend(expand("datasets/{sample}/cytoarchitecture/cyto_profiles_sample.npy", sample=summary["sample"]))
+rule sampling_cytoarchitectures:
+    input: "datasets/{sample}/cytoarchitecture/cyto_profiles.npy"
+    output:
+        smp = "datasets/{sample}/cytoarchitecture/cyto_profiles_sample.npy",
+        idx = "datasets/{sample}/cytoarchitecture/cyto_sample_index.npy",
+    params:
+        n_samples = 5000
+    shell:"""
+        scout cyto sample {params.n_samples} {output.idx} -i {input} -o {output.smp} -v
+        touch analyses/.sampled
+        """
+
+Targets.append("analyses/cyto_profiles_combined.npy")
+rule combine_cytoarchitecture_samples:
+    input: "analyses/.sampled"
+    output:
+        combined = "analyses/cyto_profiles_combined.npy",
+        combined_samples = "analyses/cyto_profiles_combined_samples.npy",
+    shell: "scout cyto combine analyses/analysis.csv -o {output.combined} -s {output.combined_samples} -v"

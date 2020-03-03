@@ -38,7 +38,8 @@ from scout.synthetic import points_to_binary
 from scout.niche import name_cli, name_main
 import matplotlib
 try:
-    matplotlib.use('tkagg')
+    #matplotlib.use('tkagg')
+    matplotlib.use('Agg')
 except:
     pass
 import matplotlib.pyplot as plt

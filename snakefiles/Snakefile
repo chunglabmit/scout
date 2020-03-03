@@ -9,6 +9,8 @@ conf = yaml.full_load(open(yaml_path, "rt"))
 project = conf["project"]
 base_dir = os.getcwd()
 data_dir = conf.get("data_dir", "datasets")
+cg = conf["comparing_groups"].split()
+cg_dir = f"{cg[0]}_vs_{cg[1]}"
 summary_fname = "summary.csv"
 summary = pd.read_csv(os.path.join("config", summary_fname), comment="#")
 channels = conf.get("channels", "0 1 2").split()
@@ -38,7 +40,8 @@ rule convert_tiff_to_zarr:
     run:
         for si, smp in enumerate(summary["sample"]):
             for ci, channel in enumerate(channels):
-                inp = "{data_dir}/{path}/Ex_{ex_wl}_Em_{ch}_rescaled".format(data_dir=data_dir, path=summary["path"][si], ex_wl=ex_wavelens[ci], ch=ci)
+                #inp = "{data_dir}/{path}/Ex_{ex_wl}_Em_{ch}_rescaled".format(data_dir=data_dir, path=summary["path"][si], ex_wl=ex_wavelens[ci], ch=ci)
+                inp = "{data_dir}/{path}/Ex{ch}_rescaled".format(data_dir=data_dir, path=summary["path"][si], ch=ci)
                 outp = "datasets/{smp}/{channel}.zarr".format(smp=smp, channel=channels[ci])
                 shell( "scout preprocess convert {inp} {outp} -v -n {threads}" )
 
@@ -132,7 +135,8 @@ rule downsample_images:
     run: 
         smp = wildcards.sample
         path = summary[summary["sample"]==smp]["path"].values[0]
-        inp = "{data_dir}/{path}/Ex_{ex_wl}_Em_0_rescaled".format(data_dir=data_dir, path=path, ex_wl=ex_wavelens[0])
+        #inp = "{data_dir}/{path}/Ex_{ex_wl}_Em_0_rescaled".format(data_dir=data_dir, path=path, ex_wl=ex_wavelens[0])
+        inp = "{data_dir}/{path}/Ex0_rescaled".format(data_dir=data_dir, path=path)
         shell("scout segment downsample {inp} {output} {params.factor} -v -t")
 
 Targets.extend(expand("datasets/{sample}/syto_down6x.tiff", sample=summary["sample"]))
@@ -203,7 +207,7 @@ rule sampling_cytoarchitectures:
         touch analyses/.sampled
         """
 
-Targets.append("analyses/cyto_profiles_combined.npy")
+#Targets.append("analyses/cyto_profiles_combined.npy")
 rule combine_cytoarchitecture_samples:
     input: "analyses/.sampled"
     output:

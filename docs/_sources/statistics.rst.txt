@@ -38,3 +38,12 @@ Statistical testing
 --------------------
 
 To perform statistical tests on the combined features, use the notebook called "*T-tests and volcano plots.ipynb*".
+
+Expected output
+----------------
+
+The expected output from the SCOUT pipeline is a table of >200 phenotypic
+measurements made for each organoid sample, along with fold-changes and p-values
+between the treatment and control groups for each measurement. A list of all
+possible phenotypic measurements for is avialable in the Supplement of the SCOUT
+publication.

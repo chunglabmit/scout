@@ -290,7 +290,7 @@ in the ventricle mesh to the corresponding material.</p>
 <span class="n">classes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">labels</span><span class="p">))</span>
 <span class="n">classes</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
 <span class="n">n_classes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">classes</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Read {len(labels)} face labels belonging to </span><span class="si">{n_classes}</span><span class="s1"> classes&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">f</span><span class="s1">&#39;Read {len(labels)} face labels belonging to {n_classes} classes&#39;</span><span class="p">)</span>
 
 <span class="c1"># Make materials for each class</span>
 <span class="n">context</span> <span class="o">=</span> <span class="n">bpy</span><span class="o">.</span><span class="n">context</span>
@@ -301,7 +301,7 @@ in the ventricle mesh to the corresponding material.</p>
 <span class="n">class_material_names</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">class_material_index</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_classes</span><span class="p">):</span>
-    <span class="n">material_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;class </span><span class="si">{i}</span><span class="s1"> material&#39;</span>
+    <span class="n">material_name</span> <span class="o">=</span> <span class="n">f</span><span class="s1">&#39;class {i} material&#39;</span>
     <span class="n">class_material_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">material_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">material_name</span> <span class="ow">in</span> <span class="n">existing_material_names</span><span class="p">:</span>
         <span class="n">class_material_index</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">existing_material_names</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">material_name</span><span class="p">))</span>
@@ -312,16 +312,16 @@ in the ventricle mesh to the corresponding material.</p>
 
 <span class="c1"># Assign faces to materials based on labels</span>
 <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">lbl</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">mesh</span><span class="o">.</span><span class="n">polygons</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>  <span class="c1"># iterate over faces</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">lbl</span><span class="p">)</span>
     <span class="n">f</span><span class="o">.</span><span class="n">material_index</span> <span class="o">=</span> <span class="n">label_to_index</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">lbl</span><span class="p">)]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;material_index&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;material_index&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
     <span class="n">slot</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">material_slots</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">]</span>
     <span class="n">mat</span> <span class="o">=</span> <span class="n">slot</span><span class="o">.</span><span class="n">material</span>
-    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">diffuse_color</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="n">mat</span><span class="o">.</span><span class="n">diffuse_color</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No mat in slot&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;No mat in slot&quot;</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">material_index</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Multiscale statistical analysis:</strong></p>
@@ -358,7 +358,7 @@ scout multiscale features organoid_folder_name<span class="o">(</span>usually <s
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Chung Lab @ MIT
+        &copy; Copyright 2020, Chung Lab @ MIT
 
     </p>
   </div>

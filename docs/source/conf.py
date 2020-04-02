@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.abspath('../../scout'))
 # -- Project information -----------------------------------------------------
 
 project = 'SCOUT'
-copyright = '2019, Chung Lab @ MIT'
+copyright = '2020, Chung Lab @ MIT'
 author = 'Justin Swaney'
 
 # The short X.Y version

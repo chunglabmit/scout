@@ -183,118 +183,138 @@
 <p>The detection module is responsible for 3D nuclei centroid detection, which is required for single-cell analysis.</p>
 <dl class="function">
 <dt id="scout.detection.curvature_probability">
-<code class="sig-prename descclassname">scout.detection.</code><code class="sig-name descname">curvature_probability</code><span class="sig-paren">(</span><em class="sig-param">eigvals</em>, <em class="sig-param">steepness</em>, <em class="sig-param">offset</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.curvature_probability" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scout.detection.</code><code class="descname">curvature_probability</code><span class="sig-paren">(</span><em>eigvals</em>, <em>steepness</em>, <em>offset</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.curvature_probability" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the interest point probability based on 3D curvature eigenvalues</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>eigvals</strong> (<em>ndarray</em>) – 4D array of curvature eigenvalues</p></li>
-<li><p><strong>steepness</strong> (<em>float</em>) – Slope of the logistic function. Larger gives sharper transition between nuclei and background</p></li>
-<li><p><strong>offset</strong> (<em>float</em>) – Translation of the logistic function. Larger biases towards more negative curvatures</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>eigvals</strong> (<em>ndarray</em>) – 4D array of curvature eigenvalues</li>
+<li><strong>steepness</strong> (<em>float</em>) – Slope of the logistic function. Larger gives sharper transition between nuclei and background</li>
+<li><strong>offset</strong> (<em>float</em>) – Translation of the logistic function. Larger biases towards more negative curvatures</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>prob</strong> – Curvature interest point probability</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>prob</strong> – Curvature interest point probability</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.detection.detect_nuclei_parallel">
-<code class="sig-prename descclassname">scout.detection.</code><code class="sig-name descname">detect_nuclei_parallel</code><span class="sig-paren">(</span><em class="sig-param">z_arr</em>, <em class="sig-param">sigma</em>, <em class="sig-param">min_intensity</em>, <em class="sig-param">steepness</em>, <em class="sig-param">offset</em>, <em class="sig-param">I0</em>, <em class="sig-param">stdev</em>, <em class="sig-param">prob_thresh</em>, <em class="sig-param">min_dist</em>, <em class="sig-param">chunks</em>, <em class="sig-param">overlap</em>, <em class="sig-param">nb_workers=None</em>, <em class="sig-param">prob_output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.detect_nuclei_parallel" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scout.detection.</code><code class="descname">detect_nuclei_parallel</code><span class="sig-paren">(</span><em>z_arr</em>, <em>sigma</em>, <em>min_intensity</em>, <em>steepness</em>, <em>offset</em>, <em>I0</em>, <em>stdev</em>, <em>prob_thresh</em>, <em>min_dist</em>, <em>chunks</em>, <em>overlap</em>, <em>nb_workers=None</em>, <em>prob_output=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.detect_nuclei_parallel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detect nuclei centroids from a chunked Zarr array with parallel processing</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>z_arr</strong> (<em>Zarr Array</em>) – Input chunked Zarr array</p></li>
-<li><p><strong>sigma</strong> (<em>int</em><em>, </em><em>tuple</em>) – Amount of blurring</p></li>
-<li><p><strong>min_intensity</strong> (<em>float</em>) – Minimum intensity allowed for centroid</p></li>
-<li><p><strong>steepness</strong> (<em>float</em>) – Sensitivity of the curvature-based probability map</p></li>
-<li><p><strong>offset</strong> (<em>float</em>) – Bias of the curvature-based probability map</p></li>
-<li><p><strong>I0</strong> (<em>float</em>) – Reference intensity for image intensity prior. Can typically be set using Otsu’s method.</p></li>
-<li><p><strong>stdev</strong> (<em>float</em>) – Sensitivity for the image intensity prior. Can typically be set to the standard deviation of the image.</p></li>
-<li><p><strong>prob_thresh</strong> (<em>float</em>) – Minimum probability allowed for centroid</p></li>
-<li><p><strong>min_dist</strong> (<em>int</em>) – Minimum distance allowed between detected centroids</p></li>
-<li><p><strong>chunks</strong> (<em>tuple</em>) – Chunk size to process in parallel. This must match z_arr.chunks if using GPU curvature computations.</p></li>
-<li><p><strong>overlap</strong> (<em>int</em>) – Amount of overlap between adjacent chunks</p></li>
-<li><p><strong>nb_workers</strong> (<em>int</em>) – Number of parallel processes to use</p></li>
-<li><p><strong>prob_output</strong> (<em>Zarr Array</em>) – Output array for intermediate probability map used for centroid detection</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>z_arr</strong> (<em>Zarr Array</em>) – Input chunked Zarr array</li>
+<li><strong>sigma</strong> (<em>int</em><em>, </em><em>tuple</em>) – Amount of blurring</li>
+<li><strong>min_intensity</strong> (<em>float</em>) – Minimum intensity allowed for centroid</li>
+<li><strong>steepness</strong> (<em>float</em>) – Sensitivity of the curvature-based probability map</li>
+<li><strong>offset</strong> (<em>float</em>) – Bias of the curvature-based probability map</li>
+<li><strong>I0</strong> (<em>float</em>) – Reference intensity for image intensity prior. Can typically be set using Otsu’s method.</li>
+<li><strong>stdev</strong> (<em>float</em>) – Sensitivity for the image intensity prior. Can typically be set to the standard deviation of the image.</li>
+<li><strong>prob_thresh</strong> (<em>float</em>) – Minimum probability allowed for centroid</li>
+<li><strong>min_dist</strong> (<em>int</em>) – Minimum distance allowed between detected centroids</li>
+<li><strong>chunks</strong> (<em>tuple</em>) – Chunk size to process in parallel. This must match z_arr.chunks if using GPU curvature computations.</li>
+<li><strong>overlap</strong> (<em>int</em>) – Amount of overlap between adjacent chunks</li>
+<li><strong>nb_workers</strong> (<em>int</em>) – Number of parallel processes to use</li>
+<li><strong>prob_output</strong> (<em>Zarr Array</em>) – Output array for intermediate probability map used for centroid detection</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>centers</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>centers</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.detection.intensity_probability">
-<code class="sig-prename descclassname">scout.detection.</code><code class="sig-name descname">intensity_probability</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">I0=None</em>, <em class="sig-param">stdev=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.intensity_probability" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scout.detection.</code><code class="descname">intensity_probability</code><span class="sig-paren">(</span><em>image</em>, <em>I0=None</em>, <em>stdev=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.intensity_probability" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the foreground probability using exponential distribution</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em>) – Input image</p></li>
-<li><p><strong>I0</strong> (<em>float</em><em>, </em><em>optional</em>) – Normalization value. Default, mean of image</p></li>
-<li><p><strong>stdev</strong> (<em>float</em><em>, </em><em>optional</em>) – Width of the transition to foreground. Default, stdev of normalized image</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>ndarray</em>) – Input image</li>
+<li><strong>I0</strong> (<em>float</em><em>, </em><em>optional</em>) – Normalization value. Default, mean of image</li>
+<li><strong>stdev</strong> (<em>float</em><em>, </em><em>optional</em>) – Width of the transition to foreground. Default, stdev of normalized image</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>prob</strong> – Foreground probability map</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>prob</strong> – Foreground probability map</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.detection.nuclei_centers_probability">
-<code class="sig-prename descclassname">scout.detection.</code><code class="sig-name descname">nuclei_centers_probability</code><span class="sig-paren">(</span><em class="sig-param">prob</em>, <em class="sig-param">threshold</em>, <em class="sig-param">min_dist</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.nuclei_centers_probability" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scout.detection.</code><code class="descname">nuclei_centers_probability</code><span class="sig-paren">(</span><em>prob</em>, <em>threshold</em>, <em>min_dist</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.nuclei_centers_probability" title="Permalink to this definition">¶</a></dt>
 <dd><p>Find nuclei centroids with a minimum probability at least <cite>min_dist</cite> apart</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>prob</strong> (<em>ndarray</em>) – Input probability image</p></li>
-<li><p><strong>threshold</strong> (<em>float</em>) – Minimum probability allowed for a centroid</p></li>
-<li><p><strong>min_dist</strong> (<em>int</em>) – Minimum pixel distance allowed between detected centroids</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>prob</strong> (<em>ndarray</em>) – Input probability image</li>
+<li><strong>threshold</strong> (<em>float</em>) – Minimum probability allowed for a centroid</li>
+<li><strong>min_dist</strong> (<em>int</em>) – Minimum pixel distance allowed between detected centroids</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>output</strong> – Coordinates of detected centroids</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong> – Coordinates of detected centroids</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.detection.nucleus_probability">
-<code class="sig-prename descclassname">scout.detection.</code><code class="sig-name descname">nucleus_probability</code><span class="sig-paren">(</span><em class="sig-param">image</em>, <em class="sig-param">sigma</em>, <em class="sig-param">steepness=500</em>, <em class="sig-param">offset=0.0005</em>, <em class="sig-param">I0=None</em>, <em class="sig-param">stdev=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.nucleus_probability" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scout.detection.</code><code class="descname">nucleus_probability</code><span class="sig-paren">(</span><em>image</em>, <em>sigma</em>, <em>steepness=500</em>, <em>offset=0.0005</em>, <em>I0=None</em>, <em>stdev=None</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.detection.nucleus_probability" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the nucleus probability map using logistic regression over curvature eigenvalues</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>image</strong> (<em>ndarray</em>) – 3D image volume of nuclei staining</p></li>
-<li><p><strong>sigma</strong> (<em>int</em><em> or </em><em>tuple</em>) – Amount to blur the image before processing</p></li>
-<li><p><strong>steepness</strong> (<em>float</em>) – Slope of the logistic function. Larger gives sharper transition between nuclei and background</p></li>
-<li><p><strong>offset</strong> (<em>float</em>) – Translation of the logistic function. Larger biases towards more negative curvatures</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>image</strong> (<em>ndarray</em>) – 3D image volume of nuclei staining</li>
+<li><strong>sigma</strong> (<em>int</em><em> or </em><em>tuple</em>) – Amount to blur the image before processing</li>
+<li><strong>steepness</strong> (<em>float</em>) – Slope of the logistic function. Larger gives sharper transition between nuclei and background</li>
+<li><strong>offset</strong> (<em>float</em>) – Translation of the logistic function. Larger biases towards more negative curvatures</li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>prob</strong> – Nuclei probability map</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>prob</strong> – Nuclei probability map</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -319,7 +339,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Chung Lab @ MIT
+        &copy; Copyright 2020, Chung Lab @ MIT
 
     </p>
   </div>

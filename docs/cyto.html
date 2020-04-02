@@ -184,44 +184,52 @@
 <p>These include the following subcommands:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>mesh : compute surface mesh from segmentation</p></li>
-<li><p>profiles : compute profiles along surface normals</p></li>
-<li><p>sample : randomly sample profiles</p></li>
-<li><p>combine : combine cytoarchitecture features from multiple organoids</p></li>
-<li><p>cluster : cluster profiles into cytoarchitecture classes</p></li>
-<li><p>classify : classify profiles into distinct cytoarchitectures</p></li>
-<li><p>name : assign names to cytoarchitectures</p></li>
+<li>mesh : compute surface mesh from segmentation</li>
+<li>profiles : compute profiles along surface normals</li>
+<li>sample : randomly sample profiles</li>
+<li>combine : combine cytoarchitecture features from multiple organoids</li>
+<li>cluster : cluster profiles into cytoarchitecture classes</li>
+<li>classify : classify profiles into distinct cytoarchitectures</li>
+<li>name : assign names to cytoarchitectures</li>
 </ul>
 </div></blockquote>
 <dl class="function">
 <dt id="scout.cyto.write_obj">
-<code class="sig-prename descclassname">scout.cyto.</code><code class="sig-name descname">write_obj</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">verts</em>, <em class="sig-param">faces</em>, <em class="sig-param">normals</em>, <em class="sig-param">values</em>, <em class="sig-param">one=False</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.cyto.write_obj" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scout.cyto.</code><code class="descname">write_obj</code><span class="sig-paren">(</span><em>name</em>, <em>verts</em>, <em>faces</em>, <em>normals</em>, <em>values</em>, <em>one=False</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.cyto.write_obj" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a .obj file for the output of marching cube algorithm.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Ouput file name.</p></li>
-<li><p><strong>verts</strong> (<em>array</em>) – Spatial coordinates for vertices as returned by skimage.measure.marching_cubes_lewiner().</p></li>
-<li><p><strong>faces</strong> (<em>array</em>) – List of faces, referencing indices of verts as returned by skimage.measure.marching_cubes_lewiner().</p></li>
-<li><p><strong>normals</strong> (<em>array</em>) – Normal direction of each vertex as returned by skimage.measure.marching_cubes_lewiner().</p></li>
-<li><p><strong>one</strong> (<em>bool</em>) – Specify if faces values should start at 1 or at 0. Different visualization programs use different conventions.</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) – Ouput file name.</li>
+<li><strong>verts</strong> (<em>array</em>) – Spatial coordinates for vertices as returned by skimage.measure.marching_cubes_lewiner().</li>
+<li><strong>faces</strong> (<em>array</em>) – List of faces, referencing indices of verts as returned by skimage.measure.marching_cubes_lewiner().</li>
+<li><strong>normals</strong> (<em>array</em>) – Normal direction of each vertex as returned by skimage.measure.marching_cubes_lewiner().</li>
+<li><strong>one</strong> (<em>bool</em>) – Specify if faces values should start at 1 or at 0. Different visualization programs use different conventions.</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
 <dt id="scout.cyto.write_point_cloud">
-<code class="sig-prename descclassname">scout.cyto.</code><code class="sig-name descname">write_point_cloud</code><span class="sig-paren">(</span><em class="sig-param">name</em>, <em class="sig-param">verts</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.cyto.write_point_cloud" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scout.cyto.</code><code class="descname">write_point_cloud</code><span class="sig-paren">(</span><em>name</em>, <em>verts</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.cyto.write_point_cloud" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write a .obj file for a point cloud.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>name</strong> (<em>str</em>) – Ouput file name.</p></li>
-<li><p><strong>verts</strong> (<em>array</em>) – Spatial coordinates for vertices as returned by skimage.measure.marching_cubes_lewiner().</p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> (<em>str</em>) – Ouput file name.</li>
+<li><strong>verts</strong> (<em>array</em>) – Spatial coordinates for vertices as returned by skimage.measure.marching_cubes_lewiner().</li>
 </ul>
-</dd>
-</dl>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -246,7 +254,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Chung Lab @ MIT
+        &copy; Copyright 2020, Chung Lab @ MIT
 
     </p>
   </div>

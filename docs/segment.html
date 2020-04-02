@@ -184,31 +184,35 @@
 <p>These include the following subcommands:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>downsample : reduce image size for segmentaion</p></li>
-<li><p>stack : stack a folder of images into a single image</p></li>
-<li><p>ventricle : segment ventricles from downsampled nuclei image</p></li>
-<li><p>foreground : segment organoid foreground</p></li>
-<li><p>smooth : smooth a segmentation</p></li>
+<li>downsample : reduce image size for segmentaion</li>
+<li>stack : stack a folder of images into a single image</li>
+<li>ventricle : segment ventricles from downsampled nuclei image</li>
+<li>foreground : segment organoid foreground</li>
+<li>smooth : smooth a segmentation</li>
 </ul>
 </div></blockquote>
 <dl class="function">
 <dt id="scout.segment.downsample">
-<code class="sig-prename descclassname">scout.segment.</code><code class="sig-name descname">downsample</code><span class="sig-paren">(</span><em class="sig-param">arr</em>, <em class="sig-param">factors</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.segment.downsample" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">scout.segment.</code><code class="descname">downsample</code><span class="sig-paren">(</span><em>arr</em>, <em>factors</em><span class="sig-paren">)</span><a class="headerlink" href="#scout.segment.downsample" title="Permalink to this definition">¶</a></dt>
 <dd><p>Downsample image <cite>arr</cite> by factors in each dimension</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>arr</strong> (<em>Zarr Array</em>) – </p></li>
-<li><p><strong>factors</strong> (<em>tuple</em>) – </p></li>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>arr</strong> (<em>Zarr Array</em>) – </li>
+<li><strong>factors</strong> (<em>tuple</em>) – </li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>output</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>ndarray</p>
-</dd>
-</dl>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first"><strong>output</strong></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">ndarray</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>
@@ -233,7 +237,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2019, Chung Lab @ MIT
+        &copy; Copyright 2020, Chung Lab @ MIT
 
     </p>
   </div>

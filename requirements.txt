@@ -4,6 +4,7 @@ pandas
 scikit-image
 scikit-learn
 tensorflow
+torch
 jupyter
 ipykernel
 joblib
@@ -17,3 +18,4 @@ seaborn
 tifffile
 sphinxcontrib-napoleon
 sphinx-rtd-theme
+MulticoreTSNE

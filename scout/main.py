@@ -20,6 +20,7 @@ The following CLIs are defined:
 import argparse
 import subprocess
 import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3' 
 from scout.preprocess import preprocess_cli, preprocess_main
 from scout.nuclei import nuclei_cli, nuclei_main
 from scout.niche import niche_cli, niche_main

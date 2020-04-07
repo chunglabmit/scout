@@ -95,9 +95,9 @@ Next, combine all sampled profiles with this command:
 
 Perform cytoarchitecture clustering and visualization using Jupyter notebook "**determine cyto clusters.ipynb**".
 
-Next, Send Alex the images to figure out right names for clusters.
+Next, inspect the images to figure out right names for clusters.
 
-Cytoarchitecture clusters naming with help from Alex:
+Cytoarchitecture clusters naming:
 
 .. code-block:: bash
 

@@ -12,7 +12,7 @@ zarr
 matplotlib
 PyWavelets
 tqdm
-umap-learn
+umap-learn==0.3.9
 openpyxl
 seaborn
 tifffile

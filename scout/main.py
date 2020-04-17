@@ -32,14 +32,22 @@ from scout.stats import stats_cli, stats_main
 
 def jupyter_main(args):
     print(f'Starting Jupyter notebook on port {args.port}')
-    scout_path = os.path.dirname(os.path.realpath(__file__))
-    notebooks_path = os.path.join(scout_path, os.pardir, 'notebooks')
-    subprocess.call(['jupyter', 'notebook', '--notebook-dir', notebooks_path, '--port', str(args.port)])
+    # scout_path = os.path.dirname(os.path.realpath(__file__))
+    # notebooks_path = os.path.join(scout_path, os.pardir, 'notebooks')
+    # subprocess.call(['jupyter', 'notebook', '--notebook-dir', notebooks_path, '--port', str(args.port)])
+    # for Docker
+    notebooks_path = '/scout/notebooks'
+    subprocess.call(['jupyter', 'notebook', 
+                     '--notebook-dir', notebooks_path, 
+                     '--ip', args.ip, 
+                     '--port', str(args.port),
+                     '--allow-root'])
 
 
 def jupyter_cli(subparsers):
     jupyter_parser = subparsers.add_parser('jupyter', help="launch pipeline as jupyter notebook",
                                            description="Jupyter notebook version of the analysis pipeline")
+    jupyter_parser.add_argument('--ip', '-i', help="Jupyter IP address", default='localhost', type=str)
     jupyter_parser.add_argument('--port', '-p', help="Jupyter notebook port", default=8888, type=int)
     return jupyter_parser
 

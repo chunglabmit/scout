@@ -6,6 +6,7 @@ RUN apt-get update && \
 
 WORKDIR /scout
 COPY . .
+RUN conda install -y python=3.6
 RUN pip install -r requirements.txt
 RUN pip install .
 RUN wget -P /scout/models/ https://www.dropbox.com/s/thj48g6klrihuw8/unet_weights3_zika.h5

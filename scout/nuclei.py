@@ -251,6 +251,11 @@ def detect_main(args):
     elif args.voxel_size is None and args.output_um is not None:
         raise ValueError('Voxel size must be specified if path to output_um is given')
 
+    if args.n < 0:
+        nb_workers = multiprocessing.cpu_count()
+    else:
+        nb_workers = int(args.n)
+
     # Open nuclei Zarr array
     verbose_print(args, f'Detecting nuclei in {args.input}')
     arr = io.open(args.input, mode='r')
@@ -272,7 +277,7 @@ def detect_main(args):
                                                  min_dist=args.d,
                                                  chunks=tuple(args.c),
                                                  overlap=args.o,
-                                                 nb_workers=1,  # GPU is one worker
+                                                 nb_workers=nb_workers,  # GPU requires one worker
                                                  prob_output=prob_arr)
     nb_centroids = centroids.shape[0]
     verbose_print(args, f'Found {nb_centroids} nuclei centroids')
@@ -310,6 +315,7 @@ def detect_cli(subparsers):
     detect_parser.add_argument('-c', help="Chunk shape to process at a time", type=int, nargs='+', default=3 * (64,))
     detect_parser.add_argument('-m', help="Minimum intensity to skip chunk", type=float, default=0.1)
     detect_parser.add_argument('-o', help="Overlap in pixels between chunks", type=int, default=8)
+    detect_parser.add_argument('-n', help="Number of parallel CPU processes (Must be 1 for GPU).", type=int, default=1)
     detect_parser.add_argument('-v', '--verbose', help="Verbose flag", action='store_true')
 
 

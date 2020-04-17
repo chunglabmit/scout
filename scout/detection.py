@@ -105,7 +105,10 @@ def nucleus_probability(image, sigma, steepness=500, offset=0.0005, I0=None, std
         g = smooth(image, sigma)
     else:
         g = image
-    eigvals = curvature.eigvals_of_weingarten(g)
+    try:
+        eigvals = curvature.eigvals_of_weingarten(g)
+    except AssertionError:
+        eigvals = curvature.eigvals_of_weingarten_numpy(g)
     p_curvature = curvature_probability(eigvals, steepness, offset)
     p_intensity = intensity_probability(g, I0, stdev)
     return p_curvature * p_intensity

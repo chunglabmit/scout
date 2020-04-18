@@ -90,12 +90,12 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Walkthrough with test data</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#docker-setup">Docker setup</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#download-test-data">Download test data</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#preprocess">Preprocess</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#nuclei">Nuclei</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#microenvironment-formerly-called-niche">Microenvironment (formerly called “niche”)</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#segment">Segment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#cytoarchitecture">Cytoarchitecture</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#multiscale-features">Multiscale features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#preprocessing">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nuclei-detection">Nuclei Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#microenvironment-analysis">Microenvironment Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ventricle-segmentation">Ventricle Segmentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cytoarchitecture-analysis">Cytoarchitecture Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#multiscale-analysis">Multiscale Analysis</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="preprocessing.html">Preprocessing</a></li>
@@ -191,14 +191,53 @@
             
   <div class="section" id="walkthrough-with-test-data">
 <h1>Walkthrough with test data<a class="headerlink" href="#walkthrough-with-test-data" title="Permalink to this headline">¶</a></h1>
+<p>The following walkthrough illustrates how to use SCOUT on a small organoid
+dataset using Docker. Docker provides a cross-platform way to run SCOUT with
+minimal setup. The test dataset contains stitched (whole-organoid) syto16, SOX2,
+and TBR1 images from a portion of a d35 cerebral organoid cultured similar to
+the Lancaster protocol (described in the Methods section).</p>
 <div class="section" id="docker-setup">
 <h2>Docker setup<a class="headerlink" href="#docker-setup" title="Permalink to this headline">¶</a></h2>
-<p>Some tips on Docker here</p>
+<p>The easiest way to ensure a similar runtime environment for SCOUT on Windows,
+Mac, and Linux is by using the <code class="code docutils literal notranslate"><span class="pre">chunglabmit/scout</span></code> Docker image hosted on
+<code class="code docutils literal notranslate"><span class="pre">Dockerhub</span></code>. First, you will need to install “Docker Desktop” (which is
+free) by following the platform-specific instructions at
+<a class="reference external" href="https://docs.docker.com/get-docker/">https://docs.docker.com/get-docker/</a></p>
+<p>Once installed, you will need to download the pre-built Docker image for SCOUT.
+Open a terminal and use <code class="code docutils literal notranslate"><span class="pre">docker</span> <span class="pre">pull</span></code> to download it:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker pull jswaney/scout
+</pre></div>
+</div>
+<p>This image may be moved to <code class="code docutils literal notranslate"><span class="pre">chunglabmit/scout</span></code> in the future. Note that
+the <cite>sudo</cite> keyword may not be needed on your platform for Docker commands.</p>
+<p>Docker Desktop on Windows and Mac may restrict the amount of CPU and RAM
+resources that each container can use by default. You can adjust resource
+allocation by accessing the Docker settings through the Docker tray icon. You
+may also need to allow Docker access to other drives (D:, E:, etc) if the
+<code class="code docutils literal notranslate"><span class="pre">scout-data</span></code> directory is placed on a different drive. Lastly, if you want
+to run Jupyter notebooks with the SCOUT Docker image, you may need to follow
+some platform-specific networking setup (port forwarding, routing, etc), which
+you can read more about at
+<a class="reference external" href="https://docs.docker.com/docker-for-windows/networking/">https://docs.docker.com/docker-for-windows/networking/</a> or
+<a class="reference external" href="https://docs.docker.com/docker-for-mac/networking/">https://docs.docker.com/docker-for-mac/networking/</a> for Windows and Mac,
+respectively.</p>
 </div>
 <div class="section" id="download-test-data">
 <h2>Download test data<a class="headerlink" href="#download-test-data" title="Permalink to this headline">¶</a></h2>
-<p>Link to Dropbox here</p>
-<p>Move to the <code class="code docutils literal notranslate"><span class="pre">scout-data/test</span></code> directory:</p>
+<p>After installing the SCOUT Docker image, a small test dataset (~3 GB) can be
+downloaded from Dropbox. The test dataset is distributed as an archive called
+<code class="code docutils literal notranslate"><span class="pre">scout-data.zip</span></code>, which contains two subfolders: <code class="code docutils literal notranslate"><span class="pre">test</span></code> and
+<code class="code docutils literal notranslate"><span class="pre">results</span></code>. The <code class="code docutils literal notranslate"><span class="pre">test</span></code> folder contains all the data needed to start
+the SCOUT analysis from the begining, such as raw stitched images from a
+microscope. The <code class="code docutils literal notranslate"><span class="pre">results</span></code> folder contains all the intermediate results
+expected from completing the following walkthrough. This data is included for
+completeness and verification purposes and is not required to actually run SCOUT
+on newly acquired data.</p>
+<p>First, download the test dataset from
+<a class="reference external" href="https://www.dropbox.com/s/j37p5m7q7qk1mp1/scout-data.zip?dl=0">https://www.dropbox.com/s/j37p5m7q7qk1mp1/scout-data.zip?dl=0</a> and unzip it. Make
+note of the resulting <code class="code docutils literal notranslate"><span class="pre">scout-data/test</span></code> and <code class="code docutils literal notranslate"><span class="pre">scout-data/results</span></code>
+folders.</p>
+<p>Open a terminal and move into the <code class="code docutils literal notranslate"><span class="pre">scout-data/test</span></code> directory:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> scout-data/test
 </pre></div>
 </div>
@@ -206,177 +245,221 @@
 <span class="pre">$(pwd):/scout/data</span></code> argument to <code class="code docutils literal notranslate"><span class="pre">docker</span> <span class="pre">run</span></code> throughout the following
 walkthrough.</p>
 </div>
-<div class="section" id="preprocess">
-<h2>Preprocess<a class="headerlink" href="#preprocess" title="Permalink to this headline">¶</a></h2>
-<p>Calculate histograms for each channel</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout preprocess histogram <span class="se">\</span>
+<div class="section" id="preprocessing">
+<h2>Preprocessing<a class="headerlink" href="#preprocessing" title="Permalink to this headline">¶</a></h2>
+<p>The first step in the SCOUT pipeline is to estimate the overall image histograms
+for each channel.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout preprocess histogram <span class="se">\</span>
     data/dataset/color_0/ data/dataset/color0_hist.csv -s <span class="m">1</span> -v
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout preprocess histogram <span class="se">\</span>
+sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout preprocess histogram <span class="se">\</span>
     data/dataset/color_1/ data/dataset/color1_hist.csv -s <span class="m">1</span> -v
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout preprocess histogram <span class="se">\</span>
+sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout preprocess histogram <span class="se">\</span>
     data/dataset/color_2/ data/dataset/color2_hist.csv -s <span class="m">1</span> -v
 </pre></div>
 </div>
-<p>Rescale images to [0, 1] range</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout preprocess rescale <span class="se">\</span>
+<p>Using these histograms, we can normalize the images to the range [0, 1] and
+apply a background threshold.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout preprocess rescale <span class="se">\</span>
     data/dataset/color_0/ data/dataset/color0_hist.csv data/dataset/color0_rescaled <span class="se">\</span>
     -t <span class="m">120</span> -p <span class="m">99</span>.7 -v
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout preprocess rescale <span class="se">\</span>
+sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout preprocess rescale <span class="se">\</span>
     data/dataset/color_1/ data/dataset/color1_hist.csv data/dataset/color1_rescaled <span class="se">\</span>
     -t <span class="m">100</span> -p <span class="m">99</span>.7 -v
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout preprocess rescale <span class="se">\</span>
+sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout preprocess rescale <span class="se">\</span>
     data/dataset/color_2/ data/dataset/color2_hist.csv data/dataset/color2_rescaled <span class="se">\</span>
     -t <span class="m">100</span> -p <span class="m">99</span>.7 -v
 </pre></div>
 </div>
-<p>Convert 2D TIFFs to 3D Zarr format</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout preprocess convert <span class="se">\</span>
+<p>In order to more easily work with volumetric image data, we the convert the 2D
+TIFF stacks into 3D Zarr arrays. Each Zarr array is a nested folder of chunk
+compressed voxel data. By default, the chunk size is (64, 64, 64).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout preprocess convert <span class="se">\</span>
     data/dataset/color0_rescaled data/dataset/syto.zarr -v
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout preprocess convert <span class="se">\</span>
+sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout preprocess convert <span class="se">\</span>
     data/dataset/color1_rescaled data/dataset/sox2.zarr -v
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout preprocess convert <span class="se">\</span>
+sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout preprocess convert <span class="se">\</span>
     data/dataset/color2_rescaled data/dataset/tbr1.zarr -v
 </pre></div>
 </div>
 </div>
-<div class="section" id="nuclei">
-<h2>Nuclei<a class="headerlink" href="#nuclei" title="Permalink to this headline">¶</a></h2>
-<p>Detect nuclei centroids (Note that this would be much faster if installed from
-source with GPU resources)</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout nuclei detect data/dataset/syto.zarr <span class="se">\</span>
+<div class="section" id="nuclei-detection">
+<h2>Nuclei Detection<a class="headerlink" href="#nuclei-detection" title="Permalink to this headline">¶</a></h2>
+<p>Once we have the syto16.zarr array, we can detect nuclei centroids using
+parallel processing on each image chunk. Note that the current Docker image does
+not support GPU acceleration, and this step would be much faster by installing
+from source on a machine with a GPU.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout nuclei detect data/dataset/syto.zarr <span class="se">\</span>
     data/dataset/nuclei_probability.zarr data/dataset/centroids.npy <span class="se">\</span>
     --voxel-size data/dataset/voxel_size.csv <span class="se">\</span>
     --output-um data/dataset/centroids_um.npy -n <span class="m">2</span> -v
 </pre></div>
 </div>
-<p>Segment individual nuclei segmentation using watershed</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout nuclei segment <span class="se">\</span>
+<p>Given these nuclei centroids, we can perform a seeded watershed segmentation of
+the nuclei probability array to obtain the shape of each detected nucleus. This
+operation is done with some overlap between adjacent chunks to avoid artifacts
+at the boundaries between adjacent chunks in the watershed lines.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout nuclei segment <span class="se">\</span>
     data/dataset/nuclei_probability.zarr data/dataset/centroids.npy <span class="se">\</span>
     data/dataset/nuclei_foreground.zarr data/dataset/nuclei_binary.zarr -n <span class="m">2</span> -v
 </pre></div>
 </div>
-<p>Compute nuclei morphological features</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout nuclei morphology <span class="se">\</span>
+<p>Given this binary nuclei segmentation, we can compute morphological features for
+each nucleus. The resulting morphological features are stored in a CSV.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout nuclei morphology <span class="se">\</span>
     data/dataset/nuclei_binary.zarr data/dataset/centroids.npy <span class="se">\</span>
     data/dataset/nuclei_morphologies.csv -v
 </pre></div>
 </div>
-<p>Sample fluorescence at each nucleus in other channels</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout nuclei fluorescence <span class="se">\</span>
+<p>Finally, we can sample the fluorescence in the other channels (SOX2 and TBR1 in
+this case) at each nucleus centroid.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout nuclei fluorescence <span class="se">\</span>
     data/dataset/centroids.npy data/dataset/nuclei_fluorescence/ <span class="se">\</span>
     data/dataset/sox2.zarr/ data/dataset/tbr1.zarr/ -v
 </pre></div>
 </div>
-<p>Gate fluorescence to get cell populations</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout nuclei gate <span class="se">\</span>
+<p>The resulting mean fluorescence intensities
+(MFIs) are useful for gating cells into different cell types based on protein
+expression.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout nuclei gate <span class="se">\</span>
     data/dataset/nuclei_fluorescence/nuclei_mfis.npy <span class="se">\</span>
     data/dataset/nuclei_gating.npy <span class="m">0</span>.35 <span class="m">0</span>.25 -v
 </pre></div>
 </div>
-<p>Give the names to the gated populations</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout nuclei name <span class="se">\</span>
+<p>In this case, high SOX2 expression is used to identify neural progenitors and
+high TBR1 expression is used to identify post-motitic neurons. Cells that have
+low SOX2 and TBR1 expression are called “double negative” (DN). Cell types can
+be named in order using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout nuclei name <span class="se">\</span>
     sox2 tbr1 dn -o data/dataset/celltype_names.csv -v
 </pre></div>
 </div>
 </div>
-<div class="section" id="microenvironment-formerly-called-niche">
-<h2>Microenvironment (formerly called “niche”)<a class="headerlink" href="#microenvironment-formerly-called-niche" title="Permalink to this headline">¶</a></h2>
-<p>Calculate proximities to each cell type</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout niche proximity <span class="se">\</span>
+<div class="section" id="microenvironment-analysis">
+<h2>Microenvironment Analysis<a class="headerlink" href="#microenvironment-analysis" title="Permalink to this headline">¶</a></h2>
+<p>(Note that this was formerly called <cite>niche</cite> analysis)</p>
+<p>Given nuclei centroids and cell type labels, we can further describe the
+microenvironment around each cell. To do this, we compute the <cite>proximity</cite> to
+each of the non-DN cell types, which is described in the Method section.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout niche proximity <span class="se">\</span>
     data/dataset/centroids_um.npy data/dataset/nuclei_gating.npy <span class="se">\</span>
     data/dataset/niche_proximities.npy -r <span class="m">25</span> <span class="m">25</span> -k <span class="m">2</span> -v
 </pre></div>
 </div>
-<p>Gate proximities into subpopulations</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout niche gate <span class="se">\</span>
+<p>These spatial proximities are attibutes of each cell describing the local
+environment. The next step is to use these proximity values to further gate
+cells into subpopulations based on their spatial context.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout niche gate <span class="se">\</span>
     data/dataset/niche_proximities.npy data/dataset/niche_labels.npy <span class="se">\</span>
     --low <span class="m">0</span>.2 <span class="m">0</span>.2 --high <span class="m">0</span>.66 <span class="m">0</span>.63 -v
 </pre></div>
 </div>
-<p>Give names to gated subpopulations</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout niche name <span class="se">\</span>
+<p>Here, we defined a <cite>low</cite> and high` proximity threshold for SOX2 and TBR1
+separately. This results in 7 subpopulations (3 high, 3 mid, and 1 low), which
+can be named using the following command:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout niche name <span class="se">\</span>
     DN SOX2 TBR1 DP MidTBR1 MidSOX2 MidInter -o data/dataset/niche_names.csv -v
 </pre></div>
 </div>
 </div>
-<div class="section" id="segment">
-<h2>Segment<a class="headerlink" href="#segment" title="Permalink to this headline">¶</a></h2>
-<p>Resize normalized nuclei images to 4 um pixel width and stack them into a single
-3D TIFF</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout segment downsample <span class="se">\</span>
+<div class="section" id="ventricle-segmentation">
+<h2>Ventricle Segmentation<a class="headerlink" href="#ventricle-segmentation" title="Permalink to this headline">¶</a></h2>
+<p>Next, we turn to ventricle segmentation, which is required to calculate radial
+profiles in a cytoarchitecture analysis. The pretrained U-Net model assumes that
+each input image is of nuclear staining at 4 um pixel resoltion. We, therefore,
+resize the normalized nuclei images and stack them into a single 3D TIFF.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout segment downsample <span class="se">\</span>
     data/dataset/color0_rescaled/ data/dataset/syto_down6x <span class="m">6</span> <span class="m">6</span> -v -t
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout segment stack <span class="se">\</span>
+sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout segment stack <span class="se">\</span>
     data/dataset/syto_down6x/ data/dataset/syto_down6x.tif -v
 </pre></div>
 </div>
-<p>Segment ventricles using U-Net</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout segment ventricle <span class="se">\</span>
+<p>This 3D TIFF can be passed to the U-Net model for ventricle segmentation, which
+occurs one 2D slide at a time.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout segment ventricle <span class="se">\</span>
     data/dataset/syto_down6x.tif models/unet_weights3_zika.h5 <span class="se">\</span>
     data/dataset/segment_ventricles.tif -t <span class="m">0</span>.5 -v
 </pre></div>
 </div>
-<p>Segment foreground by thresholding</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout segment foreground <span class="se">\</span>
+<p>We also need a foreground segmentation to determine the overall organoid size
+and shape. A foreground segmentation can be computed by thresholding.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout segment foreground <span class="se">\</span>
     data/dataset/syto_down6x.tif data/dataset/segment_foreground.tif -v -t <span class="m">0</span>.02 -g <span class="m">8</span> <span class="m">4</span> <span class="m">4</span>
 </pre></div>
 </div>
 </div>
-<div class="section" id="cytoarchitecture">
-<h2>Cytoarchitecture<a class="headerlink" href="#cytoarchitecture" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout cyto mesh <span class="se">\</span>
+<div class="section" id="cytoarchitecture-analysis">
+<h2>Cytoarchitecture Analysis<a class="headerlink" href="#cytoarchitecture-analysis" title="Permalink to this headline">¶</a></h2>
+<p>Given the ventricle segmentation, nuclei centroids, and cell types labels,
+radial profiles from each ventricle can be computed. First, the ventricle
+segmentation is turned into a polygon mesh (using the marching cubes algorithm).</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout cyto mesh <span class="se">\</span>
     data/dataset/segment_ventricles.tif data/dataset/voxel_size.csv <span class="se">\</span>
     data/dataset/mesh_ventricles.pkl -d <span class="m">1</span> <span class="m">6</span> <span class="m">6</span> -g <span class="m">2</span> -s <span class="m">3</span> -v
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout cyto profiles <span class="se">\</span>
+</pre></div>
+</div>
+<p>Then, normal vectors from this mesh are used to compute radial profiles for each
+cell type.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout cyto profiles <span class="se">\</span>
     data/dataset/mesh_ventricles.pkl data/dataset/centroids_um.npy <span class="se">\</span>
     data/dataset/nuclei_gating.npy data/dataset/cyto_profiles.npy -v
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout cyto sample <span class="m">5000</span> <span class="se">\</span>
+</pre></div>
+</div>
+<p>Finally, we randomly sample from the large number of radial profiles to be able
+to cluster radial profiles across many organoids. This step isn’t required in
+this case, but we include it for completeness.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout cyto sample <span class="m">5000</span> <span class="se">\</span>
     data/dataset/cyto_sample_index.npy -i data/dataset/cyto_profiles.npy <span class="se">\</span>
     -o data/dataset/cyto_profiles_sample.npy -v
 </pre></div>
 </div>
-<p>Then, compute clusters of cytoarchitectures across all organoids by combining
-sampled profiles and using the <code class="code docutils literal notranslate"><span class="pre">determine</span> <span class="pre">cyto</span> <span class="pre">clusters.ipynb</span></code> notebook. You can
-access and use these notebooks by starting a Jupyter server within the SCOUT
-Docker container:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -it -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data -p <span class="m">8888</span>:8888 chunglabmit/scout jupyter --ip <span class="m">0</span>.0.0.0
+<p>Then, we would compute clusters of cytoarchitectures across all organoids by
+combining sampled profiles and using the <code class="code docutils literal notranslate"><span class="pre">determine</span> <span class="pre">cyto</span> <span class="pre">clusters.ipynb</span></code>
+notebook. You can access and use these notebooks by starting a Jupyter server
+within the SCOUT Docker container:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -it -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> -p <span class="m">8888</span>:8888 chunglabmit/scout jupyter --ip <span class="m">0</span>.0.0.0
 </pre></div>
 </div>
 <p>Note that the positions of the <cite>-p</cite> and <cite>–ip</cite> arguments are important because
 <cite>-p</cite> is for Docker port forwarding and <cite>–ip</cite> is for the Jupyter server. You can
-navigate to <code class="code docutils literal notranslate"><span class="pre">localhost:8888</span></code> in your browser and copy the access token printed
-to the terminal as <code class="code docutils literal notranslate"><span class="pre">/?token={copy-this-text}</span></code>.</p>
+navigate to <code class="code docutils literal notranslate"><span class="pre">localhost:8888</span></code> in your browser and copy the access token
+printed to the terminal as <code class="code docutils literal notranslate"><span class="pre">/?token={copy-this-text}</span></code>.</p>
 <p>For the sake of brevity, we simply provide precomputed profiles, labels, and a
 fit UMAP model from our d35/d60 comparison. With these, we can classify the
 cytoarchitecture of all radial profiles.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout cyto classify <span class="se">\</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout cyto classify <span class="se">\</span>
     data/cyto_profiles_combined.npy data/cyto_labels_combined.npy <span class="se">\</span>
     data/dataset/cyto_profiles.npy data/cyto_labels.npy -v <span class="se">\</span>
     --umap data/model_d35_d60.umap
 </pre></div>
 </div>
-<p>Given names to the cytoarchitecture classes</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout cyto name <span class="se">\</span>
+<p>Note that because the test dataset is not a full 3D dataset, the resulting
+radial profiles and cytoarchitecture labels obtained here may have some
+artifacts due to empty profiles near the top and bottom of the test volume.</p>
+<p>We can provide appropriate names for each cytoarchitecture cluster after
+inspecting each cluster in the <code class="code docutils literal notranslate"><span class="pre">determine</span> <span class="pre">cyto</span> <span class="pre">clusters.ipynb</span></code> notebook.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout cyto name <span class="se">\</span>
 TBR1-LowDN TBR1-HighDN Surface Artifacts DN Adjacent -o data/cyto_names.csv -v
 </pre></div>
 </div>
 </div>
-<div class="section" id="multiscale-features">
-<h2>Multiscale features<a class="headerlink" href="#multiscale-features" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="multiscale-analysis">
+<h2>Multiscale Analysis<a class="headerlink" href="#multiscale-analysis" title="Permalink to this headline">¶</a></h2>
 <p>All of the intermediate results above are used to compute multiscale features
-for each dataset in an analysis</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout multiscale features data/ <span class="se">\</span>
+for each dataset in an analysis. Note that the following command assumes that
+the intermediate results are named as shown in the previous steps.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout multiscale features data/ <span class="se">\</span>
     -d <span class="m">1</span> <span class="m">6</span> <span class="m">6</span> -g <span class="m">2</span> -v
 </pre></div>
 </div>
 <p>This command will create an Excel file called <code class="code docutils literal notranslate"><span class="pre">organoid_features.xlsx</span></code>, which
 can be combined as follows:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Just an example (won&#39;t work without multiple organoid datasets)</span>
-sudo docker run -v <span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span>:/scout/data chunglabmit/scout multiscale combine <span class="se">\</span>
+sudo docker run -v <span class="s2">&quot;</span><span class="k">$(</span><span class="nb">pwd</span><span class="k">)</span><span class="s2">:/scout/data&quot;</span> chunglabmit/scout multiscale combine <span class="se">\</span>
    dataset1/ dataset2/ ... --output combined_features.xlsx -v
 </pre></div>
 </div>
 <p>These combined organoid features are used to run statistical tests in the
-<code class="code docutils literal notranslate"><span class="pre">T-tests</span> <span class="pre">and</span> <span class="pre">volcano</span> <span class="pre">plots.ipynb</span></code> notebook</p>
+<code class="code docutils literal notranslate"><span class="pre">T-tests</span> <span class="pre">and</span> <span class="pre">volcano</span> <span class="pre">plots.ipynb</span></code> notebook.</p>
 </div>
 </div>
 

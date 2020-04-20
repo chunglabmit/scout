@@ -11,7 +11,7 @@ The details behind the development of this package can be found in the following
 
 .. [1]  Alex Albanese*, Justin Swaney*, Dae Hee Yun, Nicholas Evans, Jenna Antonucci-Johnson, Vincent Pham,
         Chloe Delepine, Mriganka Sur, Lee Gehrke, Kwanghun Chung. 3D Imaging and High Content Morphological
-        Analysis of Intact Human Cerebral Organoids. **Nature Methds**, 2020.
+        Analysis of Intact Human Cerebral Organoids. **Nature Methds (under revision)**, 2020.
 
 If you use SCOUT, please be sure to cite this publication in your work.
 

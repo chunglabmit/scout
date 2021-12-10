@@ -78,7 +78,7 @@ completeness and verification purposes and is not required to actually run SCOUT
 on newly acquired data.
 
 First, download the test dataset from
-https://www.dropbox.com/s/j37p5m7q7qk1mp1/scout-data.zip?dl=0 and unzip it. Make
+https://leviathan-chunglab.mit.edu/nature-2020-supplementary/scout-data.zip and unzip it. Make
 note of the resulting :code:`scout-data/test` and :code:`scout-data/results`
 folders.
 

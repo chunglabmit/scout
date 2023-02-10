@@ -22,7 +22,7 @@ import subprocess
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
-from skimage.measure import marching_cubes_lewiner
+from skimage.measure import marching_cubes
 from sklearn.preprocessing import scale
 from sklearn.cluster import KMeans
 from sklearn.neighbors import KNeighborsClassifier
@@ -51,8 +51,8 @@ def smooth_segmentation(seg, sigma=1, scale_factor=1):
     return smooth.astype(np.float32)
 
 
-def marching_cubes(seg, level, spacing, step_size):
-    return marching_cubes_lewiner(seg, level=level, spacing=spacing, step_size=step_size, allow_degenerate=False)
+#def marching_cubes(seg, level, spacing, step_size):
+#    return marching_cubes_lewiner(seg, level=level, spacing=spacing, step_size=step_size, allow_degenerate=False)
 
 
 def save_mesh(path, mesh):

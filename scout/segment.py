@@ -22,7 +22,8 @@ import numpy as np
 from tqdm import tqdm
 from skimage.transform import downscale_local_mean
 from skimage.segmentation import clear_border
-from skimage.util import pad
+#from skimage.util import pad
+from numpy import pad
 from scipy.ndimage.morphology import binary_fill_holes
 import torch
 from scout import io

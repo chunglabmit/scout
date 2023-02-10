@@ -12,8 +12,8 @@ zarr
 matplotlib
 PyWavelets
 tqdm
-umap-learn==0.3.9
-numba==0.48.0
+umap-learn
+numba
 openpyxl
 seaborn
 tifffile
